@@ -1,0 +1,191 @@
+---
+title: "Combine controls groups - Gene"
+author: "Jared J. Homola"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+This analysis asks whether it is appropriate to combine the day 1 and day 29 control groups. This is for the gene-level data.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+## Load packages and data
+library(limma)
+library(edgeR)
+library(Glimma)
+library(gplots)
+library(ggrepel)
+library(RColorBrewer)
+library(gridExtra)
+library(kableExtra)
+library(tidyverse)
+
+## Load data
+cnt.bursa <- read.table("../all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+cnt.ileum <- read.csv("../degnorm_08272020_162816/adjusted_read_counts.csv") %>% as_tibble(rownames = NA)
+covars <- read_delim("../MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
+annot <- read.delim("../annotationGenes52820.txt", header = TRUE, sep = "\t")
+```
+
+
+### Clean data
+Change count data to include only the Ensembl ID as the gene/transcript name and to add a leading zero to sample names 1-9.
+```{r, warning = FALSE, message = FALSE}
+### Align gene names and create overall data frame
+cnt.bursa2 <- cnt.bursa %>% rownames_to_column("gene") %>% separate(gene, c("ENSAPL", "geneName")) %>% mutate(geneName = coalesce(geneName, ENSAPL))
+
+cnt <- cnt.bursa2 %>%
+  rownames_to_column("id") %>%
+  separate(id, into = c("id", NA, NA)) %>%
+  column_to_rownames("id") %>% 
+  rename(RSEM.01_bursa_AACCAG_L001.genes.results = RSEM.1_bursa_AACCAG_L001.genes.results,
+         RSEM.02_bursa_TGGTGA_L001.genes.results = RSEM.2_bursa_TGGTGA_L001.genes.results,
+         RSEM.03_bursa_AGTGAG_L001.genes.results = RSEM.3_bursa_AGTGAG_L001.genes.results,
+         RSEM.04_bursa_GCACTA_L001.genes.results = RSEM.4_bursa_GCACTA_L001.genes.results,
+         RSEM.05_bursa_ACCTCA_L001.genes.results = RSEM.5_bursa_ACCTCA_L001.genes.results,
+         RSEM.06_bursa_GTGCTT_L001.genes.results = RSEM.6_bursa_GTGCTT_L001.genes.results,
+         RSEM.07_bursa_AAGCCT_L001.genes.results = RSEM.7_bursa_AAGCCT_L001.genes.results,
+         RSEM.08_bursa_GTCGTA_L001.genes.results = RSEM.8_bursa_GTCGTA_L001.genes.results,
+         RSEM.09_bursa_AAGAGG_L001.genes.results = RSEM.9_bursa_AAGAGG_L001.genes.results)
+
+cnt <- cnt[,order(colnames(cnt))]
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>% 
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>% 
+  mutate(group = str_remove(group, "-"))
+```
+
+### Set up model effects
+```{r, warning = FALSE, message = FALSE}
+bird <- as.factor(covars$bird)
+sex <- as.factor(covars$sex)
+age <- as.numeric(covars$age)
+weight <- covars$wt_55
+group <- as.factor(covars$group)
+pool <- as.factor(covars$Bursa_pool)
+
+covars.tib <- data.frame(bird,
+                    sex,
+                    age,
+                    weight,
+                    group,
+                    pool) %>% 
+  as_tibble()
+```
+
+### Prep data for analysis
+Here we standardize expression levels across samples of varying depth by using the counts per million (CPM) and trimmed mean of M-values (TMM) methods. We also remove any genes that are expressed at few than 0.5 CPM in at least 25% of individuals.
+```{r, warning = FALSE, message = FALSE}
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+
+#TMM normalization
+dge <- calcNormFactors(dge, method = "TMM")
+
+### Divide out controls
+dge$samples$group <- covars.tib$group
+dge.ctl <- dge[,grep('\\bC1\\b|\\bC29\\b', dge$samples$group)]
+covars.ctl <- covars.tib %>% filter(group %in% c("C1", "C29")) %>% droplevels()
+```
+
+### Plot MDS
+Multidimensional scaling (MDS) plots are an ordination technique that lets us examine sample clustering based on overall gene expression levels.
+```{r}
+# Subset bursa and ileum controls
+lcpm.ctl.C1 <- lcpm[,"C1" == covars$group]
+lcpm.ctl.C29 <- lcpm[,"C29" == covars$group]
+lcpm.ctl <- cbind(lcpm.ctl.C1, lcpm.ctl.C29)
+
+labels.MDS <- colnames(lcpm.ctl) %>% 
+  substr(., 6,7) %>% 
+  as_tibble() %>% 
+  mutate(group = c(rep("C1", 5), rep("C29", 5))) %>% 
+  unite("label", value:group, sep = "_", remove = FALSE)
+
+col.group = as.numeric(as.factor(labels.MDS$group))
+plotMDS(lcpm.ctl, labels = labels.MDS$label, col = col.group, cex = 0.75)
+title(main="Control comparison - Bursa")
+
+col.group = as.numeric(as.factor(labels.MDS$group))
+plotMDS(lcpm.ctl, labels = labels.MDS$label, col = col.group, cex = 0.75)
+title(main="Control comparison - Ileum")
+```
+
+# Differential expression analysis
+### Establish design & contrast matrices
+```{r}
+## Bursa
+design.bursa = model.matrix(~ 0 +
+                        covars.bursa.ctl$group +
+                        covars.bursa.ctl$age +
+                        covars.bursa.ctl$sex + 
+                        covars.bursa.ctl$weight + 
+                        covars.bursa.ctl$pool.bursa)
+
+colnames(design.bursa) <- c("C1", "C14", "age", "sexM",
+                         "weight", "pool2")
+
+contr.matrix.bursa = makeContrasts(
+  C1vC14 = C1 - C14,
+  levels = colnames(design.bursa))
+
+v.bursa <- voomWithQualityWeights(dge.bursa.ctl, design.bursa)
+
+vfit.bursa <- lmFit(v.bursa, design.bursa) 
+vfit.bursa <- contrasts.fit(vfit.bursa, contrasts = contr.matrix.bursa)
+tfit.bursa <- treat(vfit.bursa, lfc = 1.0)
+
+## Ileum
+design.ileum = model.matrix(~ 0 +
+                        covars.ileum.ctl$group +
+                        covars.ileum.ctl$age +
+                        covars.ileum.ctl$sex + 
+                        covars.ileum.ctl$weight + 
+                        covars.ileum.ctl$pool.ileum)
+
+colnames(design.ileum) <- c("C1", "C14", "age", "sexM",
+                         "weight", "pool2")
+
+contr.matrix.ileum = makeContrasts(
+  C1vC14 = C1 - C14,
+  levels = colnames(design.ileum))
+
+v.ileum <- voomWithQualityWeights(dge.ileum.ctl, design.ileum)
+
+vfit.ileum <- lmFit(v.ileum, design.ileum) 
+vfit.ileum <- contrasts.fit(vfit.ileum, contrasts = contr.matrix.ileum)
+tfit.ileum <- treat(vfit.ileum, lfc = 1.0)
+```
+
+### Count DE genes
+For a gene to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log fold count difference of 1.
+```{r}
+dt.bursa <- decideTests(tfit.bursa, p.value = 0.1, adjust.method = "fdr")
+summary(dt.bursa) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+
+dt.ileum <- decideTests(tfit.ileum, p.value = 0.1, adjust.method = "fdr")
+summary(dt.ileum) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+```
