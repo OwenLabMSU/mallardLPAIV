@@ -23,58 +23,122 @@ library(kableExtra)
 library(tidyverse)
 
 ## Load data
-cnt.bursa <- read.table("../all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
-cnt.ileum <- read.csv("../degnorm_08272020_162816/adjusted_read_counts.csv") %>% as_tibble(rownames = NA)
-covars <- read_delim("../MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read.delim("../annotationGenes52820.txt", header = TRUE, sep = "\t")
+cnt.bursa <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+cnt.ileum <- read.csv("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/adjusted_read_counts.csv", header = TRUE) %>%
+  as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
+annot.bursa <- read.delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenes102320.txt", header = TRUE, sep = "\t")
+annot.ileum <- cnt.ileum$gene
 ```
 
 
-### Clean data
-Change count data to include only the Ensembl ID as the gene/transcript name and to add a leading zero to sample names 1-9.
+### Clean up data
 ```{r, warning = FALSE, message = FALSE}
-### Align gene names and create overall data frame
-cnt.bursa2 <- cnt.bursa %>% rownames_to_column("gene") %>% separate(gene, c("ENSAPL", "geneName")) %>% mutate(geneName = coalesce(geneName, ENSAPL))
+### Bursa
+newNames.bursa <- names(cnt.bursa) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
 
-cnt <- cnt.bursa2 %>%
-  rownames_to_column("id") %>%
-  separate(id, into = c("id", NA, NA)) %>%
-  column_to_rownames("id") %>% 
-  rename(RSEM.01_bursa_AACCAG_L001.genes.results = RSEM.1_bursa_AACCAG_L001.genes.results,
-         RSEM.02_bursa_TGGTGA_L001.genes.results = RSEM.2_bursa_TGGTGA_L001.genes.results,
-         RSEM.03_bursa_AGTGAG_L001.genes.results = RSEM.3_bursa_AGTGAG_L001.genes.results,
-         RSEM.04_bursa_GCACTA_L001.genes.results = RSEM.4_bursa_GCACTA_L001.genes.results,
-         RSEM.05_bursa_ACCTCA_L001.genes.results = RSEM.5_bursa_ACCTCA_L001.genes.results,
-         RSEM.06_bursa_GTGCTT_L001.genes.results = RSEM.6_bursa_GTGCTT_L001.genes.results,
-         RSEM.07_bursa_AAGCCT_L001.genes.results = RSEM.7_bursa_AAGCCT_L001.genes.results,
-         RSEM.08_bursa_GTCGTA_L001.genes.results = RSEM.8_bursa_GTCGTA_L001.genes.results,
-         RSEM.09_bursa_AAGAGG_L001.genes.results = RSEM.9_bursa_AAGAGG_L001.genes.results)
+colnames(cnt.bursa) <- newNames.bursa$newName
 
-cnt <- cnt[,order(colnames(cnt))]
+rownames.bursa <- annot.bursa %>%
+  mutate(rowname = ifelse(hgnc_symbol == "", ensembl_gene_id, hgnc_symbol)) %>%
+  add_count(rowname) %>%
+  mutate(rowname = ifelse(n < 2, rowname, paste0(rowname, "_", row_number())))
 
+cnt.bursa.tib <- cnt.bursa[,order(colnames(cnt.bursa))] %>%
+  mutate(gene = rownames.bursa$rowname) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+
+### Ileum
+cnt.ileum.tib <- cnt.ileum %>%
+  as_tibble() %>%
+  select(-chr, -gene)
+
+newNames.ileum <- names(cnt.ileum.tib) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
+
+colnames(cnt.ileum.tib) <- newNames.ileum$newName
+
+cnt.ileum.tib <- cnt.ileum.tib[,order(colnames(cnt.ileum.tib))] %>%
+  mutate(gene = cnt.ileum$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+### Covars
 covars <- covars %>%
   mutate(bird = as.numeric(bird)) %>%
-  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>% 
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
   arrange(bird) %>%
-  mutate(bird = as.factor(bird)) %>% 
+  mutate(bird = as.factor(bird)) %>%
   mutate(group = str_remove(group, "-"))
+
+covars.ileum <- covars %>%
+  filter(bird %in% newNames.ileum$bird)
 ```
+
+### Remove birds as needed
+```{r, warning = FALSE, message = FALSE}
+cnt.bursa.tib <- cnt.bursa.tib %>% select(-bursa_01,
+                                          -bursa_72)
+cnt.ileum.tib <- cnt.ileum.tib %>% select(-ileum_01,
+                                          -ileum_72)
+
+covars <- covars %>% filter(bird != "01",
+                            bird != "72")
+
+covars.ileum <- covars.ileum %>% filter(bird != "01",
+                                        bird != "72")
+```
+
 
 ### Set up model effects
 ```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars$bird)
-sex <- as.factor(covars$sex)
-age <- as.numeric(covars$age)
-weight <- covars$wt_55
-group <- as.factor(covars$group)
-pool <- as.factor(covars$Bursa_pool)
+### Bursa
+bird.bursa <- as.factor(covars$bird)
+sex.bursa <- as.factor(covars$sex)
+age.bursa <- as.numeric(covars$age)
+weight.bursa <- covars$wt_55
+group.bursa <- as.factor(covars$group)
+pool.bursa <- as.factor(covars$Bursa_pool)
 
-covars.tib <- data.frame(bird,
-                    sex,
-                    age,
-                    weight,
-                    group,
-                    pool) %>% 
+covars.tib.bursa <- data.frame(bird.bursa,
+                    sex.bursa,
+                    age.bursa,
+                    weight.bursa,
+                    group.bursa,
+                    pool.bursa) %>% 
+  as_tibble()
+
+
+### Ileum
+bird.ileum <- as.factor(covars.ileum$bird)
+sex.ileum <- as.factor(covars.ileum$sex)
+age.ileum <- as.numeric(covars.ileum$age)
+weight.ileum <- covars.ileum$wt_55
+group.ileum <- as.factor(covars.ileum$group)
+pool.ileum <- as.factor(covars.ileum$Ileum_pool)
+
+covars.tib.ileum <- data.frame(bird.ileum,
+                    sex.ileum,
+                    age.ileum,
+                    weight.ileum,
+                    group.ileum,
+                    pool.ileum) %>% 
   as_tibble()
 ```
 
@@ -82,51 +146,71 @@ covars.tib <- data.frame(bird,
 Here we standardize expression levels across samples of varying depth by using the counts per million (CPM) and trimmed mean of M-values (TMM) methods. We also remove any genes that are expressed at few than 0.5 CPM in at least 25% of individuals.
 ```{r, warning = FALSE, message = FALSE}
 #Convert to DGEList object
-dge <- DGEList(counts=cnt)
-dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
+dge.bursa <- DGEList(counts=cnt.bursa.tib)
 
 #CPM and log-CPM
-cpm <- cpm(dge)
-lcpm <- cpm(dge, log = TRUE)
+cpm.bursa <- cpm(dge.bursa)
+lcpm.bursa <- cpm(dge.bursa, log = TRUE)
 
 #### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
-table(rowSums(dge$counts==0) == length(cnt[1,]))
-keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
-sum(keep.exprs)
+table(rowSums(dge.bursa$counts == 0) == length(cnt.bursa.tib[1,]))
+keep.exprs.bursa <- rowSums(cpm.bursa > 0.5) >= length(cnt.bursa.tib[1,])/4
+sum(keep.exprs.bursa)
 
-dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
-table(rowSums(dge$counts==0) == length(cnt[1,]))
-dim(dge)
+dge.bursa <- dge.bursa[keep.exprs.bursa,, keep.lib.sizes=FALSE]
+table(rowSums(dge.bursa$counts==0) == length(cnt.bursa.tib[1,]))
+dim(dge.bursa)
 
 #TMM normalization
-dge <- calcNormFactors(dge, method = "TMM")
+dge.bursa <- calcNormFactors(dge.bursa, method = "TMM")
 
-### Divide out controls
-dge$samples$group <- covars.tib$group
-dge.ctl <- dge[,grep('\\bC1\\b|\\bC29\\b', dge$samples$group)]
-covars.ctl <- covars.tib %>% filter(group %in% c("C1", "C29")) %>% droplevels()
+
+#Convert to DGEList object
+dge.ileum <- DGEList(counts=cnt.ileum.tib)
+
+#CPM and log-CPM
+cpm.ileum <- cpm(dge.ileum)
+lcpm.ileum <- cpm(dge.ileum, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge.ileum$counts == 0) == length(cnt.ileum.tib[1,]))
+keep.exprs.ileum <- rowSums(cpm.ileum > 0.5) >= length(cnt.ileum.tib[1,])/4
+sum(keep.exprs.ileum)
+
+dge.ileum <- dge.ileum[keep.exprs.ileum,, keep.lib.sizes=FALSE]
+table(rowSums(dge.ileum$counts==0) == length(cnt.ileum.tib[1,]))
+dim(dge.ileum)
+
+#TMM normalization
+dge.ileum <- calcNormFactors(dge.ileum, method = "TMM")
 ```
 
 ### Plot MDS
 Multidimensional scaling (MDS) plots are an ordination technique that lets us examine sample clustering based on overall gene expression levels.
 ```{r}
 # Subset bursa and ileum controls
-lcpm.ctl.C1 <- lcpm[,"C1" == covars$group]
-lcpm.ctl.C29 <- lcpm[,"C29" == covars$group]
-lcpm.ctl <- cbind(lcpm.ctl.C1, lcpm.ctl.C29)
+lcpm.ctl.C1.bursa <- lcpm.bursa[,"C1" == covars$group]
+lcpm.ctl.C29.bursa <- lcpm.bursa[,"C29" == covars$group]
+lcpm.ctl.bursa <- cbind(lcpm.ctl.C1.bursa, lcpm.ctl.C29.bursa)
 
-labels.MDS <- colnames(lcpm.ctl) %>% 
-  substr(., 6,7) %>% 
-  as_tibble() %>% 
-  mutate(group = c(rep("C1", 5), rep("C29", 5))) %>% 
-  unite("label", value:group, sep = "_", remove = FALSE)
+lcpm.ctl.C1.ileum <- lcpm.ileum[,"C1" == covars.ileum$group]
+lcpm.ctl.C29.ileum <- lcpm.ileum[,"C29" == covars.ileum$group]
+lcpm.ctl.ileum <- cbind(lcpm.ctl.C1.ileum, lcpm.ctl.C29.ileum)
 
-col.group = as.numeric(as.factor(labels.MDS$group))
-plotMDS(lcpm.ctl, labels = labels.MDS$label, col = col.group, cex = 0.75)
+labels.MDS.bursa <- covars %>% 
+  filter(bird %in% as.numeric(substr(colnames(lcpm.ctl.bursa), 7,8))) %>% 
+  unite("label", bird:group, remove = FALSE)
+
+labels.MDS.ileum <- covars.ileum %>% 
+  filter(bird %in% as.numeric(substr(colnames(lcpm.ctl.ileum), 7,8))) %>% 
+  unite("label", bird:group, remove = FALSE)
+
+col.group = as.numeric(as.factor(labels.MDS.bursa$group))
+plotMDS(lcpm.ctl.bursa, labels = labels.MDS.bursa$label, col = col.group, cex = 0.75)
 title(main="Control comparison - Bursa")
 
-col.group = as.numeric(as.factor(labels.MDS$group))
-plotMDS(lcpm.ctl, labels = labels.MDS$label, col = col.group, cex = 0.75)
+col.group = as.numeric(as.factor(labels.MDS.ileum$group))
+plotMDS(lcpm.ctl.ileum, labels = labels.MDS.ileum$label, col = col.group, cex = 0.75)
 title(main="Control comparison - Ileum")
 ```
 

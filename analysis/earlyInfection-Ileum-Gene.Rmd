@@ -1,15 +1,14 @@
 ---
-title: "Treatment Groups - Bursa - Gene"
+title: "Early Infection - Ileum - Gene"
 author: "Jared J. Homola"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
-This is an analysis of differential expression at the gene level between treatment groups for control and infected mallard bursa samples.
+This is an analysis of differential expression at the gene level between supershedder groupings based on shedding rates measured on the day of sacrifice for infected mallard ileum samples.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
 ```{r message=FALSE, warning=FALSE}
 ## Load packages and data
 library(limma)
@@ -20,51 +19,66 @@ library(ggrepel)
 library(RColorBrewer)
 library(gridExtra)
 library(kableExtra)
-library(topGO)
+library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
-cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
 covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read.delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenes52820.txt", header = TRUE, sep = "\t")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenesIleum110120.txt", delim = "\t")
 ```
 
 
-### Clean data
+### Prep data for analysis
 ```{r, warning = FALSE, message = FALSE}
-cnt <- cnt %>%
-  rownames_to_column("id") %>%
-  separate(id, into = c("id", NA, NA)) %>%
-  column_to_rownames("id") %>% 
-  rename(RSEM.01_bursa_AACCAG_L001.genes.results = RSEM.1_bursa_AACCAG_L001.genes.results,
-         RSEM.02_bursa_TGGTGA_L001.genes.results = RSEM.2_bursa_TGGTGA_L001.genes.results,
-         RSEM.03_bursa_AGTGAG_L001.genes.results = RSEM.3_bursa_AGTGAG_L001.genes.results,
-         RSEM.04_bursa_GCACTA_L001.genes.results = RSEM.4_bursa_GCACTA_L001.genes.results,
-         RSEM.05_bursa_ACCTCA_L001.genes.results = RSEM.5_bursa_ACCTCA_L001.genes.results,
-         RSEM.06_bursa_GTGCTT_L001.genes.results = RSEM.6_bursa_GTGCTT_L001.genes.results,
-         RSEM.07_bursa_AAGCCT_L001.genes.results = RSEM.7_bursa_AAGCCT_L001.genes.results,
-         RSEM.08_bursa_GTCGTA_L001.genes.results = RSEM.8_bursa_GTCGTA_L001.genes.results,
-         RSEM.09_bursa_AAGAGG_L001.genes.results = RSEM.9_bursa_AAGAGG_L001.genes.results)
+cnt <- cnt1 %>%
+  as_tibble() %>%
+  select(-gene)
 
-cnt <- cnt[,order(colnames(cnt))]
+newNames.ileum <- names(cnt) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
 
+colnames(cnt) <- newNames.ileum$newName
+
+cnt <- cnt[,order(colnames(cnt))] %>%
+  mutate(gene = cnt1$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+### Covars
 covars <- covars %>%
   mutate(bird = as.numeric(bird)) %>%
-  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>% 
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
   arrange(bird) %>%
-  mutate(bird = as.factor(bird)) %>% 
+  mutate(bird = as.factor(bird)) %>%
   mutate(group = str_remove(group, "-"))
+
+covars.ileum <- covars %>%
+  filter(bird %in% newNames.ileum$bird)
+
+cnt <- cnt %>% select(-ileum_01, -ileum_72)
+
+covars.ileum <- covars.ileum %>% filter(bird != "01",
+                                        bird != "72")
 ```
 
 ### Set up model effects
 ```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars$bird)
-sex <- as.factor(covars$sex)
-age <- as.numeric(covars$age)
-weight <- covars$wt_55
-group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+bird <- as.factor(covars.ileum$bird)
+sex <- as.factor(covars.ileum$sex)
+age <- as.numeric(covars.ileum$age)
+weight <- covars.ileum$wt_55
+group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
-pool <- as.factor(covars$Bursa_pool)
+pool <- as.factor(covars.ileum$Ileum_pool)
 ```
 
 ### Prep data for analysis
@@ -72,7 +86,7 @@ Here we standardize expression levels across samples of varying depth by using t
 ```{r, warning = FALSE, message = FALSE}
 #Convert to DGEList object
 dge <- DGEList(counts=cnt)
-dge$genes <- annot
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
 
 #CPM and log-CPM
 cpm <- cpm(dge)
@@ -91,44 +105,114 @@ dim(dge)
 dge <- calcNormFactors(dge, method = "TMM")
 ```
 
-### Plot MDS
-Multidimensional scaling (MDS) plots are an ordination technique that lets us examine sample clustering based on overall gene expression levels.
-```{r}
-col.group = as.numeric(as.factor(paste0(group)))
-plotMDS(lcpm, labels = paste0(bird, "_", group), col = col.group, cex = 0.75)
-title(main="Treatment group")
+### Subset data
+Following normalization, we subset the data based on infection groups.
+```{r, warning = FALSE, message = FALSE}
+#Assign groups in DGElist
+dge$samples$group <- group
+
+### Divide out I1 and I3
+dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
+dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
+
+covars.I1 <- covars %>% filter(group == "I1")
+covars.I2 <- covars %>% filter(group == "I2")
 ```
+
 
 # Differential expression analysis
 ### Establish design & contrast matrices
 ```{r}
-## Establish design matrix
-design = model.matrix(~ 0 +
-                        group +
-                        age +
-                        sex + 
-                        weight + 
-                        pool)
+## Establish design matrix: I1
+design.I1 = model.matrix(~ 0 +
+                        factor(covars.I1$SSgroup.virus.sac) +
+                        covars.I1$age +
+                        covars.I1$sex + 
+                        covars.I1$wt_55 + 
+                        covars.I1$Bursa_pool)
 
-colnames(design) <- gsub("group", "", colnames(design))
+colnames(design.I1) <- c("HIGH", "LOW", "MODERATE",
+                         "age", "sexM", "weight", "poolMSU2",
+                         "poolMSU3", "poolMSU4", "poolMSU5")
 
-contr.matrix = makeContrasts(
-  CtlvI1 = Ctl - I1,
-  CtlvI2 = Ctl - I2,
-  CtlvI5 = Ctl - I5,
-  CtlvI15 = Ctl - I15,
-  CtlvI29 = Ctl - I29,
-  I1vI2 = I1 - I2,
-  I1vI5 = I1 - I5,
-  I1vI15 = I1 - I15,
-  I1vI29 = I1 - I29,
-  I2vI5 = I2 - I5,
-  I2vI15 = I2 - I15,
-  I2vI29 = I2 - I29,
-  I5vI15 = I5 - I15,
-  I5vI29 = I5 - I29,
-  I15vI29 = I15 - I29,
-  levels = colnames(design))
+
+contr.matrix.I1 = makeContrasts(
+  LvM = LOW - MODERATE,
+  MvH = MODERATE - HIGH,
+  LvH = LOW - HIGH,
+  levels = colnames(design.I1))
+
+## Mean-variance trend plots
+v.I1 <- voomWithQualityWeights(dge.I1, design.I1, plot = FALSE)
+
+#Fitting models
+vfit.I1 <- lmFit(v.I1, design.I1) 
+vfit.I1 <- contrasts.fit(vfit.I1, contrasts = contr.matrix.I1)
+tfit.I1 <- treat(vfit.I1, lfc = 1.0)
+
+## Identify DE genes
+dt.I1 <- decideTests(tfit.I1, p.value = 0.1, adjust.method = "fdr")
+dt.tib.I1 <- as_tibble(dt.I1, rownames = NA) %>% 
+  rownames_to_column("gene") %>% 
+  mutate_at(vars(starts_with("L")), as.numeric) %>% 
+  mutate_at(vars(starts_with("M")), as.numeric) %>% 
+  rename(LvM.I1 = LvM,
+         MvH.I1 = MvH,
+         LvH.I1 = LvH)
+
+
+## Establish design matrix: I2
+design.I2 = model.matrix(
+  ~ 0 +
+    factor(covars.I2$SSgroup.virus.sac) +
+    covars.I2$age +
+    covars.I2$sex +
+    covars.I2$wt_55 #+
+    #covars.I2$Bursa_pool
+)
+
+colnames(design.I2) <- c(
+  "HIGH",
+  "LOW",
+  "MODERATE",
+  "age",
+  "sexM",
+  "weight"#,
+  #"poolMSU2",
+  #"poolMSU3",
+  #"poolMSU4",
+  #"poolMSU5"
+)
+
+contr.matrix.I2 = makeContrasts(
+  LvM = LOW - MODERATE,
+  MvH = MODERATE - HIGH,
+  LvH = LOW - HIGH,
+  levels = colnames(design.I2))
+
+## Mean-variance trend plots
+v.I2 <- voomWithQualityWeights(dge.I2, design.I2, plot = FALSE)
+
+#Fitting models
+vfit.I2 <- lmFit(v.I2, design.I2) 
+vfit.I2 <- contrasts.fit(vfit.I2, contrasts = contr.matrix.I2)
+tfit.I2 <- treat(vfit.I2, lfc = 1.0)
+
+## Identify DE genes
+dt.I2 <- decideTests(tfit.I2, p.value = 0.1, adjust.method = "fdr")
+dt.tib.I2 <- as_tibble(dt.I2, rownames = NA) %>% 
+  rownames_to_column("gene") %>% 
+  mutate_at(vars(starts_with("L")), as.numeric) %>% 
+  mutate_at(vars(starts_with("M")), as.numeric) %>% 
+  rename(LvM.I2 = LvM,
+         MvH.I2 = MvH,
+         LvH.I2 = LvH)
+
+## Bring it all together
+dt.tib <- left_join(dt.tib.I1, dt.tib.I2) %>% 
+  mutate_at(vars(starts_with("L")), as.numeric) %>% 
+  mutate_at(vars(starts_with("M")), as.numeric) %>% 
+  filter_at(vars(LvM.I1:LvH.I2), any_vars(. != 0))
 ```
 
 ### Mean-variance trend and sample weight plots

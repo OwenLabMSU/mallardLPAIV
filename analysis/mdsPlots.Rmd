@@ -24,12 +24,11 @@ library(ggrepel)
 library(tidyverse)
 
 ## Load data
-cnt.bursa <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.genes.results.csv", header = TRUE) %>%
-  as_tibble(rownames = NA)
-cnt.ileum <- read.csv("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/degnorm_08272020_162816/adjusted_read_counts.csv", header = TRUE) %>%
+cnt.bursa <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+cnt.ileum <- read.csv("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/adjusted_read_counts.csv", header = TRUE) %>%
   as_tibble(rownames = NA)
 covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot.bursa <- read.delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenes52820.txt", header = TRUE, sep = "\t")
+annot.bursa <- read.delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenes102320.txt", header = TRUE, sep = "\t")
 annot.ileum <- cnt.ileum$gene
 ```
 
@@ -64,12 +63,12 @@ cnt.ileum.tib <- cnt.ileum %>%
   select(-chr, -gene)
 
 newNames.ileum <- names(cnt.ileum.tib) %>%
-  as.tibble() %>%
-  separate(value, into = c("pt1", "pt2", "pt3", "pt4")) %>%
-  select(pt2, pt3) %>%
-  mutate(pt2 = na_if(pt2, "ileum"),
-         pt3 = na_if(pt3, "ileum")) %>%
-  mutate(bird = ifelse(is.na(pt2), pt3, pt2)) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
   mutate(bird = as.numeric(bird),
     bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
   mutate(newName = paste0("ileum_", bird))
@@ -91,6 +90,20 @@ covars <- covars %>%
 
 covars.ileum <- covars %>%
   filter(bird %in% newNames.ileum$bird)
+```
+
+### Remove birds as needed
+```{r, warning = FALSE, message = FALSE}
+cnt.bursa.tib <- cnt.bursa.tib %>% select(-bursa_01,
+                                          -bursa_72)
+cnt.ileum.tib <- cnt.ileum.tib %>% select(-ileum_01,
+                                          -ileum_72)
+
+covars <- covars %>% filter(bird != "01",
+                            bird != "72")
+
+covars.ileum <- covars.ileum %>% filter(bird != "01",
+                                        bird != "72")
 ```
 
 ### Prep data for analysis
@@ -196,7 +209,7 @@ The original description of this method of multivariate outlier detection is giv
 ```{r, warning = FALSE, message = FALSE}
 ### How many axes to retain?
 pca.bursa <- prcomp(lcpm.bursa, scale. = TRUE)
-varExplained.bursa <- data.frame(PC= paste0("PC",1:70),
+varExplained.bursa <- data.frame(PC= paste0("PC",1:68),
                                var_explained=(pca.bursa$sdev)^2/sum((pca.bursa$sdev)^2)) %>%
   slice(1:5)
 

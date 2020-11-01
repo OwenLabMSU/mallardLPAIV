@@ -1,10 +1,10 @@
 ---
-title: "Early Infection - Bursa - Gene"
+title: "Infected and Control - Bursa - Gene"
 author: "Jared J. Homola"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
-This is an analysis of differential expression at the gene level between supershedder groupings based on shedding rates measured on the day of sacrifice for infected mallard bursa samples.
+This is an analysis of differential expression at the gene level between treatment groups for control and infected mallard bursa samples.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -93,114 +93,44 @@ dim(dge)
 dge <- calcNormFactors(dge, method = "TMM")
 ```
 
-### Subset data
-Following normalization, we subset the data based on infection groups.
-```{r, warning = FALSE, message = FALSE}
-#Assign groups in DGElist
-dge$samples$group <- group
-
-### Divide out I1 and I3
-dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
-dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
-
-covars.I1 <- covars %>% filter(group == "I1")
-covars.I2 <- covars %>% filter(group == "I2")
+### Plot MDS
+Multidimensional scaling (MDS) plots are an ordination technique that lets us examine sample clustering based on overall gene expression levels.
+```{r}
+col.group = as.numeric(as.factor(paste0(group)))
+plotMDS(lcpm, labels = paste0(bird, "_", group), col = col.group, cex = 0.75)
+title(main="Treatment group")
 ```
-
 
 # Differential expression analysis
 ### Establish design & contrast matrices
 ```{r}
-## Establish design matrix: I1
-design.I1 = model.matrix(~ 0 +
-                        factor(covars.I1$SSgroup.virus.sac) +
-                        covars.I1$age +
-                        covars.I1$sex + 
-                        covars.I1$wt_55 + 
-                        covars.I1$Bursa_pool)
+## Establish design matrix
+design = model.matrix(~ 0 +
+                        group +
+                        age +
+                        sex + 
+                        weight + 
+                        pool)
 
-colnames(design.I1) <- c("HIGH", "LOW", "MODERATE",
-                         "age", "sexM", "weight", "poolMSU2",
-                         "poolMSU3", "poolMSU4", "poolMSU5")
+colnames(design) <- gsub("group", "", colnames(design))
 
-
-contr.matrix.I1 = makeContrasts(
-  LvM = LOW - MODERATE,
-  MvH = MODERATE - HIGH,
-  LvH = LOW - HIGH,
-  levels = colnames(design.I1))
-
-## Mean-variance trend plots
-v.I1 <- voomWithQualityWeights(dge.I1, design.I1, plot = FALSE)
-
-#Fitting models
-vfit.I1 <- lmFit(v.I1, design.I1) 
-vfit.I1 <- contrasts.fit(vfit.I1, contrasts = contr.matrix.I1)
-tfit.I1 <- treat(vfit.I1, lfc = 1.0)
-
-## Identify DE genes
-dt.I1 <- decideTests(tfit.I1, p.value = 0.1, adjust.method = "fdr")
-dt.tib.I1 <- as_tibble(dt.I1, rownames = NA) %>% 
-  rownames_to_column("gene") %>% 
-  mutate_at(vars(starts_with("L")), as.numeric) %>% 
-  mutate_at(vars(starts_with("M")), as.numeric) %>% 
-  rename(LvM.I1 = LvM,
-         MvH.I1 = MvH,
-         LvH.I1 = LvH)
-
-
-## Establish design matrix: I2
-design.I2 = model.matrix(
-  ~ 0 +
-    factor(covars.I2$SSgroup.virus.sac) +
-    covars.I2$age +
-    covars.I2$sex +
-    covars.I2$wt_55 #+
-    #covars.I2$Bursa_pool
-)
-
-colnames(design.I2) <- c(
-  "HIGH",
-  "LOW",
-  "MODERATE",
-  "age",
-  "sexM",
-  "weight"#,
-  #"poolMSU2",
-  #"poolMSU3",
-  #"poolMSU4",
-  #"poolMSU5"
-)
-
-contr.matrix.I2 = makeContrasts(
-  LvM = LOW - MODERATE,
-  MvH = MODERATE - HIGH,
-  LvH = LOW - HIGH,
-  levels = colnames(design.I2))
-
-## Mean-variance trend plots
-v.I2 <- voomWithQualityWeights(dge.I2, design.I2, plot = FALSE)
-
-#Fitting models
-vfit.I2 <- lmFit(v.I2, design.I2) 
-vfit.I2 <- contrasts.fit(vfit.I2, contrasts = contr.matrix.I2)
-tfit.I2 <- treat(vfit.I2, lfc = 1.0)
-
-## Identify DE genes
-dt.I2 <- decideTests(tfit.I2, p.value = 0.1, adjust.method = "fdr")
-dt.tib.I2 <- as_tibble(dt.I2, rownames = NA) %>% 
-  rownames_to_column("gene") %>% 
-  mutate_at(vars(starts_with("L")), as.numeric) %>% 
-  mutate_at(vars(starts_with("M")), as.numeric) %>% 
-  rename(LvM.I2 = LvM,
-         MvH.I2 = MvH,
-         LvH.I2 = LvH)
-
-## Bring it all together
-dt.tib <- left_join(dt.tib.I1, dt.tib.I2) %>% 
-  mutate_at(vars(starts_with("L")), as.numeric) %>% 
-  mutate_at(vars(starts_with("M")), as.numeric) %>% 
-  filter_at(vars(LvM.I1:LvH.I2), any_vars(. != 0))
+contr.matrix = makeContrasts(
+  CtlvI1 = Ctl - I1,
+  CtlvI2 = Ctl - I2,
+  CtlvI5 = Ctl - I5,
+  CtlvI15 = Ctl - I15,
+  CtlvI29 = Ctl - I29,
+  I1vI2 = I1 - I2,
+  I1vI5 = I1 - I5,
+  I1vI15 = I1 - I15,
+  I1vI29 = I1 - I29,
+  I2vI5 = I2 - I5,
+  I2vI15 = I2 - I15,
+  I2vI29 = I2 - I29,
+  I5vI15 = I5 - I15,
+  I5vI29 = I5 - I29,
+  I15vI29 = I15 - I29,
+  levels = colnames(design))
 ```
 
 ### Mean-variance trend and sample weight plots
@@ -233,7 +163,7 @@ dt.tib <- as_tibble(dt, rownames = NA) %>%
 
 ### Histogram of P-values
 ```{r}
-hist(tfit$p.value, main = "P-values comparing groups (eBayes)")
+hist(tfit$p.value)
 ```
 
 
@@ -245,7 +175,7 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 1") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -256,7 +186,7 @@ p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 2") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -267,7 +197,7 @@ p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -278,7 +208,7 @@ p4 <- ggplot(results4, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -289,7 +219,7 @@ p5 <- ggplot(results5, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -300,7 +230,7 @@ p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 2") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -312,7 +242,7 @@ p7 <- ggplot(results7, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -323,7 +253,7 @@ p8 <- ggplot(results8, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -334,7 +264,7 @@ p9 <- ggplot(results9, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -345,7 +275,7 @@ p10 <- ggplot(results10, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 2 vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -356,7 +286,7 @@ p11 <- ggplot(results11, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 2 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -367,7 +297,7 @@ p12 <- ggplot(results12, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 2 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -378,7 +308,7 @@ p13 <- ggplot(results13, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 5 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -389,7 +319,7 @@ p14 <- ggplot(results14, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 5 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -400,7 +330,7 @@ p15 <- ggplot(results15, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 15 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")

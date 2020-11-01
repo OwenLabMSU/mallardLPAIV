@@ -1,10 +1,10 @@
 ---
-title: "Treatment Groups - Bursa - Gene"
+title: "Infected and Control - Bursa - Transcript"
 author: "Jared J. Homola"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
-This is an analysis of differential expression at the gene level between treatment groups for control and infected mallard bursa samples.
+This is an analysis of differential expression at the transcript level between treatment groups for control and infected mallard bursa samples.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -20,40 +20,42 @@ library(ggrepel)
 library(RColorBrewer)
 library(gridExtra)
 library(kableExtra)
-library(topGO)
+library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
 cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.isoforms.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
 covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read.delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenes52820.txt", header = TRUE, sep = "\t")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationTrans103120.txt", delim = "\t")
 ```
 
 
-### Clean data
+### Prep data for analysis
 ```{r, warning = FALSE, message = FALSE}
-cnt <- cnt %>%
-  rownames_to_column("id") %>%
-  separate(id, into = c("id", NA, NA)) %>%
-  column_to_rownames("id") %>% 
-  rename(RSEM.01_bursa_AACCAG_L001.isoforms.results = RSEM.1_bursa_AACCAG_L001.isoforms.results,
-         RSEM.02_bursa_TGGTGA_L001.isoforms.results = RSEM.2_bursa_TGGTGA_L001.isoforms.results,
-         RSEM.03_bursa_AGTGAG_L001.isoforms.results = RSEM.3_bursa_AGTGAG_L001.isoforms.results,
-         RSEM.04_bursa_GCACTA_L001.isoforms.results = RSEM.4_bursa_GCACTA_L001.isoforms.results,
-         RSEM.05_bursa_ACCTCA_L001.isoforms.results = RSEM.5_bursa_ACCTCA_L001.isoforms.results,
-         RSEM.06_bursa_GTGCTT_L001.isoforms.results = RSEM.6_bursa_GTGCTT_L001.isoforms.results,
-         RSEM.07_bursa_AAGCCT_L001.isoforms.results = RSEM.7_bursa_AAGCCT_L001.isoforms.results,
-         RSEM.08_bursa_GTCGTA_L001.isoforms.results = RSEM.8_bursa_GTCGTA_L001.isoforms.results,
-         RSEM.09_bursa_AAGAGG_L001.isoforms.results = RSEM.9_bursa_AAGAGG_L001.isoforms.results)
+newNames <- names(cnt) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
 
-cnt <- cnt[,order(colnames(cnt))]
+colnames(cnt) <- newNames$newName
+
+cnt <- cnt %>% 
+  select(order(colnames(cnt)))
 
 covars <- covars %>%
   mutate(bird = as.numeric(bird)) %>%
-  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>% 
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
   arrange(bird) %>%
-  mutate(bird = as.factor(bird)) %>% 
+  mutate(bird = as.factor(bird)) %>%
   mutate(group = str_remove(group, "-"))
+
+## Remove birds with issues
+cnt <- cnt %>% select(-bursa_01, -bursa_72)
+
+covars <- covars %>% filter(bird != "01", bird != "72")
 ```
 
 ### Set up model effects
@@ -72,7 +74,7 @@ Here we standardize expression levels across samples of varying depth by using t
 ```{r, warning = FALSE, message = FALSE}
 #Convert to DGEList object
 dge <- DGEList(counts=cnt)
-dge$genes <- annot[match(rownames(dge$counts), annot$hgnc_symbol),]
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_transcript_id),]
 
 #CPM and log-CPM
 cpm <- cpm(dge)
@@ -161,7 +163,7 @@ dt.tib <- as_tibble(dt, rownames = NA) %>%
 
 ### Histogram of P-values
 ```{r}
-hist(tfit$p.value, main = "P-values comparing groups (eBayes)")
+hist(tfit$p.value)
 ```
 
 
@@ -336,5 +338,115 @@ p15 <- ggplot(results15, aes(logFC, -log10(P.Value))) +
 
 grid.arrange(p1, p2, p3, p4, p5, p6, p7,
              p8, p9, p10, p11, p12, p13, p14, p15, nrow = 8)
+```
+
+
+
+```{r eval = FALSE, echo = FALSE, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 9, fig.align = "center"}
+# Get the gene names for DE genes
+deGeneCounts <- lcpm %>%
+  as_tibble(rownames = NA) %>%
+  rownames_to_column("gene") %>%
+  filter(gene %in% dt.tib$gene) %>%
+  column_to_rownames("gene")
+
+group2 <- group %>% 
+  as_tibble() %>% 
+  mutate(group = sub("I2", "I02", value)) %>% 
+  mutate(group = sub("I1", "I01", group)) %>% 
+  mutate(group = sub("I5", "I05", group)) %>% 
+  mutate(group = sub("I015", "I15", group)) %>% 
+  mutate(group = sub("I029", "I29", group))
+
+newNames1 <- colnames(deGeneCounts) %>%
+  as_tibble() %>%
+  mutate(group = group2$group) %>%
+  unite("sample", 2:1, sep = "_")
+
+colnames(deGeneCounts) <- newNames1$sample
+deGeneCounts <- deGeneCounts %>% dplyr::select(order(colnames(.))) %>%
+  as.matrix()
+
+heatmap.annot <- annot %>%
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
+  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
+  select(annot.hm, ensembl_gene_id)
+
+deGeneCounts <- deGeneCounts %>% 
+  as_tibble(rownames = NA) %>% 
+  mutate(gene = rownames(.)) %>% 
+  rename(ensembl_gene_id = gene) %>% 
+  left_join(heatmap.annot) %>% 
+  column_to_rownames("annot.hm") %>%
+  select(-ensembl_gene_id) %>% 
+  as.matrix()
+
+## Set up palette
+mypalette <- brewer.pal(11,"RdYlBu")
+morecols <- colorRampPalette(mypalette)
+
+hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
+
+# Plot the heatmap
+heatmap.2(deGeneCounts,
+          Colv = FALSE,
+          Rowv = as.dendrogram(hc),
+          col = rev(morecols(50)),
+          trace = "none",
+          #colsep = c(9, 21, 33, 45),
+          dendrogram = "row",
+          density.info = "none",
+          key = TRUE,
+          #main = "Ileum - Gene level",
+          margins = c(8, 15),
+          scale ="row")
+```
+
+```{r eval = FALSE, echo = FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+tmp1a <- tmp1 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI1")
+tmp2a <- tmp2 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI2")
+tmp3a <- tmp3 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI5")
+tmp4a <- tmp4 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI15")
+tmp5a <- tmp5 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI29")
+tmp6a <- tmp6 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI2")
+tmp7a <- tmp7 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI5")
+tmp8a <- tmp8 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI15")
+tmp9a <- tmp9 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI29")
+tmp10a <- tmp10 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I2vI5")
+tmp11a <- tmp11 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I2vI15")
+tmp12a <- tmp12 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I2vI29")
+tmp13a <- tmp13 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I5vI15")
+tmp14a <- tmp14 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I5vI29")
+tmp15a <- tmp15 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I15vI29")
+
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a, tmp7a, tmp8a, tmp9a, tmp10a, tmp11a, tmp12a, tmp13a, tmp14a, tmp15a) %>% 
+  select(-description) %>% 
+  filter(ensembl_transcript_id %in% dt.tib$gene) %>% 
+  mutate(logFoldCount = ifelse(adj.P.Val < 0.10, round(logFC, 2), "ns")) %>% 
+  select(-adj.P.Val, -logFC) %>% 
+  pivot_wider(names_from = comp, values_from = logFoldCount) %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r eval = FALSE, echo = FALSE, message=FALSE, warning=FALSE}
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a, tmp7a, tmp8a, tmp9a, tmp10a, tmp11a, tmp12a, tmp13a, tmp14a, tmp15a) %>% 
+  select(-comp, -adj.P.Val, -logFC) %>% 
+  filter(ensembl_transcript_id %in% dt.tib$gene) %>% 
+  distinct(.) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r eval = FALSE, echo = FALSE, message=FALSE, warning=FALSE}
+de.entrez <- annot %>% filter(ensembl_transcript_id %in% dt.tib$gene) %>% na.omit(entrezgene_id)
+entrez.universe <- annot %>% na.omit(entrezgene_id)
+
+K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla")
+K %>% filter(P.DE < 0.05) %>% 
+  arrange(P.DE) %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
