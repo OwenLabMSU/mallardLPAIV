@@ -24,9 +24,9 @@ library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
-cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenesIleum110120.txt", delim = "\t")
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenesIleum110120.txt", delim = "\t")
 ```
 
 ### Prep data for analysis
@@ -113,14 +113,13 @@ covars.I5 <- covars.ileum %>% filter(group == "I5")
 ```{r, warning = FALSE, message = FALSE,}
 ## Establish design matrix: I5
 design.I5 = model.matrix(~ 0 +
-                        factor(covars.I5$SSgroup.virus.sac) +
+                        factor(covars.I5$SSgroup.virus.avg) +
                         covars.I5$age +
                         covars.I5$sex + 
-                        covars.I5$wt_55 + 
                         covars.I5$Bursa_pool)
 
 colnames(design.I5) <- c("HIGH", "LOW", "MODERATE",
-                         "age", "sexM", "weight", "poolMSU2",
+                         "age", "sexM", "poolMSU2",
                          "poolMSU3", "poolMSU4", "poolMSU5")
 
 
@@ -176,7 +175,6 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   theme_bw() +
   theme(legend.position = "none")
 
-
 tmp2 <- topTreat(tfit.I5, coef = 2, n = Inf)
 results2 <- mutate(tmp2, sig=ifelse(tmp2$adj.P.Val<0.1, "Sig", "Not Sig"))
 p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
@@ -203,70 +201,114 @@ grid.arrange(p1, p2, p3, nrow = 1)
 ```
 
 
-$## Heatmap
-$```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 9, fig.align = "center"}
-$# Get the gene names for DE genes
-$lcpm2 <- as_tibble(dge.I5$counts) %>% 
-$  cpm(., log = TRUE) %>% 
-$  as_tibble() %>% 
-$  mutate(ensembl_gene_id = dge.I5$genes$ensembl_gene_id)
-$
-$colOrder <- covars.I5 %>% 
-$  select(SSgroup.virus.avg, group, bird) %>% 
-$  mutate(SSgroup.virus.avg = fct_relevel(SSgroup.virus.avg, "LOW", "MODERATE", "HIGH")) %>%
-$  arrange(SSgroup.virus.avg, group, bird) %>% 
-$  unite("newNames", SSgroup.virus.avg, group, bird)
-$
-$colnames(lcpm2) <- newNames$newNames
-$lcpm2 <- lcpm2[, colOrder$newNames]
-$
-$heatmap.annot <- annot %>%
-$  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
-$  distinct(ensembl_gene_id, .keep_all = TRUE) %>% 
-$  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
-$  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
-$  select(annot.hm, ensembl_gene_id)
-$
-$deGeneCounts <- lcpm2 %>% 
-$  as_tibble() %>% 
-$  mutate(gene = rownames(.)) %>% 
-$  rename(ensembl_gene_id = gene) %>% 
-$  left_join(heatmap.annot) %>% 
-$  column_to_rownames("annot.hm") %>%
-$  select(-ensembl_gene_id) %>% 
-$  as.matrix()
-$
-$deGeneCounts <- lcpm2 %>% 
-$  as_tibble() %>% 
-$  mutate(gene = rownames(dge$counts)) %>% 
-$  filter(gene %in% dt.tib$gene) %>%
-$  rename(gene_id = gene) %>% 
-$  left_join(heatmap.annot) %>% 
-$  mutate(SwissProt_GeneName = replace_na(SwissProt_GeneName, ".")) %>% 
-$  unite(gene, gene_id:SwissProt_GeneName, sep = " - ") %>% 
-$  column_to_rownames("gene") %>% 
-$  as.matrix()
-$
-$## Set up palette
-$mypalette <- brewer.pal(11,"RdYlBu")
-$morecols <- colorRampPalette(mypalette)
-$
-$hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
-$
-$# Plot the heatmap
-$heatmap.2(deGeneCounts,
-$          Colv = FALSE,
-$          Rowv = as.dendrogram(hc),
-$          col = rev(morecols(50)),
-$          trace = "none",
-$          colsep = c(5, 10),
-$          dendrogram = "row",
-$          density.info = "none",
-$          key = TRUE,
-$          #main = "Ileum - Gene level",
-$          margins = c(10, 10),
-$          scale ="row")
-$```
+## Heatmap
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 9, fig.align = "center"}
+# Get the gene names for DE genes
+lcpm2 <- as_tibble(dge.I5$counts, rownames = NA) %>% 
+  cpm(., log = TRUE)
+
+newNames <- colnames(lcpm2) %>% 
+  as_tibble() %>% 
+  separate(value, into = c(NA, "bird")) %>% 
+  bind_cols(covars.I5) %>% 
+  unite("newNames", SSgroup.virus.avg, group, bird)
+
+colOrder <- covars.I5 %>% 
+  mutate(SSgroup.virus.avg = fct_relevel(SSgroup.virus.avg, "LOW", "MODERATE", "HIGH")) %>%
+  arrange(SSgroup.virus.avg, group, bird) %>% 
+  unite("newNames", SSgroup.virus.avg, group, bird)
+
+colnames(lcpm2) <- newNames$newNames
+lcpm2 <- lcpm2[, colOrder$newNames]
+
+heatmap.annot <- annot %>%
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
+  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
+  select(annot.hm, ensembl_gene_id) %>% 
+  distinct(annot.hm, .keep_all = TRUE)
+
+deGeneCounts <- lcpm2 %>% 
+  as_tibble() %>% 
+  mutate(ensembl_gene_id = rownames(dge.I5$counts)) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  left_join(heatmap.annot) %>% 
+  column_to_rownames("annot.hm") %>%
+  select(-ensembl_gene_id) %>% 
+  as.matrix()
+
+
+## Set up palette
+mypalette <- brewer.pal(11,"RdYlBu")
+morecols <- colorRampPalette(mypalette)
+
+hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
+
+# Plot the heatmap
+heatmap.2(deGeneCounts,
+          Colv = FALSE,
+          Rowv = as.dendrogram(hc),
+          col = rev(morecols(50)),
+          trace = "none",
+          colsep = c(4, 10),
+          dendrogram = "row",
+          density.info = "none",
+          key = TRUE,
+          #main = "Ileum - Gene level",
+          margins = c(10, 15),
+          scale ="row")
+```
+
+
+### Boxplots for differentially expressed genes
+```{r message=FALSE, warning=FALSE}
+lcpm.DE <- lcpm %>%
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("identifier") %>% 
+  filter(identifier %in% dt.tib$gene) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  filter(group == "C1" | group == "C14" | group == "I5") %>% 
+  select(identifier, bird, lcpm, SSgroup.virus.avg, group) %>% 
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
+
+
+aprioriPlotting <- function(target, ...) {
+   annot.target <- annot %>%
+    select(
+      ensembl_gene_id,
+      hgnc_symbol) %>%
+    filter(ensembl_gene_id == target) %>% 
+    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
+
+  plot <- lcpm.DE %>%
+    filter(identifier == target) %>%
+    mutate(SSgroup.virus.avg = fct_relevel(SSgroup.virus.avg, "LOW", "MODERATE", "HIGH")) %>%
+    ggplot(aes(x = SSgroup.virus.avg, y = lcpm)) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Shedding Group") +
+    scale_fill_grey(start = 0.35, end = 1) + 
+    geom_point(position = position_dodge(width=0.75), aes(group = group), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
+    theme_classic() +
+    labs(title= paste0(target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+    
+  print(plot)
+}
+
+for(target in sort(unique(lcpm.DE$identifier))) {
+  aprioriPlotting(target)
+}
+```
 
 
 ### Annotations for differentially expressed genes

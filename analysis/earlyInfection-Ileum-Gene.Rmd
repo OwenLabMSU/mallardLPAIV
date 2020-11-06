@@ -9,6 +9,7 @@ This is an analysis of differential expression at the gene level between supersh
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ```{r message=FALSE, warning=FALSE}
 ## Load packages and data
 library(limma)
@@ -23,11 +24,10 @@ library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
-cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenesIleum110120.txt", delim = "\t")
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenesIleum110120.txt", delim = "\t")
 ```
-
 
 ### Prep data for analysis
 ```{r, warning = FALSE, message = FALSE}
@@ -70,17 +70,6 @@ covars.ileum <- covars.ileum %>% filter(bird != "01",
                                         bird != "72")
 ```
 
-### Set up model effects
-```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars.ileum$bird)
-sex <- as.factor(covars.ileum$sex)
-age <- as.numeric(covars.ileum$age)
-weight <- covars.ileum$wt_55
-group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
-  as.factor()
-pool <- as.factor(covars.ileum$Ileum_pool)
-```
-
 ### Prep data for analysis
 Here we standardize expression levels across samples of varying depth by using the counts per million (CPM) and trimmed mean of M-values (TMM) methods. We also remove any genes that are expressed at few than 0.5 CPM in at least 25% of individuals.
 ```{r, warning = FALSE, message = FALSE}
@@ -105,17 +94,20 @@ dim(dge)
 dge <- calcNormFactors(dge, method = "TMM")
 ```
 
+
 ### Subset data
 Following normalization, we subset the data based on infection groups.
 ```{r, warning = FALSE, message = FALSE}
 #Assign groups in DGElist
+group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
 dge$samples$group <- group
 
-### Divide out I1 and I3
+### Divide out I1 and I2
 dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
 dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
 
-covars.I1 <- covars %>% filter(group == "I1")
+covars.I1 <- covars %>% filter(group == "I1", bird != "14", bird != "32", bird != "47")
 covars.I2 <- covars %>% filter(group == "I2")
 ```
 
@@ -128,11 +120,10 @@ design.I1 = model.matrix(~ 0 +
                         factor(covars.I1$SSgroup.virus.sac) +
                         covars.I1$age +
                         covars.I1$sex + 
-                        covars.I1$wt_55 + 
                         covars.I1$Bursa_pool)
 
 colnames(design.I1) <- c("HIGH", "LOW", "MODERATE",
-                         "age", "sexM", "weight", "poolMSU2",
+                         "age", "sexM", "poolMSU2",
                          "poolMSU3", "poolMSU4", "poolMSU5")
 
 
@@ -158,7 +149,8 @@ dt.tib.I1 <- as_tibble(dt.I1, rownames = NA) %>%
   mutate_at(vars(starts_with("M")), as.numeric) %>% 
   rename(LvM.I1 = LvM,
          MvH.I1 = MvH,
-         LvH.I1 = LvH)
+         LvH.I1 = LvH) %>% 
+  filter_at(vars(LvM.I1:LvH.I1), any_vars(. != 0))
 
 
 ## Establish design matrix: I2
@@ -167,8 +159,7 @@ design.I2 = model.matrix(
     factor(covars.I2$SSgroup.virus.sac) +
     covars.I2$age +
     covars.I2$sex +
-    covars.I2$wt_55 #+
-    #covars.I2$Bursa_pool
+    covars.I2$Bursa_pool
 )
 
 colnames(design.I2) <- c(
@@ -177,11 +168,10 @@ colnames(design.I2) <- c(
   "MODERATE",
   "age",
   "sexM",
-  "weight"#,
-  #"poolMSU2",
-  #"poolMSU3",
-  #"poolMSU4",
-  #"poolMSU5"
+  "poolMSU2",
+  "poolMSU3",
+  "poolMSU4",
+  "poolMSU5"
 )
 
 contr.matrix.I2 = makeContrasts(
@@ -206,219 +196,302 @@ dt.tib.I2 <- as_tibble(dt.I2, rownames = NA) %>%
   mutate_at(vars(starts_with("M")), as.numeric) %>% 
   rename(LvM.I2 = LvM,
          MvH.I2 = MvH,
-         LvH.I2 = LvH)
+         LvH.I2 = LvH) %>% 
+  filter_at(vars(LvM.I2:LvH.I2), any_vars(. != 0))
+
 
 ## Bring it all together
-dt.tib <- left_join(dt.tib.I1, dt.tib.I2) %>% 
+dt.tib <- full_join(dt.tib.I1, dt.tib.I2) %>% 
   mutate_at(vars(starts_with("L")), as.numeric) %>% 
   mutate_at(vars(starts_with("M")), as.numeric) %>% 
-  filter_at(vars(LvM.I1:LvH.I2), any_vars(. != 0))
-```
-
-### Mean-variance trend and sample weight plots
-```{r}
-v <- voomWithQualityWeights(dge, design, plot = TRUE)
-```
-
-### Fitting the model
-```{r}
-vfit <- lmFit(v, design) 
-vfit <- contrasts.fit(vfit, contrasts = contr.matrix)
-tfit <- treat(vfit, lfc = 1)
-plotSA(tfit)
+  replace(is.na(.), 0)
 ```
 
 ### Count DE genes
 For a gene to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log fold count difference of 1.
 ```{r}
-dt <- decideTests(tfit, p.value = 0.1, adjust.method = "fdr")
-summary(dt) %>% 
-  kable() %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+allResults <- rbind(
+  as.data.frame(summary(dt.I1)),
+  as.data.frame(summary(dt.I2))) %>% 
+  filter(Var1 != "NotSig")
 
-dt.tib <- as_tibble(dt, rownames = NA) %>% 
-  rownames_to_column("gene") %>% 
-  mutate_at(vars(starts_with("C")), as.numeric) %>% 
-  mutate_at(vars(starts_with("I")), as.numeric) %>% 
-  filter_at(vars(CtlvI1:I15vI29), any_vars(. != 0))
-```
-
-### Histogram of P-values
-```{r}
-hist(tfit$p.value, main = "P-values comparing groups (eBayes)")
+kable(allResults) %>%
+  kable_styling("striped", full_width = F) %>%
+  pack_rows("1 Day Post Infection", 1, 6) %>%
+  pack_rows("2 Days Post Infection", 7, 12)
 ```
 
 
 ### Volcano plot
-```{r, warning = FALSE, message = FALSE, fig.height = 20, fig.width = 7, fig.align = "center"}
-tmp1 <- topTreat(tfit, coef = 1, n = Inf)
+```{r, warning = FALSE, message = FALSE, fig.height = 10, fig.width = 9, fig.align = "center"}
+tmp1 <- topTreat(tfit.I1, coef = 1, n = Inf)
 results1 <- mutate(tmp1, sig=ifelse(tmp1$adj.P.Val<0.1, "Sig", "Not Sig"))
 p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
-  ggtitle("Control vs. Infected, Day 1") +
-  ylab("-Log10(Adjusted p-value)") +
+  ggtitle("Low vs. Moderate shedding, Day 1") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
 
-tmp2 <- topTreat(tfit, coef = 2, n = Inf)
+
+tmp2 <- topTreat(tfit.I1, coef = 2, n = Inf)
 results2 <- mutate(tmp2, sig=ifelse(tmp2$adj.P.Val<0.1, "Sig", "Not Sig"))
 p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
-  ggtitle("Control vs. Infected, Day 2") +
-  ylab("-Log10(Adjusted p-value)") +
+  ggtitle("Moderate vs. High shedding, Day 1") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
 
-tmp3 <- topTreat(tfit, coef = 3, n = Inf)
+tmp3 <- topTreat(tfit.I1, coef = 3, n = Inf)
 results3 <- mutate(tmp3, sig=ifelse(tmp3$adj.P.Val<0.1, "Sig", "Not Sig"))
 p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
-  ggtitle("Control vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
+  ggtitle("Low vs. High shedding, Day 1") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
 
-tmp4 <- topTreat(tfit, coef = 4, n = Inf)
+tmp4 <- topTreat(tfit.I2, coef = 1, n = Inf)
 results4 <- mutate(tmp4, sig=ifelse(tmp4$adj.P.Val<0.1, "Sig", "Not Sig"))
 p4 <- ggplot(results4, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
-  ggtitle("Control vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ggtitle("Low vs. Moderate shedding, Day 2") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
 
-tmp5 <- topTreat(tfit, coef = 5, n = Inf)
+tmp5 <- topTreat(tfit.I2, coef = 2, n = Inf)
 results5 <- mutate(tmp5, sig=ifelse(tmp5$adj.P.Val<0.1, "Sig", "Not Sig"))
 p5 <- ggplot(results5, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
-  ggtitle("Control vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ggtitle("Moderate vs. High shedding, Day 2") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
 
-tmp6 <- topTreat(tfit, coef = 6, n = Inf)
+tmp6 <- topTreat(tfit.I2, coef = 3, n = Inf)
 results6 <- mutate(tmp6, sig=ifelse(tmp6$adj.P.Val<0.1, "Sig", "Not Sig"))
 p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 1 vs. Infected, Day 2") +
-  ylab("-Log10(Adjusted p-value)") +
+  ggtitle("Low vs. High shedding, Day 2") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
 
-
-tmp7 <- topTreat(tfit, coef = 7, n = Inf)
-results7 <- mutate(tmp7, sig=ifelse(tmp7$adj.P.Val<0.1, "Sig", "Not Sig"))
-p7 <- ggplot(results7, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 1 vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp8 <- topTreat(tfit, coef = 8, n = Inf)
-results8 <- mutate(tmp8, sig=ifelse(tmp8$adj.P.Val<0.1, "Sig", "Not Sig"))
-p8 <- ggplot(results8, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 1 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp9 <- topTreat(tfit, coef = 9, n = Inf)
-results9 <- mutate(tmp9, sig=ifelse(tmp9$adj.P.Val<0.1, "Sig", "Not Sig"))
-p9 <- ggplot(results9, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 1 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp10 <- topTreat(tfit, coef = 10, n = Inf)
-results10 <- mutate(tmp10, sig=ifelse(tmp10$adj.P.Val<0.1, "Sig", "Not Sig"))
-p10 <- ggplot(results10, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 2 vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp11 <- topTreat(tfit, coef = 11, n = Inf)
-results11 <- mutate(tmp11, sig=ifelse(tmp11$adj.P.Val<0.1, "Sig", "Not Sig"))
-p11 <- ggplot(results11, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 2 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp12 <- topTreat(tfit, coef = 12, n = Inf)
-results12 <- mutate(tmp12, sig=ifelse(tmp12$adj.P.Val<0.1, "Sig", "Not Sig"))
-p12 <- ggplot(results12, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 2 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp13 <- topTreat(tfit, coef = 13, n = Inf)
-results13 <- mutate(tmp13, sig=ifelse(tmp13$adj.P.Val<0.1, "Sig", "Not Sig"))
-p13 <- ggplot(results13, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 5 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp14 <- topTreat(tfit, coef = 14, n = Inf)
-results14 <- mutate(tmp14, sig=ifelse(tmp14$adj.P.Val<0.1, "Sig", "Not Sig"))
-p14 <- ggplot(results14, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 5 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp15 <- topTreat(tfit, coef = 15, n = Inf)
-results15 <- mutate(tmp15, sig=ifelse(tmp15$adj.P.Val<0.1, "Sig", "Not Sig"))
-p15 <- ggplot(results15, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Infected, Day 15 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
-  xlab("Log(Fold count)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-
-grid.arrange(p1, p2, p3, p4, p5, p6, p7,
-             p8, p9, p10, p11, p12, p13, p14, p15, nrow = 8)
+grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)
 ```
 
+
+
+### Heatmap - I2
+```{r warning = FALSE, message = FALSE, fig.height = 12, fig.width = 9, fig.align = "center"}
+# Get the gene names for DE genes
+lcpm2 <- as_tibble(dge.I2$counts, rownames = NA) %>% 
+  cpm(., log = TRUE)
+
+newNames <- colnames(lcpm2) %>% 
+  as_tibble() %>% 
+  separate(value, into = c(NA, "bird")) %>% 
+  bind_cols(covars.I2) %>% 
+  unite("newNames", SSgroup.virus.sac, group, bird)
+
+colOrder <- bind_cols(covars.I2) %>% 
+  mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
+  arrange(SSgroup.virus.sac, group, bird) %>% 
+  unite("newNames", SSgroup.virus.sac, group, bird)
+
+colnames(lcpm2) <- newNames$newNames
+lcpm2 <- lcpm2[, colOrder$newNames]
+
+heatmap.annot <- annot %>%
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
+  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
+  select(annot.hm, ensembl_gene_id) %>% 
+  distinct(ensembl_gene_id, .keep_all = TRUE)
+
+deGeneCounts <- lcpm2 %>% 
+  as_tibble() %>% 
+  mutate(ensembl_gene_id = rownames(dge.I2$counts)) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  left_join(heatmap.annot) %>% 
+  column_to_rownames("annot.hm") %>%
+  select(-ensembl_gene_id) %>% 
+  as.matrix()
+
+## Set up palette
+mypalette <- brewer.pal(11,"RdYlBu")
+morecols <- colorRampPalette(mypalette)
+
+hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
+
+# Plot the heatmap
+heatmap.2(deGeneCounts,
+          Colv = FALSE,
+          Rowv = as.dendrogram(hc),
+          col = rev(morecols(50)),
+          trace = "none",
+          colsep = c(4, 8),
+          dendrogram = "row",
+          density.info = "none",
+          key = TRUE,
+          margins = c(12, 12),
+          scale ="row")
+```
+
+
+### Boxplots for I1 differentially expressed genes
+```{r message=FALSE, warning=FALSE}
+lcpm.DE <- lcpm %>%
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("identifier") %>% 
+  filter(identifier %in% dt.tib.I1$gene) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  filter(group == "C1" | group == "C14" | group == "I1") %>% 
+  select(identifier, bird, lcpm, SSgroup.virus.sac, group) %>% 
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
+
+
+aprioriPlotting <- function(target, ...) {
+   annot.target <- annot %>%
+    select(
+      ensembl_gene_id,
+      hgnc_symbol) %>%
+    filter(ensembl_gene_id == target) %>% 
+    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
+
+  plot <- lcpm.DE %>%
+    filter(identifier == target) %>%
+    mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
+    ggplot(aes(x = SSgroup.virus.sac, y = lcpm)) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Shedding Group") +
+    scale_fill_grey(start = 0.35, end = 1) + 
+    geom_point(position = position_dodge(width=0.75), aes(group = group), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
+    theme_classic() +
+    labs(title = paste0("I1: ", target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+    
+  print(plot)
+}
+
+for(target in sort(unique(dt.tib.I1$gene))) {
+  aprioriPlotting(target)
+}
+```
+
+
+### Boxplots for I2 differentially expressed genes
+```{r message=FALSE, warning=FALSE}
+lcpm.DE <- lcpm %>%
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("identifier") %>% 
+  filter(identifier %in% dt.tib.I2$gene) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  filter(group == "C1" | group == "C14" | group == "I2") %>% 
+  select(identifier, bird, lcpm, SSgroup.virus.sac, group) %>% 
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
+
+
+aprioriPlotting <- function(target, ...) {
+   annot.target <- annot %>%
+    select(
+      ensembl_gene_id,
+      hgnc_symbol) %>%
+    filter(ensembl_gene_id == target) %>% 
+    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
+
+  plot <- lcpm.DE %>%
+    filter(identifier == target) %>%
+    mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
+    ggplot(aes(x = SSgroup.virus.sac, y = lcpm)) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Shedding Group") +
+    scale_fill_grey(start = 0.35, end = 1) + 
+    geom_point(position = position_dodge(width=0.75), aes(group = group), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
+    theme_classic() +
+    labs(title = paste0("I2: ", target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+    
+  print(plot)
+}
+
+for(target in sort(unique(dt.tib.I2$gene))) {
+  aprioriPlotting(target)
+}
+```
+
+### Annotations for differentially expressed genes
+ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
+```{r message=FALSE, warning=FALSE}
+tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I1")
+tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I1")
+tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I1")
+tmp4a <- tmp4 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I2")
+tmp5a <- tmp5 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I2")
+tmp6a <- tmp6 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I2")
+
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>% 
+  select(-description) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(logFoldCount = ifelse(adj.P.Val < 0.10, round(logFC, 2), "ns")) %>% 
+  select(-adj.P.Val, -logFC) %>% 
+  pivot_wider(names_from = comp, values_from = logFoldCount) %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+#### Gene functions
+```{r message=FALSE, warning=FALSE}
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>% 
+  select(-comp, -adj.P.Val, -logFC) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  distinct(.) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+#### Pathway analysis
+```{r message=FALSE, warning=FALSE}
+de.entrez <- annot %>% filter(ensembl_gene_id %in% dt.tib$gene) %>% na.omit(entrezgene_id)
+entrez.universe <- annot %>% na.omit(entrezgene_id)
+
+K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla")
+K %>% filter(P.DE < 0.05) %>% 
+  arrange(P.DE) %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```

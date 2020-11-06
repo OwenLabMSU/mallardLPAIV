@@ -15,18 +15,16 @@ knitr::opts_chunk$set(echo = TRUE)
 library(limma)
 library(edgeR)
 library(Glimma)
-library(gplots)
 library(ggrepel)
 library(RColorBrewer)
 library(gridExtra)
 library(kableExtra)
-library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
-cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenes103120.txt", delim = "\t")
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
 ```
 
 
@@ -63,7 +61,6 @@ covars <- covars %>% filter(bird != "01", bird != "72")
 bird <- as.factor(covars$bird)
 sex <- as.factor(covars$sex)
 age <- as.numeric(covars$age)
-weight <- covars$wt_55
 group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 pool <- as.factor(covars$Bursa_pool)
@@ -94,7 +91,7 @@ dge <- calcNormFactors(dge, method = "TMM")
 ```
 
 ### Subset data
-Following normalization, we subset the data based on infection groups.
+Following normalization, we subset the data based on infection group of interest.
 ```{r, warning = FALSE, message = FALSE}
 #Assign groups in DGElist
 dge$samples$group <- group
@@ -111,14 +108,13 @@ covars.I5 <- covars %>% filter(group == "I5")
 ```{r, warning = FALSE, message = FALSE,}
 ## Establish design matrix: I5
 design.I5 = model.matrix(~ 0 +
-                        factor(covars.I5$SSgroup.virus.sac) +
+                        factor(covars.I5$SSgroup.virus.avg) +
                         covars.I5$age +
                         covars.I5$sex + 
-                        covars.I5$wt_55 + 
                         covars.I5$Bursa_pool)
 
 colnames(design.I5) <- c("HIGH", "LOW", "MODERATE",
-                         "age", "sexM", "weight", "poolMSU2",
+                         "age", "sexM", "poolMSU2",
                          "poolMSU3", "poolMSU4", "poolMSU5")
 
 
@@ -200,3 +196,80 @@ p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
 grid.arrange(p1, p2, p3, nrow = 1)
 ```
 
+### Boxplots for differentially expressed genes
+```{r message=FALSE, warning=FALSE}
+lcpm.DE <- lcpm %>%
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("identifier") %>% 
+  filter(identifier %in% dt.tib$gene) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  filter(group == "C1" | group == "C14" | group == "I5") %>% 
+  select(identifier, bird, lcpm, SSgroup.virus.avg, group) %>% 
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
+
+
+aprioriPlotting <- function(target, ...) {
+   annot.target <- annot %>%
+    select(
+      ensembl_gene_id,
+      hgnc_symbol) %>%
+    filter(ensembl_gene_id == target) %>% 
+    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
+
+
+  plot <- lcpm.DE %>%
+    filter(identifier == target) %>%
+    mutate(SSgroup.virus.avg = fct_relevel(SSgroup.virus.avg, "LOW", "MODERATE", "HIGH")) %>%
+    ggplot(aes(x = SSgroup.virus.avg, y = lcpm)) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Shedding Group") +
+    scale_fill_grey(start = 0.35, end = 1) + 
+    geom_point(position = position_dodge(width=0.75), aes(group = group), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
+    theme_classic() +
+    labs(title= paste0(target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+    
+  print(plot)
+}
+
+for(target in sort(unique(lcpm.DE$identifier))) {
+  aprioriPlotting(target)
+}
+```
+
+### Annotations for differentially expressed genes
+ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM")
+tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH")
+tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH")
+
+bind_rows(tmp1a, tmp2a, tmp3a) %>% 
+  select(-description) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(logFoldCount = ifelse(adj.P.Val < 0.10, round(logFC, 2), "ns")) %>% 
+  select(-adj.P.Val, -logFC) %>% 
+  pivot_wider(names_from = comp, values_from = logFoldCount) %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+#### Gene functions
+```{r message=FALSE, warning=FALSE}
+bind_rows(tmp1a, tmp2a, tmp3a) %>% 
+  select(-comp, -adj.P.Val, -logFC) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  distinct(.) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```

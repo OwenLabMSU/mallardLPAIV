@@ -24,9 +24,9 @@ library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
-cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.isoforms.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationTrans103120.txt", delim = "\t")
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.isoforms.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationTrans103120.txt", delim = "\t")
 ```
 
 
@@ -63,7 +63,6 @@ covars <- covars %>% filter(bird != "01", bird != "72")
 bird <- as.factor(covars$bird)
 sex <- as.factor(covars$sex)
 age <- as.numeric(covars$age)
-weight <- covars$wt_55
 group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 pool <- as.factor(covars$Bursa_pool)
@@ -93,13 +92,6 @@ dim(dge)
 dge <- calcNormFactors(dge, method = "TMM")
 ```
 
-### Plot MDS
-Multidimensional scaling (MDS) plots are an ordination technique that lets us examine sample clustering based on overall gene expression levels.
-```{r}
-col.group = as.numeric(as.factor(paste0(group)))
-plotMDS(lcpm, labels = paste0(bird, "_", group), col = col.group, cex = 0.75)
-title(main="Treatment group")
-```
 
 # Differential expression analysis
 ### Establish design & contrast matrices
@@ -109,7 +101,6 @@ design = model.matrix(~ 0 +
                         group +
                         age +
                         sex + 
-                        weight + 
                         pool)
 
 colnames(design) <- gsub("group", "", colnames(design))
@@ -131,15 +122,11 @@ contr.matrix = makeContrasts(
   I5vI29 = I5 - I29,
   I15vI29 = I15 - I29,
   levels = colnames(design))
-```
 
 ### Mean-variance trend and sample weight plots
-```{r}
 v <- voomWithQualityWeights(dge, design, plot = TRUE)
-```
 
 ### Fitting the model
-```{r}
 vfit <- lmFit(v, design) 
 vfit <- contrasts.fit(vfit, contrasts = contr.matrix)
 tfit <- treat(vfit, lfc = 1)
@@ -161,11 +148,6 @@ dt.tib <- as_tibble(dt, rownames = NA) %>%
   filter_at(vars(CtlvI1:I15vI29), any_vars(. != 0))
 ```
 
-### Histogram of P-values
-```{r}
-hist(tfit$p.value)
-```
-
 
 ### Volcano plot
 ```{r, warning = FALSE, message = FALSE, fig.height = 20, fig.width = 7, fig.align = "center"}
@@ -175,7 +157,7 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 1") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -186,7 +168,7 @@ p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 2") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -197,7 +179,7 @@ p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -208,7 +190,7 @@ p4 <- ggplot(results4, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -219,7 +201,7 @@ p5 <- ggplot(results5, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Control vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -230,7 +212,7 @@ p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 2") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -242,7 +224,7 @@ p7 <- ggplot(results7, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -253,7 +235,7 @@ p8 <- ggplot(results8, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -264,7 +246,7 @@ p9 <- ggplot(results9, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 1 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -275,7 +257,7 @@ p10 <- ggplot(results10, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 2 vs. Infected, Day 5") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -286,7 +268,7 @@ p11 <- ggplot(results11, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 2 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -297,7 +279,7 @@ p12 <- ggplot(results12, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 2 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -308,7 +290,7 @@ p13 <- ggplot(results13, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 5 vs. Infected, Day 15") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -319,7 +301,7 @@ p14 <- ggplot(results14, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 5 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -330,7 +312,7 @@ p15 <- ggplot(results15, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Infected, Day 15 vs. Infected, Day 29") +
-  ylab("-Log10(Adjusted p-value)") +
+  ylab("-Log10(p-value)") +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
@@ -340,70 +322,58 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7,
              p8, p9, p10, p11, p12, p13, p14, p15, nrow = 8)
 ```
 
-
-
-```{r eval = FALSE, echo = FALSE, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 9, fig.align = "center"}
-# Get the gene names for DE genes
-deGeneCounts <- lcpm %>%
-  as_tibble(rownames = NA) %>%
-  rownames_to_column("gene") %>%
-  filter(gene %in% dt.tib$gene) %>%
-  column_to_rownames("gene")
-
-group2 <- group %>% 
-  as_tibble() %>% 
-  mutate(group = sub("I2", "I02", value)) %>% 
-  mutate(group = sub("I1", "I01", group)) %>% 
-  mutate(group = sub("I5", "I05", group)) %>% 
-  mutate(group = sub("I015", "I15", group)) %>% 
-  mutate(group = sub("I029", "I29", group))
-
-newNames1 <- colnames(deGeneCounts) %>%
-  as_tibble() %>%
-  mutate(group = group2$group) %>%
-  unite("sample", 2:1, sep = "_")
-
-colnames(deGeneCounts) <- newNames1$sample
-deGeneCounts <- deGeneCounts %>% dplyr::select(order(colnames(.))) %>%
-  as.matrix()
-
-heatmap.annot <- annot %>%
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
-  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
-  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
-  select(annot.hm, ensembl_gene_id)
-
-deGeneCounts <- deGeneCounts %>% 
+### Boxplots for differentially expressed genes
+```{r message=FALSE, warning=FALSE}
+lcpm.DE <- lcpm %>%
   as_tibble(rownames = NA) %>% 
-  mutate(gene = rownames(.)) %>% 
-  rename(ensembl_gene_id = gene) %>% 
-  left_join(heatmap.annot) %>% 
-  column_to_rownames("annot.hm") %>%
-  select(-ensembl_gene_id) %>% 
-  as.matrix()
+  rownames_to_column("identifier") %>% 
+  filter(identifier %in% dt.tib$gene) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  select(identifier, bird, lcpm, group) %>% 
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
 
-## Set up palette
-mypalette <- brewer.pal(11,"RdYlBu")
-morecols <- colorRampPalette(mypalette)
 
-hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
+aprioriPlotting <- function(target, ...) {
+   annot.target <- annot %>%
+    select(
+      ensembl_transcript_id,
+      hgnc_symbol) %>%
+    filter(ensembl_transcript_id == target) %>% 
+    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
 
-# Plot the heatmap
-heatmap.2(deGeneCounts,
-          Colv = FALSE,
-          Rowv = as.dendrogram(hc),
-          col = rev(morecols(50)),
-          trace = "none",
-          #colsep = c(9, 21, 33, 45),
-          dendrogram = "row",
-          density.info = "none",
-          key = TRUE,
-          #main = "Ileum - Gene level",
-          margins = c(8, 15),
-          scale ="row")
+
+  plot <- lcpm.DE %>%
+    filter(identifier == target) %>%
+    mutate(group = fct_relevel(group, "Control", "I1", "I2", "I5", "I15", "I29")) %>%
+    ggplot(aes(x = group, y = lcpm)) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Group") +
+    geom_point(position = position_dodge(width=0.75), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    geom_label_repel(aes(label = bird, fill = NULL), show.legend=FALSE) +
+    theme_classic() +
+    labs(title= paste0(target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+    
+  print(plot)
+}
+
+for(target in sort(unique(lcpm.DE$identifier))) {
+  aprioriPlotting(target)
+}
 ```
 
-```{r eval = FALSE, echo = FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+### Annotations for differentially expressed genes
+ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
+```{r message=FALSE, warning=FALSE, echo=FALSE}
 tmp1a <- tmp1 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI1")
 tmp2a <- tmp2 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI2")
 tmp3a <- tmp3 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI5")
@@ -430,7 +400,8 @@ bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a, tmp7a, tmp8a, tmp9a, tmp10a,
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
-```{r eval = FALSE, echo = FALSE, message=FALSE, warning=FALSE}
+#### Gene functions
+```{r message=FALSE, warning=FALSE}
 bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a, tmp7a, tmp8a, tmp9a, tmp10a, tmp11a, tmp12a, tmp13a, tmp14a, tmp15a) %>% 
   select(-comp, -adj.P.Val, -logFC) %>% 
   filter(ensembl_transcript_id %in% dt.tib$gene) %>% 
@@ -438,15 +409,3 @@ bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a, tmp7a, tmp8a, tmp9a, tmp10a,
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
-
-```{r eval = FALSE, echo = FALSE, message=FALSE, warning=FALSE}
-de.entrez <- annot %>% filter(ensembl_transcript_id %in% dt.tib$gene) %>% na.omit(entrezgene_id)
-entrez.universe <- annot %>% na.omit(entrezgene_id)
-
-K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla")
-K %>% filter(P.DE < 0.05) %>% 
-  arrange(P.DE) %>% 
-  kable() %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-```
-

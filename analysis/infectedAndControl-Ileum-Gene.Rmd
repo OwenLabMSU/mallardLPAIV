@@ -1,5 +1,5 @@
 ---
-title: "Infected and controls - Ileum - Gene"
+title: "Infected and Controls - Ileum - Gene"
 author: "Jared J. Homola"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
@@ -24,11 +24,10 @@ library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
-cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenesIleum110120.txt", delim = "\t")
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenesIleum110120.txt", delim = "\t")
 ```
-
 
 ### Prep data for analysis
 ```{r, warning = FALSE, message = FALSE}
@@ -76,7 +75,6 @@ covars.ileum <- covars.ileum %>% filter(bird != "01",
 bird <- as.factor(covars.ileum$bird)
 sex <- as.factor(covars.ileum$sex)
 age <- as.numeric(covars.ileum$age)
-weight <- covars.ileum$wt_55
 group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 pool <- as.factor(covars.ileum$Ileum_pool)
@@ -106,14 +104,6 @@ dim(dge)
 dge <- calcNormFactors(dge, method = "TMM")
 ```
 
-### Plot MDS
-Multidimensional scaling (MDS) plots are an ordination technique that lets us examine sample clustering based on overall gene expression levels.
-```{r}
-col.group = as.numeric(as.factor(paste0(group)))
-plotMDS(lcpm, labels = paste0(bird, "_", group), col = col.group, cex = 0.75)
-title(main="Treatment group")
-```
-
 # Differential expression analysis
 ### Establish design & contrast matrices
 ```{r}
@@ -122,7 +112,6 @@ design = model.matrix(~ 0 +
                         group +
                         age +
                         sex + 
-                        weight + 
                         pool)
 
 colnames(design) <- gsub("group", "", colnames(design))
@@ -135,18 +124,14 @@ contr.matrix = makeContrasts(
   I1vI5 = I1 - I5,
   I2vI5 = I2 - I5,
   levels = colnames(design))
-```
 
 ### Mean-variance trend and sample weight plots
-```{r}
 v <- voomWithQualityWeights(dge, design, plot = TRUE)
-```
 
 ### Fitting the model
-```{r}
 vfit <- lmFit(v, design) 
 vfit <- contrasts.fit(vfit, contrasts = contr.matrix)
-tfit <- treat(vfit, lfc = 1)
+tfit <- treat(vfit, lfc = 0.25)
 plotSA(tfit)
 ```
 
@@ -165,14 +150,9 @@ dt.tib <- as_tibble(dt, rownames = NA) %>%
   filter_at(vars(CtlvI1:I2vI5), any_vars(. != 0))
 ```
 
-### Histogram of P-values
-```{r}
-hist(tfit$p.value)
-```
-
 
 ### Volcano plot
-```{r, warning = FALSE, message = FALSE, fig.height = 20, fig.width = 7, fig.align = "center"}
+```{r, warning = FALSE, message = FALSE, fig.height = 10, fig.width = 7, fig.align = "center"}
 tmp1 <- topTreat(tfit, coef = 1, n = Inf)
 results1 <- mutate(tmp1, sig=ifelse(tmp1$adj.P.Val<0.1, "Sig", "Not Sig"))
 p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
@@ -239,8 +219,116 @@ p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
   theme_bw() +
   theme(legend.position = "none")
 
-
 grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 3)
+```
+
+### Heatmap
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10, fig.align = "center"}
+# Get the gene names for DE genes
+deGeneCounts <- lcpm %>%
+  as_tibble(rownames = NA) %>%
+  rownames_to_column("gene") %>%
+  filter(gene %in% dt.tib$gene) %>%
+  column_to_rownames("gene")
+
+group2 <- group %>% 
+  as_tibble() %>% 
+  mutate(group = sub("I2", "I02", value)) %>% 
+  mutate(group = sub("I1", "I01", group)) %>% 
+  mutate(group = sub("I5", "I05", group))
+
+newNames1 <- colnames(deGeneCounts) %>%
+  as_tibble() %>%
+  separate(value, into = c(NA, "sample")) %>%
+  mutate(group = group2$group) %>%
+  unite("sample", 2:1, sep = "_")
+
+colnames(deGeneCounts) <- newNames1$sample
+deGeneCounts <- deGeneCounts %>% dplyr::select(order(colnames(.))) %>%
+  as.matrix()
+
+heatmap.annot <- annot %>%
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
+  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
+  select(annot.hm, ensembl_gene_id)
+
+deGeneCounts <- deGeneCounts %>% 
+  as_tibble(rownames = NA) %>% 
+  mutate(gene = rownames(.)) %>% 
+  rename(ensembl_gene_id = gene) %>% 
+  left_join(heatmap.annot) %>% 
+  column_to_rownames("annot.hm") %>%
+  select(-ensembl_gene_id) %>% 
+  as.matrix()
+
+## Set up palette
+mypalette <- brewer.pal(11,"RdYlBu")
+morecols <- colorRampPalette(mypalette)
+
+hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
+
+# Plot the heatmap
+heatmap.2(deGeneCounts,
+          Colv = FALSE,
+          Rowv = as.dendrogram(hc),
+          col = rev(morecols(50)),
+          trace = "none",
+          colsep = c(5, 17, 27),
+          dendrogram = "row",
+          density.info = "none",
+          key = TRUE,
+          margins = c(5, 15),
+          scale ="row")
+```
+
+### Boxplots for differentially expressed genes
+```{r message=FALSE, warning=FALSE}
+lcpm.DE <- lcpm %>%
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("identifier") %>% 
+  filter(identifier %in% dt.tib$gene) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  select(identifier, bird, lcpm, group) %>% 
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
+
+
+aprioriPlotting <- function(target, ...) {
+   annot.target <- annot %>%
+    select(
+      ensembl_gene_id,
+      hgnc_symbol) %>%
+    filter(ensembl_gene_id == target) %>% 
+    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
+
+
+  plot <- lcpm.DE %>%
+    filter(identifier == target) %>%
+    mutate(group = fct_relevel(group, "Control", "I1", "I2", "I5", "I15", "I29")) %>%
+    ggplot(aes(x = group, y = lcpm)) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Group") +
+    geom_point(position = position_dodge(width=0.75), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    geom_label_repel(aes(label = bird, fill = NULL), show.legend=FALSE) +
+    theme_classic() +
+    labs(title= paste0(target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+    
+  print(plot)
+}
+
+for(target in sort(unique(lcpm.DE$identifier))) {
+  aprioriPlotting(target)
+}
 ```
 
 ### Annotations for differentially expressed genes
@@ -252,7 +340,6 @@ tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, descrip
 tmp4a <- tmp4 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI2")
 tmp5a <- tmp5 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI5")
 tmp6a <- tmp6 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I2vI5")
-
 
 bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>% 
   select(-description) %>% 
@@ -273,7 +360,6 @@ bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>%
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
-
 
 #### Pathway analysis
 ```{r message=FALSE, warning=FALSE}

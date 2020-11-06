@@ -24,9 +24,9 @@ library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
-cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/MALL70_SSgroup_RAW_7.7.20.csv", delim = ",")
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationGenes103120.txt", delim = "\t")
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
 ```
 
 
@@ -63,7 +63,6 @@ covars <- covars %>% filter(bird != "01", bird != "72")
 bird <- as.factor(covars$bird)
 sex <- as.factor(covars$sex)
 age <- as.numeric(covars$age)
-weight <- covars$wt_55
 group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 pool <- as.factor(covars$Bursa_pool)
@@ -93,13 +92,6 @@ dim(dge)
 dge <- calcNormFactors(dge, method = "TMM")
 ```
 
-### Plot MDS
-Multidimensional scaling (MDS) plots are an ordination technique that lets us examine sample clustering based on overall gene expression levels.
-```{r}
-col.group = as.numeric(as.factor(paste0(group)))
-plotMDS(lcpm, labels = paste0(bird, "_", group), col = col.group, cex = 0.75)
-title(main="Treatment group")
-```
 
 # Differential expression analysis
 ### Establish design & contrast matrices
@@ -109,7 +101,6 @@ design = model.matrix(~ 0 +
                         group +
                         age +
                         sex + 
-                        weight + 
                         pool)
 
 colnames(design) <- gsub("group", "", colnames(design))
@@ -131,15 +122,10 @@ contr.matrix = makeContrasts(
   I5vI29 = I5 - I29,
   I15vI29 = I15 - I29,
   levels = colnames(design))
-```
 
-### Mean-variance trend and sample weight plots
-```{r}
+## Mean-variance trend and sample weight plots
 v <- voomWithQualityWeights(dge, design, plot = TRUE)
-```
 
-### Fitting the model
-```{r}
 vfit <- lmFit(v, design) 
 vfit <- contrasts.fit(vfit, contrasts = contr.matrix)
 tfit <- treat(vfit, lfc = 1)
@@ -160,12 +146,6 @@ dt.tib <- as_tibble(dt, rownames = NA) %>%
   mutate_at(vars(starts_with("I")), as.numeric) %>% 
   filter_at(vars(CtlvI1:I15vI29), any_vars(. != 0))
 ```
-
-### Histogram of P-values
-```{r}
-hist(tfit$p.value)
-```
-
 
 ### Volcano plot
 ```{r, warning = FALSE, message = FALSE, fig.height = 20, fig.width = 7, fig.align = "center"}
@@ -340,3 +320,92 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7,
              p8, p9, p10, p11, p12, p13, p14, p15, nrow = 8)
 ```
 
+
+### Boxplots for differentially expressed genes
+```{r message=FALSE, warning=FALSE}
+lcpm.DE <- lcpm %>%
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("identifier") %>% 
+  filter(identifier %in% dt.tib$gene) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  select(identifier, bird, lcpm, group) %>% 
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
+
+
+aprioriPlotting <- function(target, ...) {
+   annot.target <- annot %>%
+    select(
+      ensembl_gene_id,
+      hgnc_symbol) %>%
+    filter(ensembl_gene_id == target) %>% 
+    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
+
+
+  plot <- lcpm.DE %>%
+    filter(identifier == target) %>%
+    mutate(group = fct_relevel(group, "Control", "I1", "I2", "I5", "I15", "I29")) %>%
+    ggplot(aes(x = group, y = lcpm)) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Group") +
+    geom_point(position = position_dodge(width=0.75), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    geom_label_repel(aes(label = bird, fill = NULL), show.legend=FALSE) +
+    theme_classic() +
+    labs(title= paste0(target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+    
+  print(plot)
+}
+
+for(target in sort(unique(lcpm.DE$identifier))) {
+  aprioriPlotting(target)
+}
+```
+
+
+### Annotations for differentially expressed genes
+ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI1")
+tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI2")
+tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI5")
+tmp4a <- tmp4 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI15")
+tmp5a <- tmp5 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI29")
+tmp6a <- tmp6 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI2")
+tmp7a <- tmp7 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI5")
+tmp8a <- tmp8 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI15")
+tmp9a <- tmp9 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I1vI29")
+tmp10a <- tmp10 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I2vI5")
+tmp11a <- tmp11 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I2vI15")
+tmp12a <- tmp12 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I2vI29")
+tmp13a <- tmp13 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I5vI15")
+tmp14a <- tmp14 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I5vI29")
+tmp15a <- tmp15 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "I15vI29")
+
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a, tmp7a, tmp8a, tmp9a, tmp10a, tmp11a, tmp12a, tmp13a, tmp14a, tmp15a) %>% 
+  select(-description) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(logFoldCount = ifelse(adj.P.Val < 0.10, round(logFC, 2), "ns")) %>% 
+  select(-adj.P.Val, -logFC) %>% 
+  pivot_wider(names_from = comp, values_from = logFoldCount) %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+#### Gene functions
+```{r message=FALSE, warning=FALSE}
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a, tmp7a, tmp8a, tmp9a, tmp10a, tmp11a, tmp12a, tmp13a, tmp14a, tmp15a) %>% 
+  select(-comp, -adj.P.Val, -logFC) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  distinct(.) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
