@@ -246,6 +246,7 @@ correlationPlot <- function(target, ...) {
     ggplot(aes(x = log.virus.sac, y = lcpm)) +
     geom_point(aes(shape = group, color = group), size = 5) +
     geom_smooth(method = "lm", color = "black") +
+    geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
     ylab("Log2(Counts per million)") +
     xlab("Log10(Sacrifice day viral titer + 1)") +
     scale_shape_manual(values=c(13, 
