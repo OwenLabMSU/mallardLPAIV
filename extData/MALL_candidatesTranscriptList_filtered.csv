@@ -1,0 +1,664 @@
+include,ensembl_transcript_id,transcript_biotype,hgnc_symbol,description,entrezgene_id,searchTerm
+yes,ENSAPLT00020002055,protein_coding,ADAMTS1,ADAM metallopeptidase with thrombospondin type 1 motif 1 [Source:HGNC Symbol;Acc:HGNC:217],NA,ADAMTS
+yes,ENSAPLT00020002205,protein_coding,ADAMTS1,ADAM metallopeptidase with thrombospondin type 1 motif 1 [Source:HGNC Symbol;Acc:HGNC:217],NA,ADAMTS
+yes,ENSAPLT00020002222,protein_coding,ADAMTS1,ADAM metallopeptidase with thrombospondin type 1 motif 1 [Source:HGNC Symbol;Acc:HGNC:217],NA,ADAMTS
+yes,ENSAPLT00020002260,protein_coding,ADAMTS1,ADAM metallopeptidase with thrombospondin type 1 motif 1 [Source:HGNC Symbol;Acc:HGNC:217],NA,ADAMTS
+yes,ENSAPLT00020002309,protein_coding,ADAMTS1,ADAM metallopeptidase with thrombospondin type 1 motif 1 [Source:HGNC Symbol;Acc:HGNC:217],NA,ADAMTS
+yes,ENSAPLT00020002321,protein_coding,ADAMTS5,ADAM metallopeptidase with thrombospondin type 1 motif 5 [Source:HGNC Symbol;Acc:HGNC:221],NA,ADAMTS
+yes,ENSAPLT00020004306,protein_coding,ADAMTS19,ADAM metallopeptidase with thrombospondin type 1 motif 19 [Source:HGNC Symbol;Acc:HGNC:17111],NA,ADAMTS
+yes,ENSAPLT00020004328,protein_coding,ADAMTS19,ADAM metallopeptidase with thrombospondin type 1 motif 19 [Source:HGNC Symbol;Acc:HGNC:17111],NA,ADAMTS
+yes,ENSAPLT00020005451,protein_coding,ADAMTSL2,ADAMTS like 2 [Source:HGNC Symbol;Acc:HGNC:14631],NA,ADAMTS
+yes,ENSAPLT00020005546,protein_coding,ADAMTS13,ADAM metallopeptidase with thrombospondin type 1 motif 13 [Source:HGNC Symbol;Acc:HGNC:1366],NA,ADAMTS
+yes,ENSAPLT00020006865,protein_coding,ADAMTS6,ADAM metallopeptidase with thrombospondin type 1 motif 6 [Source:HGNC Symbol;Acc:HGNC:222],NA,ADAMTS
+yes,ENSAPLT00020009468,protein_coding,ADAMTS20,ADAM metallopeptidase with thrombospondin type 1 motif 20 [Source:HGNC Symbol;Acc:HGNC:17178],NA,ADAMTS
+yes,ENSAPLT00020009496,protein_coding,ADAMTS20,ADAM metallopeptidase with thrombospondin type 1 motif 20 [Source:HGNC Symbol;Acc:HGNC:17178],NA,ADAMTS
+yes,ENSAPLT00020009505,protein_coding,ADAMTS20,ADAM metallopeptidase with thrombospondin type 1 motif 20 [Source:HGNC Symbol;Acc:HGNC:17178],NA,ADAMTS
+yes,ENSAPLT00020009513,protein_coding,ADAMTS20,ADAM metallopeptidase with thrombospondin type 1 motif 20 [Source:HGNC Symbol;Acc:HGNC:17178],NA,ADAMTS
+yes,ENSAPLT00020009753,protein_coding,ADAMTS14,ADAM metallopeptidase with thrombospondin type 1 motif 14 [Source:HGNC Symbol;Acc:HGNC:14899],NA,ADAMTS
+yes,ENSAPLT00020009781,protein_coding,ADAMTS14,ADAM metallopeptidase with thrombospondin type 1 motif 14 [Source:HGNC Symbol;Acc:HGNC:14899],NA,ADAMTS
+yes,ENSAPLT00020009863,protein_coding,ADAMTS14,ADAM metallopeptidase with thrombospondin type 1 motif 14 [Source:HGNC Symbol;Acc:HGNC:14899],NA,ADAMTS
+yes,ENSAPLT00020011613,protein_coding,ADAMTSL1,ADAMTS like 1 [Source:HGNC Symbol;Acc:HGNC:14632],NA,ADAMTS
+yes,ENSAPLT00020011645,protein_coding,ADAMTSL1,ADAMTS like 1 [Source:HGNC Symbol;Acc:HGNC:14632],NA,ADAMTS
+yes,ENSAPLT00020011684,protein_coding,ADAMTSL1,ADAMTS like 1 [Source:HGNC Symbol;Acc:HGNC:14632],NA,ADAMTS
+yes,ENSAPLT00020013464,protein_coding,ADAMTS12,ADAM metallopeptidase with thrombospondin type 1 motif 12 [Source:HGNC Symbol;Acc:HGNC:14605],NA,ADAMTS
+yes,ENSAPLT00020014545,protein_coding,ADAMTS18,ADAM metallopeptidase with thrombospondin type 1 motif 18 [Source:HGNC Symbol;Acc:HGNC:17110],NA,ADAMTS
+yes,ENSAPLT00020014547,protein_coding,ADAMTS18,ADAM metallopeptidase with thrombospondin type 1 motif 18 [Source:HGNC Symbol;Acc:HGNC:17110],NA,ADAMTS
+yes,ENSAPLT00020014552,protein_coding,ADAMTS18,ADAM metallopeptidase with thrombospondin type 1 motif 18 [Source:HGNC Symbol;Acc:HGNC:17110],NA,ADAMTS
+yes,ENSAPLT00020016564,protein_coding,ADAMTS3,ADAM metallopeptidase with thrombospondin type 1 motif 3 [Source:NCBI gene;Acc:101801056],101801056,ADAMTS
+yes,ENSAPLT00020016595,protein_coding,ADAMTS3,ADAM metallopeptidase with thrombospondin type 1 motif 3 [Source:NCBI gene;Acc:101801056],101801056,ADAMTS
+yes,ENSAPLT00020016625,protein_coding,ADAMTS3,ADAM metallopeptidase with thrombospondin type 1 motif 3 [Source:NCBI gene;Acc:101801056],101801056,ADAMTS
+yes,ENSAPLT00020016634,protein_coding,ADAMTS3,ADAM metallopeptidase with thrombospondin type 1 motif 3 [Source:NCBI gene;Acc:101801056],101801056,ADAMTS
+yes,ENSAPLT00020017769,protein_coding,ADAMTS7,ADAM metallopeptidase with thrombospondin type 1 motif 7 [Source:HGNC Symbol;Acc:HGNC:223],NA,ADAMTS
+yes,ENSAPLT00020017813,protein_coding,ADAMTS7,ADAM metallopeptidase with thrombospondin type 1 motif 7 [Source:HGNC Symbol;Acc:HGNC:223],NA,ADAMTS
+yes,ENSAPLT00020017864,protein_coding,ADAMTS7,ADAM metallopeptidase with thrombospondin type 1 motif 7 [Source:HGNC Symbol;Acc:HGNC:223],NA,ADAMTS
+yes,ENSAPLT00020019848,protein_coding,ADAMTS15,ADAM metallopeptidase with thrombospondin type 1 motif 15 [Source:HGNC Symbol;Acc:HGNC:16305],NA,ADAMTS
+yes,ENSAPLT00020019849,protein_coding,ADAMTS15,ADAM metallopeptidase with thrombospondin type 1 motif 15 [Source:HGNC Symbol;Acc:HGNC:16305],NA,ADAMTS
+yes,ENSAPLT00020019860,protein_coding,ADAMTS15,ADAM metallopeptidase with thrombospondin type 1 motif 15 [Source:HGNC Symbol;Acc:HGNC:16305],NA,ADAMTS
+yes,ENSAPLT00020019862,protein_coding,ADAMTS15,ADAM metallopeptidase with thrombospondin type 1 motif 15 [Source:HGNC Symbol;Acc:HGNC:16305],NA,ADAMTS
+yes,ENSAPLT00020019866,protein_coding,ADAMTS8,ADAM metallopeptidase with thrombospondin type 1 motif 8 [Source:HGNC Symbol;Acc:HGNC:224],NA,ADAMTS
+yes,ENSAPLT00020020317,protein_coding,ADAMTS9,ADAM metallopeptidase with thrombospondin type 1 motif 9 [Source:HGNC Symbol;Acc:HGNC:13202],NA,ADAMTS
+yes,ENSAPLT00020020355,protein_coding,ADAMTS9,ADAM metallopeptidase with thrombospondin type 1 motif 9 [Source:HGNC Symbol;Acc:HGNC:13202],NA,ADAMTS
+yes,ENSAPLT00020021946,protein_coding,ADAMTS17,ADAM metallopeptidase with thrombospondin type 1 motif 17 [Source:HGNC Symbol;Acc:HGNC:17109],NA,ADAMTS
+yes,ENSAPLT00020021949,protein_coding,ADAMTS17,ADAM metallopeptidase with thrombospondin type 1 motif 17 [Source:HGNC Symbol;Acc:HGNC:17109],NA,ADAMTS
+yes,ENSAPLT00020023500,protein_coding,ADAMTS10,ADAM metallopeptidase with thrombospondin type 1 motif 10 [Source:HGNC Symbol;Acc:HGNC:13201],NA,ADAMTS
+yes,ENSAPLT00020023502,protein_coding,ADAMTS10,ADAM metallopeptidase with thrombospondin type 1 motif 10 [Source:HGNC Symbol;Acc:HGNC:13201],NA,ADAMTS
+yes,ENSAPLT00020023503,protein_coding,ADAMTS10,ADAM metallopeptidase with thrombospondin type 1 motif 10 [Source:HGNC Symbol;Acc:HGNC:13201],NA,ADAMTS
+yes,ENSAPLT00020023508,protein_coding,ADAMTS10,ADAM metallopeptidase with thrombospondin type 1 motif 10 [Source:HGNC Symbol;Acc:HGNC:13201],NA,ADAMTS
+yes,ENSAPLT00020027860,protein_coding,ADAMTS2,ADAM metallopeptidase with thrombospondin type 1 motif 2 [Source:HGNC Symbol;Acc:HGNC:218],NA,ADAMTS
+yes,ENSAPLT00020027865,protein_coding,ADAMTSL3,ADAMTS like 3 [Source:HGNC Symbol;Acc:HGNC:14633],NA,ADAMTS
+yes,ENSAPLT00020008140,protein_coding,FOSL2,"FOS like 2, AP-1 transcription factor subunit [Source:HGNC Symbol;Acc:HGNC:3798]",NA,AP-1
+yes,ENSAPLT00020018016,protein_coding,FOS,"Fos proto-oncogene, AP-1 transcription factor subunit [Source:HGNC Symbol;Acc:HGNC:3796]",NA,AP-1
+yes,ENSAPLT00020018017,protein_coding,FOS,"Fos proto-oncogene, AP-1 transcription factor subunit [Source:HGNC Symbol;Acc:HGNC:3796]",NA,AP-1
+yes,ENSAPLT00020024843,protein_coding,FOSB,"FosB proto-oncogene, AP-1 transcription factor subunit [Source:HGNC Symbol;Acc:HGNC:3797]",NA,AP-1
+yes,ENSAPLT00020024857,protein_coding,FOSB,"FosB proto-oncogene, AP-1 transcription factor subunit [Source:HGNC Symbol;Acc:HGNC:3797]",NA,AP-1
+yes,ENSAPLT00020024859,protein_coding,FOSB,"FosB proto-oncogene, AP-1 transcription factor subunit [Source:HGNC Symbol;Acc:HGNC:3797]",NA,AP-1
+yes,ENSAPLT00020024864,protein_coding,FOSB,"FosB proto-oncogene, AP-1 transcription factor subunit [Source:HGNC Symbol;Acc:HGNC:3797]",NA,AP-1
+yes,ENSAPLT00020025715,protein_coding,JUN,"Jun proto-oncogene, AP-1 transcription factor subunit [Source:NCBI gene;Acc:101796626]",101796626,AP-1
+yes,ENSAPLT00020007456,protein_coding,TFB2M,"transcription factor B2, mitochondrial [Source:HGNC Symbol;Acc:HGNC:18559]",NA,B2M
+yes,ENSAPLT00020007524,protein_coding,TFB2M,"transcription factor B2, mitochondrial [Source:HGNC Symbol;Acc:HGNC:18559]",NA,B2M
+yes,ENSAPLT00020007561,protein_coding,TFB2M,"transcription factor B2, mitochondrial [Source:HGNC Symbol;Acc:HGNC:18559]",NA,B2M
+yes,ENSAPLT00020013200,protein_coding,BDNF,brain derived neurotrophic factor [Source:NCBI gene;Acc:101793720],101793720,BDNF
+yes,ENSAPLT00020013204,protein_coding,BDNF,brain derived neurotrophic factor [Source:NCBI gene;Acc:101793720],101793720,BDNF
+yes,ENSAPLT00020001042,protein_coding,BMPR1B,bone morphogenetic protein receptor type 1B [Source:NCBI gene;Acc:101794439],101794439,BMP
+yes,ENSAPLT00020001328,protein_coding,BMPR2,bone morphogenetic protein receptor type 2 [Source:HGNC Symbol;Acc:HGNC:1078],NA,BMP
+yes,ENSAPLT00020001348,protein_coding,BMPR2,bone morphogenetic protein receptor type 2 [Source:HGNC Symbol;Acc:HGNC:1078],NA,BMP
+yes,ENSAPLT00020007654,protein_coding,BRINP3,BMP/retinoic acid inducible neural specific 3 [Source:NCBI gene;Acc:101800093],101800093,BMP
+no,ENSAPLT00020008886,protein_coding,GREM2,"gremlin 2, DAN family BMP antagonist [Source:NCBI gene;Acc:101792191]",101792191,BMP
+no,ENSAPLT00020012171,protein_coding,RGMB,repulsive guidance molecule BMP co-receptor b [Source:HGNC Symbol;Acc:HGNC:26896],NA,BMP
+no,ENSAPLT00020012244,protein_coding,BAMBI,BMP and activin membrane bound inhibitor [Source:NCBI gene;Acc:101792754],101792754,BMP
+no,ENSAPLT00020014289,protein_coding,HJV,hemojuvelin BMP co-receptor [Source:HGNC Symbol;Acc:HGNC:4887],NA,BMP
+yes,ENSAPLT00020014701,protein_coding,BMP3,bone morphogenetic protein 3 [Source:HGNC Symbol;Acc:HGNC:1070],NA,BMP
+no,ENSAPLT00020014723,protein_coding,CER1,"cerberus 1, DAN family BMP antagonist [Source:HGNC Symbol;Acc:HGNC:1862]",NA,BMP
+yes,ENSAPLT00020015438,protein_coding,BMP2,bone morphogenetic protein 2 [Source:HGNC Symbol;Acc:HGNC:1069],NA,BMP
+yes,ENSAPLT00020016355,protein_coding,BMP2K,BMP2 inducible kinase [Source:HGNC Symbol;Acc:HGNC:18041],NA,BMP
+yes,ENSAPLT00020016357,protein_coding,BMP2K,BMP2 inducible kinase [Source:HGNC Symbol;Acc:HGNC:18041],NA,BMP
+yes,ENSAPLT00020016553,protein_coding,BMP10,bone morphogenetic protein 10 [Source:HGNC Symbol;Acc:HGNC:20869],NA,BMP
+yes,ENSAPLT00020016623,protein_coding,CRIM1,cysteine rich transmembrane BMP regulator 1 [Source:HGNC Symbol;Acc:HGNC:2359],NA,BMP
+yes,ENSAPLT00020016629,protein_coding,CRIM1,cysteine rich transmembrane BMP regulator 1 [Source:HGNC Symbol;Acc:HGNC:2359],NA,BMP
+yes,ENSAPLT00020017966,protein_coding,BMP6,bone morphogenetic protein 6 [Source:HGNC Symbol;Acc:HGNC:1073],NA,BMP
+yes,ENSAPLT00020017967,protein_coding,BMP6,bone morphogenetic protein 6 [Source:HGNC Symbol;Acc:HGNC:1073],NA,BMP
+yes,ENSAPLT00020017978,protein_coding,BMP6,bone morphogenetic protein 6 [Source:HGNC Symbol;Acc:HGNC:1073],NA,BMP
+yes,ENSAPLT00020019539,protein_coding,BMP5,bone morphogenetic protein 5 [Source:NCBI gene;Acc:101798837],101798837,BMP
+no,ENSAPLT00020021843,protein_coding,RGMA,repulsive guidance molecule BMP co-receptor a [Source:NCBI gene;Acc:101799588],101799588,BMP
+yes,ENSAPLT00020022557,protein_coding,BMPR1A,bone morphogenetic protein receptor type 1A [Source:HGNC Symbol;Acc:HGNC:1076],NA,BMP
+yes,ENSAPLT00020025053,protein_coding,BMP7,bone morphogenetic protein 7 [Source:HGNC Symbol;Acc:HGNC:1074],NA,BMP
+no,ENSAPLT00020025671,protein_coding,NBL1,"NBL1, DAN family BMP antagonist [Source:HGNC Symbol;Acc:HGNC:7650]",NA,BMP
+no,ENSAPLT00020026221,protein_coding,BMPER,BMP binding endothelial regulator [Source:HGNC Symbol;Acc:HGNC:24154],NA,BMP
+no,ENSAPLT00020026223,protein_coding,BMPER,BMP binding endothelial regulator [Source:HGNC Symbol;Acc:HGNC:24154],NA,BMP
+no,ENSAPLT00020026227,protein_coding,BMPER,BMP binding endothelial regulator [Source:HGNC Symbol;Acc:HGNC:24154],NA,BMP
+yes,ENSAPLT00020026722,protein_coding,BRINP1,BMP/retinoic acid inducible neural specific 1 [Source:NCBI gene;Acc:101792314],101792314,BMP
+yes,ENSAPLT00020027257,protein_coding,BRINP2,BMP/retinoic acid inducible neural specific 2 [Source:NCBI gene;Acc:101798618],101798618,BMP
+yes,ENSAPLT00020027354,protein_coding,BMP4,bone morphogenetic protein 4 [Source:NCBI gene;Acc:101803077],101803077,BMP
+no,ENSAPLT00020027594,protein_coding,GREM1,"gremlin 1, DAN family BMP antagonist [Source:NCBI gene;Acc:101789702]",101789702,BMP
+yes,ENSAPLT00020027989,protein_coding,BMP15,bone morphogenetic protein 15 [Source:HGNC Symbol;Acc:HGNC:1068],NA,BMP
+no,ENSAPLT00020012919,protein_coding,SCAMP3,secretory carrier membrane protein 3 [Source:HGNC Symbol;Acc:HGNC:10565],NA,CAMP
+no,ENSAPLT00020012923,protein_coding,SCAMP3,secretory carrier membrane protein 3 [Source:HGNC Symbol;Acc:HGNC:10565],NA,CAMP
+no,ENSAPLT00020023090,protein_coding,SCAMP4,secretory carrier membrane protein 4 [Source:HGNC Symbol;Acc:HGNC:30385],NA,CAMP
+no,ENSAPLT00020025212,protein_coding,SCAMP2,secretory carrier membrane protein 2 [Source:HGNC Symbol;Acc:HGNC:10564],NA,CAMP
+no,ENSAPLT00020025226,protein_coding,SCAMP5,secretory carrier membrane protein 5 [Source:HGNC Symbol;Acc:HGNC:30386],NA,CAMP
+no,ENSAPLT00020007181,protein_coding,DCBLD2,"discoidin, CUB and LCCL domain containing 2 [Source:HGNC Symbol;Acc:HGNC:24627]",NA,CCL
+no,ENSAPLT00020010447,protein_coding,CRISPLD1,cysteine rich secretory protein LCCL domain containing 1 [Source:HGNC Symbol;Acc:HGNC:18206],NA,CCL
+no,ENSAPLT00020010449,protein_coding,CRISPLD1,cysteine rich secretory protein LCCL domain containing 1 [Source:HGNC Symbol;Acc:HGNC:18206],NA,CCL
+no,ENSAPLT00020010458,protein_coding,CRISPLD1,cysteine rich secretory protein LCCL domain containing 1 [Source:HGNC Symbol;Acc:HGNC:18206],NA,CCL
+no,ENSAPLT00020010466,protein_coding,CRISPLD1,cysteine rich secretory protein LCCL domain containing 1 [Source:HGNC Symbol;Acc:HGNC:18206],NA,CCL
+no,ENSAPLT00020010470,protein_coding,CRISPLD1,cysteine rich secretory protein LCCL domain containing 1 [Source:HGNC Symbol;Acc:HGNC:18206],NA,CCL
+no,ENSAPLT00020019161,protein_coding,CRISPLD2,cysteine rich secretory protein LCCL domain containing 2 [Source:HGNC Symbol;Acc:HGNC:25248],NA,CCL
+no,ENSAPLT00020020093,protein_coding,DCBLD1,"discoidin, CUB and LCCL domain containing 1 [Source:HGNC Symbol;Acc:HGNC:21479]",NA,CCL
+no,ENSAPLT00020020098,protein_coding,DCBLD1,"discoidin, CUB and LCCL domain containing 1 [Source:HGNC Symbol;Acc:HGNC:21479]",NA,CCL
+yes,ENSAPLT00020025459,protein_coding,CCL5,C-C motif chemokine ligand 5 [Source:HGNC Symbol;Acc:HGNC:10632],NA,CCL
+yes,ENSAPLT00020000249,protein_coding,CCR6,C-C motif chemokine receptor 6 [Source:NCBI gene;Acc:101797063],101797063,CCR
+yes,ENSAPLT00020000255,protein_coding,CCR6,C-C motif chemokine receptor 6 [Source:NCBI gene;Acc:101797063],101797063,CCR
+yes,ENSAPLT00020002867,protein_coding,CNOT11,CCR4-NOT transcription complex subunit 11 [Source:NCBI gene;Acc:101799099],101799099,CCR
+yes,ENSAPLT00020006318,protein_coding,CNOT4,CCR4-NOT transcription complex subunit 4 [Source:NCBI gene;Acc:101802687],101802687,CCR
+yes,ENSAPLT00020006334,protein_coding,CNOT4,CCR4-NOT transcription complex subunit 4 [Source:NCBI gene;Acc:101802687],101802687,CCR
+yes,ENSAPLT00020006343,protein_coding,CNOT4,CCR4-NOT transcription complex subunit 4 [Source:NCBI gene;Acc:101802687],101802687,CCR
+yes,ENSAPLT00020006367,protein_coding,CNOT4,CCR4-NOT transcription complex subunit 4 [Source:NCBI gene;Acc:101802687],101802687,CCR
+yes,ENSAPLT00020006377,protein_coding,CNOT4,CCR4-NOT transcription complex subunit 4 [Source:NCBI gene;Acc:101802687],101802687,CCR
+yes,ENSAPLT00020006425,protein_coding,CNOT9,CCR4-NOT transcription complex subunit 9 [Source:HGNC Symbol;Acc:HGNC:10445],NA,CCR
+yes,ENSAPLT00020007641,protein_coding,CNOT6L,CCR4-NOT transcription complex subunit 6 like [Source:HGNC Symbol;Acc:HGNC:18042],NA,CCR
+yes,ENSAPLT00020009214,protein_coding,CCR10,C-C motif chemokine receptor 10 [Source:HGNC Symbol;Acc:HGNC:4474],NA,CCR
+yes,ENSAPLT00020009219,protein_coding,CCR10,C-C motif chemokine receptor 10 [Source:HGNC Symbol;Acc:HGNC:4474],NA,CCR
+yes,ENSAPLT00020009633,protein_coding,CNOT7,CCR4-NOT transcription complex subunit 7 [Source:HGNC Symbol;Acc:HGNC:14101],NA,CCR
+yes,ENSAPLT00020009933,protein_coding,CCR9,C-C motif chemokine receptor 9 [Source:HGNC Symbol;Acc:HGNC:1610],NA,CCR
+yes,ENSAPLT00020011175,protein_coding,CNOT8,CCR4-NOT transcription complex subunit 8 [Source:NCBI gene;Acc:101803328],101803328,CCR
+yes,ENSAPLT00020017733,protein_coding,CNOT2,CCR4-NOT transcription complex subunit 2 [Source:NCBI gene;Acc:101791062],101791062,CCR
+yes,ENSAPLT00020017741,protein_coding,CNOT2,CCR4-NOT transcription complex subunit 2 [Source:NCBI gene;Acc:101791062],101791062,CCR
+yes,ENSAPLT00020022706,protein_coding,CNOT10,CCR4-NOT transcription complex subunit 10 [Source:NCBI gene;Acc:101797115],101797115,CCR
+yes,ENSAPLT00020026378,protein_coding,CNOT1,CCR4-NOT transcription complex subunit 1 [Source:HGNC Symbol;Acc:HGNC:7877],NA,CCR
+yes,ENSAPLT00020026381,protein_coding,CNOT1,CCR4-NOT transcription complex subunit 1 [Source:HGNC Symbol;Acc:HGNC:7877],NA,CCR
+yes,ENSAPLT00020026385,protein_coding,CNOT1,CCR4-NOT transcription complex subunit 1 [Source:HGNC Symbol;Acc:HGNC:7877],NA,CCR
+yes,ENSAPLT00020027852,protein_coding,CNOT6,CCR4-NOT transcription complex subunit 6 [Source:HGNC Symbol;Acc:HGNC:14099],NA,CCR
+yes,ENSAPLT00020028678,protein_coding,CCR7,C-C motif chemokine receptor 7 [Source:HGNC Symbol;Acc:HGNC:1608],NA,CCR
+yes,ENSAPLT00020023625,protein_coding,CD3E,CD3e molecule [Source:HGNC Symbol;Acc:HGNC:1674],NA,CD3E
+yes,ENSAPLT00020023626,protein_coding,CD3E,CD3e molecule [Source:HGNC Symbol;Acc:HGNC:1674],NA,CD3E
+no,ENSAPLT00020006398,protein_coding,PLCD4,phospholipase C delta 4 [Source:HGNC Symbol;Acc:HGNC:9062],NA,CD4
+no,ENSAPLT00020006408,protein_coding,PLCD4,phospholipase C delta 4 [Source:HGNC Symbol;Acc:HGNC:9062],NA,CD4
+no,ENSAPLT00020011776,protein_coding,C2CD4C,C2 calcium dependent domain containing 4C [Source:HGNC Symbol;Acc:HGNC:29417],NA,CD4
+no,ENSAPLT00020011879,protein_coding,PDCD4,programmed cell death 4 [Source:HGNC Symbol;Acc:HGNC:8763],NA,CD4
+no,ENSAPLT00020011887,protein_coding,PDCD4,programmed cell death 4 [Source:HGNC Symbol;Acc:HGNC:8763],NA,CD4
+no,ENSAPLT00020012298,protein_coding,HACD4,3-hydroxyacyl-CoA dehydratase 4 [Source:NCBI gene;Acc:101799288],101799288,CD4
+yes,ENSAPLT00020012381,protein_coding,CD40,CD40 molecule [Source:HGNC Symbol;Acc:HGNC:11919],NA,CD4
+yes,ENSAPLT00020012388,protein_coding,CD40,CD40 molecule [Source:HGNC Symbol;Acc:HGNC:11919],NA,CD4
+yes,ENSAPLT00020014672,protein_coding,NA,CD40 ligand [Source:NCBI gene;Acc:101789598],101789598,CD4
+yes,ENSAPLT00020014675,protein_coding,NA,CD40 ligand [Source:NCBI gene;Acc:101789598],101789598,CD4
+yes,ENSAPLT00020015682,protein_coding,CD47,CD47 molecule [Source:HGNC Symbol;Acc:HGNC:1682],NA,CD4
+yes,ENSAPLT00020015686,protein_coding,CD47,CD47 molecule [Source:HGNC Symbol;Acc:HGNC:1682],NA,CD4
+yes,ENSAPLT00020015689,protein_coding,CD47,CD47 molecule [Source:HGNC Symbol;Acc:HGNC:1682],NA,CD4
+no,ENSAPLT00020019352,protein_coding,ABCD4,ATP binding cassette subfamily D member 4 [Source:HGNC Symbol;Acc:HGNC:68],NA,CD4
+yes,ENSAPLT00020004231,protein_coding,PCDHAC1,"protocadherin alpha subfamily C, 1 [Source:HGNC Symbol;Acc:HGNC:8676]",NA,CDH
+yes,ENSAPLT00020004345,protein_coding,PCDH10,protocadherin 10 [Source:HGNC Symbol;Acc:HGNC:13404],NA,CDH
+yes,ENSAPLT00020004354,protein_coding,PCDH10,protocadherin 10 [Source:HGNC Symbol;Acc:HGNC:13404],NA,CDH
+yes,ENSAPLT00020008166,protein_coding,CDH26,cadherin 26 [Source:HGNC Symbol;Acc:HGNC:15902],NA,CDH
+yes,ENSAPLT00020008201,protein_coding,CDH4,cadherin 4 [Source:HGNC Symbol;Acc:HGNC:1763],NA,CDH
+yes,ENSAPLT00020008849,protein_coding,CDH17,cadherin 17 [Source:HGNC Symbol;Acc:HGNC:1756],NA,CDH
+yes,ENSAPLT00020008874,protein_coding,CDH17,cadherin 17 [Source:HGNC Symbol;Acc:HGNC:1756],NA,CDH
+yes,ENSAPLT00020016860,protein_coding,CDH2,cadherin 2 [Source:HGNC Symbol;Acc:HGNC:1759],NA,CDH
+yes,ENSAPLT00020017100,protein_coding,CDH2,cadherin 2 [Source:HGNC Symbol;Acc:HGNC:1759],NA,CDH
+yes,ENSAPLT00020017232,protein_coding,CDH2,cadherin 2 [Source:HGNC Symbol;Acc:HGNC:1759],NA,CDH
+yes,ENSAPLT00020017246,protein_coding,CDH2,cadherin 2 [Source:HGNC Symbol;Acc:HGNC:1759],NA,CDH
+yes,ENSAPLT00020017271,protein_coding,CDH2,cadherin 2 [Source:HGNC Symbol;Acc:HGNC:1759],NA,CDH
+yes,ENSAPLT00020017407,protein_coding,CDH2,cadherin 2 [Source:HGNC Symbol;Acc:HGNC:1759],NA,CDH
+yes,ENSAPLT00020009354,protein_coding,CDH15,cadherin 15 [Source:HGNC Symbol;Acc:HGNC:1754],NA,CDH
+yes,ENSAPLT00020009369,protein_coding,CDH15,cadherin 15 [Source:HGNC Symbol;Acc:HGNC:1754],NA,CDH
+yes,ENSAPLT00020010508,protein_coding,CDH7,cadherin 7 [Source:HGNC Symbol;Acc:HGNC:1766],NA,CDH
+yes,ENSAPLT00020010520,protein_coding,CDH19,cadherin 19 [Source:HGNC Symbol;Acc:HGNC:1758],NA,CDH
+yes,ENSAPLT00020011657,protein_coding,CDH1,cadherin 1 [Source:HGNC Symbol;Acc:HGNC:1748],NA,CDH
+yes,ENSAPLT00020011672,protein_coding,CDH1,cadherin 1 [Source:HGNC Symbol;Acc:HGNC:1748],NA,CDH
+yes,ENSAPLT00020012424,protein_coding,CDH22,cadherin 22 [Source:NCBI gene;Acc:101791798],101791798,CDH
+yes,ENSAPLT00020014482,protein_coding,PCDH15,protocadherin related 15 [Source:HGNC Symbol;Acc:HGNC:14674],NA,CDH
+yes,ENSAPLT00020014489,protein_coding,PCDH15,protocadherin related 15 [Source:HGNC Symbol;Acc:HGNC:14674],NA,CDH
+yes,ENSAPLT00020014491,protein_coding,PCDH15,protocadherin related 15 [Source:HGNC Symbol;Acc:HGNC:14674],NA,CDH
+yes,ENSAPLT00020014512,protein_coding,PCDH15,protocadherin related 15 [Source:HGNC Symbol;Acc:HGNC:14674],NA,CDH
+yes,ENSAPLT00020013984,protein_coding,PCDH8,protocadherin 8 [Source:HGNC Symbol;Acc:HGNC:8660],NA,CDH
+yes,ENSAPLT00020014254,protein_coding,PCDH19,protocadherin 19 [Source:HGNC Symbol;Acc:HGNC:14270],NA,CDH
+yes,ENSAPLT00020014467,protein_coding,CDH5,cadherin 5 [Source:NCBI gene;Acc:101793216],101793216,CDH
+yes,ENSAPLT00020014473,protein_coding,CDH11,cadherin 11 [Source:NCBI gene;Acc:101793771],101793771,CDH
+yes,ENSAPLT00020014488,protein_coding,CDH8,cadherin 8 [Source:HGNC Symbol;Acc:HGNC:1767],NA,CDH
+yes,ENSAPLT00020014495,protein_coding,CDH8,cadherin 8 [Source:HGNC Symbol;Acc:HGNC:1767],NA,CDH
+yes,ENSAPLT00020015025,protein_coding,CDH13,cadherin 13 [Source:HGNC Symbol;Acc:HGNC:1753],NA,CDH
+yes,ENSAPLT00020016536,protein_coding,CDH23,cadherin related 23 [Source:HGNC Symbol;Acc:HGNC:13733],NA,CDH
+yes,ENSAPLT00020016537,protein_coding,CDH23,cadherin related 23 [Source:HGNC Symbol;Acc:HGNC:13733],NA,CDH
+yes,ENSAPLT00020016986,protein_coding,CDH20,cadherin 20 [Source:NCBI gene;Acc:101799811],101799811,CDH
+yes,ENSAPLT00020017049,protein_coding,CDH6,cadherin-6 [Source:NCBI gene;Acc:101793646],101793646,CDH
+yes,ENSAPLT00020017055,protein_coding,CDH9,cadherin 9 [Source:NCBI gene;Acc:101792226],101792226,CDH
+yes,ENSAPLT00020017065,protein_coding,CDH10,cadherin 10 [Source:HGNC Symbol;Acc:HGNC:1749],NA,CDH
+yes,ENSAPLT00020017095,protein_coding,CDH18,cadherin 18 [Source:HGNC Symbol;Acc:HGNC:1757],NA,CDH
+yes,ENSAPLT00020021044,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020021088,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020021120,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020021149,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020021171,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020021212,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020021254,protein_coding,PCDH17,protocadherin 17 [Source:HGNC Symbol;Acc:HGNC:14267],NA,CDH
+yes,ENSAPLT00020021255,protein_coding,PCDH17,protocadherin 17 [Source:HGNC Symbol;Acc:HGNC:14267],NA,CDH
+yes,ENSAPLT00020021257,protein_coding,PCDH17,protocadherin 17 [Source:HGNC Symbol;Acc:HGNC:14267],NA,CDH
+yes,ENSAPLT00020021258,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020021300,protein_coding,PCDHAC2,"protocadherin alpha subfamily C, 2 [Source:HGNC Symbol;Acc:HGNC:8677]",NA,CDH
+yes,ENSAPLT00020022098,protein_coding,CDHR1,cadherin related family member 1 [Source:NCBI gene;Acc:101793306],101793306,CDH
+yes,ENSAPLT00020022100,protein_coding,CDHR1,cadherin related family member 1 [Source:NCBI gene;Acc:101793306],101793306,CDH
+yes,ENSAPLT00020024416,protein_coding,PCDH7,protocadherin 7 [Source:HGNC Symbol;Acc:HGNC:8659],NA,CDH
+no,ENSAPLT00020000120,protein_coding,CSF2RB,colony stimulating factor 2 receptor subunit beta [Source:HGNC Symbol;Acc:HGNC:2436],NA,CSF
+no,ENSAPLT00020000263,protein_coding,CSF2RB,colony stimulating factor 2 receptor subunit beta [Source:HGNC Symbol;Acc:HGNC:2436],NA,CSF
+no,ENSAPLT00020000275,protein_coding,CSF2RB,colony stimulating factor 2 receptor subunit beta [Source:HGNC Symbol;Acc:HGNC:2436],NA,CSF
+no,ENSAPLT00020000289,protein_coding,CSF2RB,colony stimulating factor 2 receptor subunit beta [Source:HGNC Symbol;Acc:HGNC:2436],NA,CSF
+no,ENSAPLT00020000295,protein_coding,CSF2RB,colony stimulating factor 2 receptor subunit beta [Source:HGNC Symbol;Acc:HGNC:2436],NA,CSF
+no,ENSAPLT00020000311,protein_coding,CSF2RB,colony stimulating factor 2 receptor subunit beta [Source:HGNC Symbol;Acc:HGNC:2436],NA,CSF
+no,ENSAPLT00020008506,protein_coding,ACSF2,acyl-CoA synthetase family member 2 [Source:HGNC Symbol;Acc:HGNC:26101],NA,CSF
+no,ENSAPLT00020008523,protein_coding,ACSF2,acyl-CoA synthetase family member 2 [Source:HGNC Symbol;Acc:HGNC:26101],NA,CSF
+no,ENSAPLT00020008544,protein_coding,ACSF2,acyl-CoA synthetase family member 2 [Source:HGNC Symbol;Acc:HGNC:26101],NA,CSF
+no,ENSAPLT00020009324,protein_coding,ACSF3,acyl-CoA synthetase family member 3 [Source:HGNC Symbol;Acc:HGNC:27288],NA,CSF
+no,ENSAPLT00020009332,protein_coding,ACSF3,acyl-CoA synthetase family member 3 [Source:HGNC Symbol;Acc:HGNC:27288],NA,CSF
+no,ENSAPLT00020027965,protein_coding,CSF1R,colony stimulating factor 1 receptor [Source:HGNC Symbol;Acc:HGNC:2433],NA,CSF
+no,ENSAPLT00020028590,protein_coding,CSF3,colony stimulating factor 3 [Source:HGNC Symbol;Acc:HGNC:2438],NA,CSF
+yes,ENSAPLT00020024834,protein_coding,CX3CR1,C-X3-C motif chemokine receptor 1 [Source:NCBI gene;Acc:101794421],101794421,CX3
+yes,ENSAPLT00020021219,protein_coding,CXCR4,C-X-C motif chemokine receptor 4 [Source:HGNC Symbol;Acc:HGNC:2561],NA,CXCR4
+no,ENSAPLT00020001377,protein_coding,DBI,"diazepam binding inhibitor, acyl-CoA binding protein [Source:HGNC Symbol;Acc:HGNC:2690]",NA,DB
+no,ENSAPLT00020001707,protein_coding,SETDB2,SET domain bifurcated histone lysine methyltransferase 2 [Source:HGNC Symbol;Acc:HGNC:20263],NA,DB
+no,ENSAPLT00020002198,protein_coding,DBR1,debranching RNA lariats 1 [Source:NCBI gene;Acc:101795594],101795594,DB
+no,ENSAPLT00020002671,protein_coding,DCAF13,DDB1 and CUL4 associated factor 13 [Source:NCBI gene;Acc:101797214],101797214,DB
+no,ENSAPLT00020002925,protein_coding,DDB2,damage specific DNA binding protein 2 [Source:HGNC Symbol;Acc:HGNC:2718],NA,DB
+no,ENSAPLT00020003762,protein_coding,NA,DBF4 zinc finger B [Source:NCBI gene;Acc:101803862],101803862,DB
+no,ENSAPLT00020003780,protein_coding,NA,DBF4 zinc finger B [Source:NCBI gene;Acc:101803862],101803862,DB
+no,ENSAPLT00020004445,protein_coding,DDB1,damage specific DNA binding protein 1 [Source:HGNC Symbol;Acc:HGNC:2717],NA,DB
+no,ENSAPLT00020005420,protein_coding,DBH,dopamine beta-hydroxylase [Source:HGNC Symbol;Acc:HGNC:2689],NA,DB
+no,ENSAPLT00020006540,protein_coding,DCAF5,DDB1 and CUL4 associated factor 5 [Source:NCBI gene;Acc:101795661],101795661,DB
+no,ENSAPLT00020007928,protein_coding,DBN1,drebrin 1 [Source:HGNC Symbol;Acc:HGNC:2695],NA,DB
+no,ENSAPLT00020007947,protein_coding,DBN1,drebrin 1 [Source:HGNC Symbol;Acc:HGNC:2695],NA,DB
+no,ENSAPLT00020008621,protein_coding,LDB1,LIM domain binding 1 [Source:HGNC Symbol;Acc:HGNC:6532],NA,DB
+no,ENSAPLT00020009023,protein_coding,DBX1,developing brain homeobox 1 [Source:HGNC Symbol;Acc:HGNC:33185],NA,DB
+no,ENSAPLT00020009692,protein_coding,DBX2,developing brain homeobox 2 [Source:HGNC Symbol;Acc:HGNC:33186],NA,DB
+no,ENSAPLT00020009982,protein_coding,MOXD1,monooxygenase DBH like 1 [Source:HGNC Symbol;Acc:HGNC:21063],NA,DB
+no,ENSAPLT00020009986,protein_coding,MOXD1,monooxygenase DBH like 1 [Source:HGNC Symbol;Acc:HGNC:21063],NA,DB
+no,ENSAPLT00020010942,protein_coding,DBNL,drebrin like [Source:HGNC Symbol;Acc:HGNC:2696],NA,DB
+no,ENSAPLT00020010947,protein_coding,DBNL,drebrin like [Source:HGNC Symbol;Acc:HGNC:2696],NA,DB
+no,ENSAPLT00020011210,protein_coding,DBNDD1,dysbindin domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28455],NA,DB
+no,ENSAPLT00020011219,protein_coding,DCAF10,DDB1 and CUL4 associated factor 10 [Source:HGNC Symbol;Acc:HGNC:23686],NA,DB
+no,ENSAPLT00020012497,protein_coding,DCAF17,DDB1 and CUL4 associated factor 17 [Source:NCBI gene;Acc:101792823],101792823,DB
+no,ENSAPLT00020014506,protein_coding,DCAF7,DDB1 and CUL4 associated factor 7 [Source:HGNC Symbol;Acc:HGNC:30915],NA,DB
+no,ENSAPLT00020015154,protein_coding,STRADB,STE20 related adaptor beta [Source:NCBI gene;Acc:101798553],101798553,DB
+no,ENSAPLT00020016122,protein_coding,PHLDB2,pleckstrin homology like domain family B member 2 [Source:HGNC Symbol;Acc:HGNC:29573],NA,DB
+no,ENSAPLT00020016125,protein_coding,PHLDB2,pleckstrin homology like domain family B member 2 [Source:HGNC Symbol;Acc:HGNC:29573],NA,DB
+no,ENSAPLT00020016811,protein_coding,SETDB1,SET domain bifurcated histone lysine methyltransferase 1 [Source:HGNC Symbol;Acc:HGNC:10761],NA,DB
+no,ENSAPLT00020016814,protein_coding,SETDB1,SET domain bifurcated histone lysine methyltransferase 1 [Source:HGNC Symbol;Acc:HGNC:10761],NA,DB
+no,ENSAPLT00020017918,protein_coding,DBF4,DBF4 zinc finger [Source:NCBI gene;Acc:101796940],101796940,DB
+no,ENSAPLT00020019228,protein_coding,NA,putative DBH-like monooxygenase protein 2 [Source:NCBI gene;Acc:101794052],101794052,DB
+no,ENSAPLT00020019483,protein_coding,TARDBP,TAR DNA binding protein [Source:HGNC Symbol;Acc:HGNC:11571],NA,DB
+no,ENSAPLT00020020890,protein_coding,DBNDD2,dysbindin domain containing 2 [Source:HGNC Symbol;Acc:HGNC:15881],NA,DB
+no,ENSAPLT00020022564,protein_coding,LDB3,LIM domain binding 3 [Source:NCBI gene;Acc:101799261],101799261,DB
+no,ENSAPLT00020022567,protein_coding,LDB3,LIM domain binding 3 [Source:NCBI gene;Acc:101799261],101799261,DB
+no,ENSAPLT00020022571,protein_coding,LDB3,LIM domain binding 3 [Source:NCBI gene;Acc:101799261],101799261,DB
+no,ENSAPLT00020022575,protein_coding,LDB3,LIM domain binding 3 [Source:NCBI gene;Acc:101799261],101799261,DB
+no,ENSAPLT00020023985,protein_coding,DCAF6,DDB1 and CUL4 associated factor 6 [Source:HGNC Symbol;Acc:HGNC:30002],NA,DB
+no,ENSAPLT00020023995,protein_coding,DCAF6,DDB1 and CUL4 associated factor 6 [Source:HGNC Symbol;Acc:HGNC:30002],NA,DB
+no,ENSAPLT00020024479,protein_coding,DCAF1,DDB1 and CUL4 associated factor 1 [Source:HGNC Symbol;Acc:HGNC:30911],NA,DB
+no,ENSAPLT00020024480,protein_coding,DCAF1,DDB1 and CUL4 associated factor 1 [Source:HGNC Symbol;Acc:HGNC:30911],NA,DB
+no,ENSAPLT00020024738,protein_coding,LDB2,LIM domain binding 2 [Source:NCBI gene;Acc:101800686],101800686,DB
+no,ENSAPLT00020024744,protein_coding,LDB2,LIM domain binding 2 [Source:NCBI gene;Acc:101800686],101800686,DB
+no,ENSAPLT00020024746,protein_coding,LDB2,LIM domain binding 2 [Source:NCBI gene;Acc:101800686],101800686,DB
+no,ENSAPLT00020024791,protein_coding,DBT,dihydrolipoamide branched chain transacylase E2 [Source:HGNC Symbol;Acc:HGNC:2698],NA,DB
+no,ENSAPLT00020026651,protein_coding,PHLDB1,pleckstrin homology like domain family B member 1 [Source:HGNC Symbol;Acc:HGNC:23697],NA,DB
+no,ENSAPLT00020026663,protein_coding,PHLDB1,pleckstrin homology like domain family B member 1 [Source:HGNC Symbol;Acc:HGNC:23697],NA,DB
+no,ENSAPLT00020026664,protein_coding,PHLDB1,pleckstrin homology like domain family B member 1 [Source:HGNC Symbol;Acc:HGNC:23697],NA,DB
+no,ENSAPLT00020028992,protein_coding,DCAF12,DDB1 and CUL4 associated factor 12 [Source:HGNC Symbol;Acc:HGNC:19911],NA,DB
+no,ENSAPLT00020028996,protein_coding,DCAF12,DDB1 and CUL4 associated factor 12 [Source:HGNC Symbol;Acc:HGNC:19911],NA,DB
+yes,ENSAPLT00020014054,protein_coding,DDX58,DExD/H-box helicase 58 [Source:HGNC Symbol;Acc:HGNC:19102],NA,DDX58
+yes,ENSAPLT00020014061,protein_coding,DDX58,DExD/H-box helicase 58 [Source:HGNC Symbol;Acc:HGNC:19102],NA,DDX58
+no,ENSAPLT00020005028,protein_coding,DHX29,DExH-box helicase 29 [Source:HGNC Symbol;Acc:HGNC:15815],NA,DHX
+no,ENSAPLT00020006916,protein_coding,DHX34,DExH-box helicase 34 [Source:HGNC Symbol;Acc:HGNC:16719],NA,DHX
+no,ENSAPLT00020009107,protein_coding,PDHX,pyruvate dehydrogenase complex component X [Source:HGNC Symbol;Acc:HGNC:21350],NA,DHX
+no,ENSAPLT00020009386,protein_coding,PDHX,pyruvate dehydrogenase complex component X [Source:HGNC Symbol;Acc:HGNC:21350],NA,DHX
+no,ENSAPLT00020009395,protein_coding,PDHX,pyruvate dehydrogenase complex component X [Source:HGNC Symbol;Acc:HGNC:21350],NA,DHX
+no,ENSAPLT00020009405,protein_coding,PDHX,pyruvate dehydrogenase complex component X [Source:HGNC Symbol;Acc:HGNC:21350],NA,DHX
+no,ENSAPLT00020009542,protein_coding,DHX33,DEAH-box helicase 33 [Source:HGNC Symbol;Acc:HGNC:16718],NA,DHX
+no,ENSAPLT00020012745,protein_coding,DHX38,DEAH-box helicase 38 [Source:NCBI gene;Acc:101792737],101792737,DHX
+no,ENSAPLT00020013283,protein_coding,DHX57,DExH-box helicase 57 [Source:NCBI gene;Acc:101797301],101797301,DHX
+no,ENSAPLT00020013792,protein_coding,DHX8,DEAH-box helicase 8 [Source:HGNC Symbol;Acc:HGNC:2749],NA,DHX
+no,ENSAPLT00020014118,protein_coding,DHX8,DEAH-box helicase 8 [Source:HGNC Symbol;Acc:HGNC:2749],NA,DHX
+no,ENSAPLT00020014126,protein_coding,DHX8,DEAH-box helicase 8 [Source:HGNC Symbol;Acc:HGNC:2749],NA,DHX
+no,ENSAPLT00020014129,protein_coding,DHX8,DEAH-box helicase 8 [Source:HGNC Symbol;Acc:HGNC:2749],NA,DHX
+no,ENSAPLT00020017331,protein_coding,DHX30,DExH-box helicase 30 [Source:HGNC Symbol;Acc:HGNC:16716],NA,DHX
+no,ENSAPLT00020017332,protein_coding,DHX30,DExH-box helicase 30 [Source:HGNC Symbol;Acc:HGNC:16716],NA,DHX
+no,ENSAPLT00020017334,protein_coding,DHX30,DExH-box helicase 30 [Source:HGNC Symbol;Acc:HGNC:16716],NA,DHX
+no,ENSAPLT00020017335,protein_coding,DHX30,DExH-box helicase 30 [Source:HGNC Symbol;Acc:HGNC:16716],NA,DHX
+no,ENSAPLT00020017642,protein_coding,DHX37,DEAH-box helicase 37 [Source:NCBI gene;Acc:101803600],101803600,DHX
+no,ENSAPLT00020020751,protein_coding,DHX35,DEAH-box helicase 35 [Source:HGNC Symbol;Acc:HGNC:15861],NA,DHX
+no,ENSAPLT00020023378,protein_coding,DHX36,DEAH-box helicase 36 [Source:HGNC Symbol;Acc:HGNC:14410],NA,DHX
+no,ENSAPLT00020024656,protein_coding,DHX15,DEAH-box helicase 15 [Source:NCBI gene;Acc:101794170],101794170,DHX
+no,ENSAPLT00020024657,protein_coding,DHX15,DEAH-box helicase 15 [Source:NCBI gene;Acc:101794170],101794170,DHX
+no,ENSAPLT00020024659,protein_coding,DHX15,DEAH-box helicase 15 [Source:NCBI gene;Acc:101794170],101794170,DHX
+no,ENSAPLT00020024661,protein_coding,DHX15,DEAH-box helicase 15 [Source:NCBI gene;Acc:101794170],101794170,DHX
+no,ENSAPLT00020026582,protein_coding,DHX40,DEAH-box helicase 40 [Source:HGNC Symbol;Acc:HGNC:18018],NA,DHX
+no,ENSAPLT00020026584,protein_coding,DHX40,DEAH-box helicase 40 [Source:HGNC Symbol;Acc:HGNC:18018],NA,DHX
+no,ENSAPLT00020028093,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+no,ENSAPLT00020028108,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+no,ENSAPLT00020028109,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+no,ENSAPLT00020028110,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+no,ENSAPLT00020028130,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+no,ENSAPLT00020028131,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+no,ENSAPLT00020028133,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+no,ENSAPLT00020028139,protein_coding,DHX32,DEAH-box helicase 32 (putative) [Source:HGNC Symbol;Acc:HGNC:16717],NA,DHX
+yes,ENSAPLT00020028815,protein_coding,DHX58,DExH-box helicase 58 [Source:HGNC Symbol;Acc:HGNC:29517],NA,DHX
+yes,ENSAPLT00020028818,protein_coding,DHX58,DExH-box helicase 58 [Source:HGNC Symbol;Acc:HGNC:29517],NA,DHX
+yes,ENSAPLT00020005647,protein_coding,HLA-DRA,"major histocompatibility complex, class II, DR alpha [Source:HGNC Symbol;Acc:HGNC:4947]",NA,DRA
+yes,ENSAPLT00020005666,protein_coding,HLA-DRA,"major histocompatibility complex, class II, DR alpha [Source:HGNC Symbol;Acc:HGNC:4947]",NA,DRA
+no,ENSAPLT00020008357,protein_coding,ADRA1D,adrenoceptor alpha 1D [Source:HGNC Symbol;Acc:HGNC:280],NA,DRA
+no,ENSAPLT00020011117,protein_coding,ADRA2B,adrenoceptor alpha 2B [Source:HGNC Symbol;Acc:HGNC:282],NA,DRA
+no,ENSAPLT00020011824,protein_coding,ADRA2A,adrenoceptor alpha 2A [Source:HGNC Symbol;Acc:HGNC:281],NA,DRA
+no,ENSAPLT00020015520,protein_coding,ADRA2C,adrenoceptor alpha 2C [Source:NCBI gene;Acc:101790023],101790023,DRA
+no,ENSAPLT00020019397,protein_coding,DRAXIN,dorsal inhibitory axon guidance protein [Source:HGNC Symbol;Acc:HGNC:25054],NA,DRA
+no,ENSAPLT00020024175,protein_coding,ADRA1B,adrenoceptor alpha 1B [Source:NCBI gene;Acc:101800019],101800019,DRA
+no,ENSAPLT00020026510,protein_coding,DRAM2,DNA damage regulated autophagy modulator 2 [Source:NCBI gene;Acc:101802446],101802446,DRA
+no,ENSAPLT00020028666,protein_coding,DRAM1,DNA damage regulated autophagy modulator 1 [Source:NCBI gene;Acc:101793314],101793314,DRA
+no,ENSAPLT00020028668,protein_coding,DRAM1,DNA damage regulated autophagy modulator 1 [Source:NCBI gene;Acc:101793314],101793314,DRA
+yes,ENSAPLT00020004088,protein_coding,EFNA5,ephrin A5 [Source:NCBI gene;Acc:101799518],101799518,EFNA
+yes,ENSAPLT00020013064,protein_coding,EFNA2,ephrin A2 [Source:NCBI gene;Acc:113845624],113845624,EFNA
+yes,ENSAPLT00020014324,protein_coding,EFNA1,ephrin A1 [Source:HGNC Symbol;Acc:HGNC:3221],NA,EFNA
+yes,ENSAPLT00020014331,protein_coding,EFNA4,ephrin A4 [Source:HGNC Symbol;Acc:HGNC:3224],NA,EFNA
+yes,ENSAPLT00020000188,protein_coding,NA,von Willebrand factor D and EGF domain-containing protein [Source:NCBI gene;Acc:101801254],101801254,EGF
+yes,ENSAPLT00020000192,protein_coding,NA,von Willebrand factor D and EGF domain-containing protein [Source:NCBI gene;Acc:101801254],101801254,EGF
+no,ENSAPLT00020002266,protein_coding,TIE1,tyrosine kinase with immunoglobulin like and EGF like domains 1 [Source:HGNC Symbol;Acc:HGNC:11809],NA,EGF
+no,ENSAPLT00020002281,protein_coding,TIE1,tyrosine kinase with immunoglobulin like and EGF like domains 1 [Source:HGNC Symbol;Acc:HGNC:11809],NA,EGF
+no,ENSAPLT00020002297,protein_coding,TIE1,tyrosine kinase with immunoglobulin like and EGF like domains 1 [Source:HGNC Symbol;Acc:HGNC:11809],NA,EGF
+no,ENSAPLT00020003930,protein_coding,MFGE8,milk fat globule EGF and factor V/VIII domain containing [Source:NCBI gene;Acc:101800839],101800839,EGF
+no,ENSAPLT00020003945,protein_coding,MFGE8,milk fat globule EGF and factor V/VIII domain containing [Source:NCBI gene;Acc:101800839],101800839,EGF
+yes,ENSAPLT00020004307,protein_coding,VWCE,von Willebrand factor C and EGF domains [Source:HGNC Symbol;Acc:HGNC:26487],NA,EGF
+yes,ENSAPLT00020004326,protein_coding,VWCE,von Willebrand factor C and EGF domains [Source:HGNC Symbol;Acc:HGNC:26487],NA,EGF
+no,ENSAPLT00020004978,protein_coding,MEGF10,multiple EGF like domains 10 [Source:HGNC Symbol;Acc:HGNC:29634],NA,EGF
+no,ENSAPLT00020007418,protein_coding,SCUBE2,"signal peptide, CUB domain and EGF like domain containing 2 [Source:HGNC Symbol;Acc:HGNC:30425]",NA,EGF
+no,ENSAPLT00020007508,protein_coding,SCUBE2,"signal peptide, CUB domain and EGF like domain containing 2 [Source:HGNC Symbol;Acc:HGNC:30425]",NA,EGF
+yes,ENSAPLT00020008825,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020009396,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020012997,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020014293,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020015530,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020015571,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020016229,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020016844,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020016849,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+yes,ENSAPLT00020017781,protein_coding,EGFR,epidermal growth factor receptor [Source:HGNC Symbol;Acc:HGNC:3236],NA,EGF
+no,ENSAPLT00020009444,protein_coding,SCUBE1,"signal peptide, CUB domain and EGF like domain containing 1 [Source:NCBI gene;Acc:101799522]",101799522,EGF
+no,ENSAPLT00020009459,protein_coding,SCUBE1,"signal peptide, CUB domain and EGF like domain containing 1 [Source:NCBI gene;Acc:101799522]",101799522,EGF
+no,ENSAPLT00020009637,protein_coding,NELL2,neural EGFL like 2 [Source:HGNC Symbol;Acc:HGNC:7751],NA,EGF
+no,ENSAPLT00020009652,protein_coding,NELL2,neural EGFL like 2 [Source:HGNC Symbol;Acc:HGNC:7751],NA,EGF
+no,ENSAPLT00020011576,protein_coding,SVEP1,"sushi, von Willebrand factor type A, EGF and pentraxin domain containing 1 [Source:NCBI gene;Acc:101804269]",101804269,EGF
+no,ENSAPLT00020011643,protein_coding,SVEP1,"sushi, von Willebrand factor type A, EGF and pentraxin domain containing 1 [Source:NCBI gene;Acc:101804269]",101804269,EGF
+no,ENSAPLT00020012888,protein_coding,NELL1,neural EGFL like 1 [Source:NCBI gene;Acc:101791606],101791606,EGF
+no,ENSAPLT00020012898,protein_coding,NELL1,neural EGFL like 1 [Source:NCBI gene;Acc:101791606],101791606,EGF
+no,ENSAPLT00020013288,protein_coding,CCBE1,collagen and calcium binding EGF domains 1 [Source:HGNC Symbol;Acc:HGNC:29426],NA,EGF
+no,ENSAPLT00020013454,protein_coding,VEGFA,vascular endothelial growth factor A [Source:HGNC Symbol;Acc:HGNC:12680],NA,EGF
+no,ENSAPLT00020013463,protein_coding,VEGFA,vascular endothelial growth factor A [Source:HGNC Symbol;Acc:HGNC:12680],NA,EGF
+no,ENSAPLT00020013470,protein_coding,VEGFA,vascular endothelial growth factor A [Source:HGNC Symbol;Acc:HGNC:12680],NA,EGF
+no,ENSAPLT00020013516,protein_coding,VEGFA,vascular endothelial growth factor A [Source:HGNC Symbol;Acc:HGNC:12680],NA,EGF
+no,ENSAPLT00020013922,protein_coding,EGFLAM,"EGF like, fibronectin type III and laminin G domains [Source:HGNC Symbol;Acc:HGNC:26810]",NA,EGF
+no,ENSAPLT00020014157,protein_coding,EDIL3,EGF like repeats and discoidin domains 3 [Source:HGNC Symbol;Acc:HGNC:3173],NA,EGF
+no,ENSAPLT00020014161,protein_coding,EDIL3,EGF like repeats and discoidin domains 3 [Source:HGNC Symbol;Acc:HGNC:3173],NA,EGF
+no,ENSAPLT00020014570,protein_coding,VEGFC,vascular endothelial growth factor C [Source:HGNC Symbol;Acc:HGNC:12682],NA,EGF
+no,ENSAPLT00020014574,protein_coding,VEGFC,vascular endothelial growth factor C [Source:HGNC Symbol;Acc:HGNC:12682],NA,EGF
+no,ENSAPLT00020016703,protein_coding,EFEMP1,EGF containing fibulin extracellular matrix protein 1 [Source:NCBI gene;Acc:101795399],101795399,EGF
+no,ENSAPLT00020019954,protein_coding,HBEGF,heparin binding EGF like growth factor [Source:NCBI gene;Acc:101799901],101799901,EGF
+no,ENSAPLT00020020412,protein_coding,DNER,delta/notch like EGF repeat containing [Source:HGNC Symbol;Acc:HGNC:24456],NA,EGF
+no,ENSAPLT00020020413,protein_coding,DNER,delta/notch like EGF repeat containing [Source:HGNC Symbol;Acc:HGNC:24456],NA,EGF
+no,ENSAPLT00020020414,protein_coding,DNER,delta/notch like EGF repeat containing [Source:HGNC Symbol;Acc:HGNC:24456],NA,EGF
+yes,ENSAPLT00020021429,protein_coding,EGFL7,EGF like domain multiple 7 [Source:HGNC Symbol;Acc:HGNC:20594],NA,EGF
+yes,ENSAPLT00020021430,protein_coding,EGFL7,EGF like domain multiple 7 [Source:HGNC Symbol;Acc:HGNC:20594],NA,EGF
+no,ENSAPLT00020021536,protein_coding,EOGT,EGF domain specific O-linked N-acetylglucosamine transferase [Source:HGNC Symbol;Acc:HGNC:28526],NA,EGF
+no,ENSAPLT00020022714,protein_coding,TMEFF2,transmembrane protein with EGF like and two follistatin like domains 2 [Source:NCBI gene;Acc:101797082],101797082,EGF
+no,ENSAPLT00020024494,protein_coding,SCUBE3,"signal peptide, CUB domain and EGF like domain containing 3 [Source:HGNC Symbol;Acc:HGNC:13655]",NA,EGF
+no,ENSAPLT00020024497,protein_coding,SCUBE3,"signal peptide, CUB domain and EGF like domain containing 3 [Source:HGNC Symbol;Acc:HGNC:13655]",NA,EGF
+no,ENSAPLT00020024614,protein_coding,CRELD2,cysteine rich with EGF like domains 2 [Source:HGNC Symbol;Acc:HGNC:28150],NA,EGF
+no,ENSAPLT00020025455,protein_coding,MEGF11,multiple EGF like domains 11 [Source:HGNC Symbol;Acc:HGNC:29635],NA,EGF
+no,ENSAPLT00020025642,protein_coding,MEGF11,multiple EGF like domains 11 [Source:HGNC Symbol;Acc:HGNC:29635],NA,EGF
+no,ENSAPLT00020025672,protein_coding,MEGF11,multiple EGF like domains 11 [Source:HGNC Symbol;Acc:HGNC:29635],NA,EGF
+no,ENSAPLT00020025744,protein_coding,MEGF11,multiple EGF like domains 11 [Source:HGNC Symbol;Acc:HGNC:29635],NA,EGF
+no,ENSAPLT00020025746,protein_coding,MEGF11,multiple EGF like domains 11 [Source:HGNC Symbol;Acc:HGNC:29635],NA,EGF
+no,ENSAPLT00020025757,protein_coding,MEGF11,multiple EGF like domains 11 [Source:HGNC Symbol;Acc:HGNC:29635],NA,EGF
+no,ENSAPLT00020025758,protein_coding,VEGFD,vascular endothelial growth factor D [Source:HGNC Symbol;Acc:HGNC:3708],NA,EGF
+yes,ENSAPLT00020025906,protein_coding,EGFL6,EGF like domain multiple 6 [Source:HGNC Symbol;Acc:HGNC:3235],NA,EGF
+no,ENSAPLT00020026729,protein_coding,MEGF9,multiple EGF like domains 9 [Source:HGNC Symbol;Acc:HGNC:3234],NA,EGF
+no,ENSAPLT00020026956,protein_coding,SNED1,"sushi, nidogen and EGF like domains 1 [Source:HGNC Symbol;Acc:HGNC:24696]",NA,EGF
+no,ENSAPLT00020026963,protein_coding,SNED1,"sushi, nidogen and EGF like domains 1 [Source:HGNC Symbol;Acc:HGNC:24696]",NA,EGF
+yes,ENSAPLT00020027527,protein_coding,EGF,epidermal growth factor [Source:HGNC Symbol;Acc:HGNC:3229],NA,EGF
+no,ENSAPLT00020000162,protein_coding,CNPY1,canopy FGF signaling regulator 1 [Source:HGNC Symbol;Acc:HGNC:27786],NA,FGF
+no,ENSAPLT00020000229,protein_coding,CEP43,FGFR1 oncogene partner [Source:NCBI gene;Acc:101797840],101797840,FGF
+yes,ENSAPLT00020003759,protein_coding,FGF10,fibroblast growth factor 10 [Source:HGNC Symbol;Acc:HGNC:3666],NA,FGF
+yes,ENSAPLT00020005304,protein_coding,FGF2,fibroblast growth factor 2 [Source:NCBI gene;Acc:101798064],101798064,FGF
+yes,ENSAPLT00020006637,protein_coding,FGF7,fibroblast growth factor 7 [Source:NCBI gene;Acc:101795837],101795837,FGF
+yes,ENSAPLT00020006675,protein_coding,FGF17,fibroblast growth factor 17 [Source:HGNC Symbol;Acc:HGNC:3673],NA,FGF
+yes,ENSAPLT00020007275,protein_coding,FGF19,fibroblast growth factor 19 [Source:NCBI gene;Acc:101790481],101790481,FGF
+yes,ENSAPLT00020007294,protein_coding,FGF4,fibroblast growth factor 4 [Source:NCBI gene;Acc:113843807],113843807,FGF
+yes,ENSAPLT00020007302,protein_coding,FGF3,fibroblast growth factor 3 [Source:NCBI gene;Acc:101790873],101790873,FGF
+yes,ENSAPLT00020007763,protein_coding,FGF1,fibroblast growth factor 1 [Source:HGNC Symbol;Acc:HGNC:3665],NA,FGF
+yes,ENSAPLT00020008360,protein_coding,FGF8,fibroblast growth factor 8 [Source:HGNC Symbol;Acc:HGNC:3686],NA,FGF
+yes,ENSAPLT00020009464,protein_coding,FGF20,fibroblast growth factor 20 [Source:HGNC Symbol;Acc:HGNC:3677],NA,FGF
+yes,ENSAPLT00020009877,protein_coding,FGF14,fibroblast growth factor 14 [Source:NCBI gene;Acc:101798736],101798736,FGF
+yes,ENSAPLT00020010329,protein_coding,FGFR1OP2,FGFR1 oncogene partner 2 [Source:HGNC Symbol;Acc:HGNC:23098],NA,FGF
+no,ENSAPLT00020011395,protein_coding,CNPY3,canopy FGF signaling regulator 3 [Source:HGNC Symbol;Acc:HGNC:11968],NA,FGF
+yes,ENSAPLT00020011992,protein_coding,FGF9,fibroblast growth factor 9 [Source:NCBI gene;Acc:101793257],101793257,FGF
+yes,ENSAPLT00020012118,protein_coding,FGF22,fibroblast growth factor 22 [Source:HGNC Symbol;Acc:HGNC:3679],NA,FGF
+yes,ENSAPLT00020014634,protein_coding,FGF13,fibroblast growth factor 13 [Source:NCBI gene;Acc:101804395],101804395,FGF
+yes,ENSAPLT00020014636,protein_coding,FGF13,fibroblast growth factor 13 [Source:NCBI gene;Acc:101804395],101804395,FGF
+yes,ENSAPLT00020014917,protein_coding,FGF16,fibroblast growth factor 16 [Source:NCBI gene;Acc:101800554],101800554,FGF
+yes,ENSAPLT00020015644,protein_coding,FGF5,fibroblast growth factor 5 [Source:HGNC Symbol;Acc:HGNC:3683],NA,FGF
+yes,ENSAPLT00020015915,protein_coding,FGF5,fibroblast growth factor 5 [Source:HGNC Symbol;Acc:HGNC:3683],NA,FGF
+yes,ENSAPLT00020016235,protein_coding,FGF5,fibroblast growth factor 5 [Source:HGNC Symbol;Acc:HGNC:3683],NA,FGF
+yes,ENSAPLT00020016245,protein_coding,FGFR1,fibroblast growth factor receptor 1 [Source:HGNC Symbol;Acc:HGNC:3688],NA,FGF
+yes,ENSAPLT00020016249,protein_coding,FGFR1,fibroblast growth factor receptor 1 [Source:HGNC Symbol;Acc:HGNC:3688],NA,FGF
+yes,ENSAPLT00020016254,protein_coding,FGFR1,fibroblast growth factor receptor 1 [Source:HGNC Symbol;Acc:HGNC:3688],NA,FGF
+yes,ENSAPLT00020016255,protein_coding,FGFR1,fibroblast growth factor receptor 1 [Source:HGNC Symbol;Acc:HGNC:3688],NA,FGF
+yes,ENSAPLT00020016316,protein_coding,FGF5,fibroblast growth factor 5 [Source:HGNC Symbol;Acc:HGNC:3683],NA,FGF
+yes,ENSAPLT00020016336,protein_coding,FGF5,fibroblast growth factor 5 [Source:HGNC Symbol;Acc:HGNC:3683],NA,FGF
+yes,ENSAPLT00020016465,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020016940,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020017089,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020017091,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020017352,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020017706,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020017902,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020018155,protein_coding,FGF12,fibroblast growth factor 12 [Source:NCBI gene;Acc:101798106],101798106,FGF
+yes,ENSAPLT00020018156,protein_coding,FGF12,fibroblast growth factor 12 [Source:NCBI gene;Acc:101798106],101798106,FGF
+yes,ENSAPLT00020018371,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020018497,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020018498,protein_coding,FGFR3,fibroblast growth factor receptor 3 [Source:HGNC Symbol;Acc:HGNC:3690],NA,FGF
+yes,ENSAPLT00020018556,protein_coding,FGFRL1,fibroblast growth factor receptor like 1 [Source:NCBI gene;Acc:101803623],101803623,FGF
+yes,ENSAPLT00020018559,protein_coding,FGFRL1,fibroblast growth factor receptor like 1 [Source:NCBI gene;Acc:101803623],101803623,FGF
+yes,ENSAPLT00020019179,protein_coding,FGF23,fibroblast growth factor 23 [Source:NCBI gene;Acc:101802843],101802843,FGF
+yes,ENSAPLT00020019184,protein_coding,FGF6,fibroblast growth factor 6 [Source:HGNC Symbol;Acc:HGNC:3684],NA,FGF
+yes,ENSAPLT00020027538,protein_coding,CEP20,FGFR1OP N-terminal like [Source:HGNC Symbol;Acc:HGNC:26435],NA,FGF
+yes,ENSAPLT00020028335,protein_coding,FGFR2,fibroblast growth factor receptor 2 [Source:HGNC Symbol;Acc:HGNC:3689],NA,FGF
+yes,ENSAPLT00020028337,protein_coding,FGFR2,fibroblast growth factor receptor 2 [Source:HGNC Symbol;Acc:HGNC:3689],NA,FGF
+yes,ENSAPLT00020002763,protein_coding,FGL2,fibrinogen like 2 [Source:HGNC Symbol;Acc:HGNC:3696],NA,FGL
+yes,ENSAPLT00020009822,protein_coding,FGL1,fibrinogen like 1 [Source:NCBI gene;Acc:101803182],101803182,FGL
+yes,ENSAPLT00020001813,protein_coding,GDF7,growth differentiation factor 7 [Source:HGNC Symbol;Acc:HGNC:4222],NA,GDF
+yes,ENSAPLT00020003754,protein_coding,GDF5,growth differentiation factor 5 [Source:NCBI gene;Acc:101805266],101805266,GDF
+yes,ENSAPLT00020006410,protein_coding,GDF6,growth differentiation factor 6 [Source:NCBI gene;Acc:106020640],106020640,GDF
+yes,ENSAPLT00020008758,protein_coding,GDF9,growth differentiation factor 9 [Source:HGNC Symbol;Acc:HGNC:4224],NA,GDF
+yes,ENSAPLT00020020528,protein_coding,GDF10,growth differentiation factor 10 [Source:HGNC Symbol;Acc:HGNC:4215],NA,GDF
+yes,ENSAPLT00020020531,protein_coding,GDF2,growth differentiation factor 2 [Source:NCBI gene;Acc:101794255],101794255,GDF
+yes,ENSAPLT00020020858,protein_coding,GDF11,growth differentiation factor 11 [Source:HGNC Symbol;Acc:HGNC:4216],NA,GDF
+yes,ENSAPLT00020015536,protein_coding,HGFAC,HGF activator [Source:HGNC Symbol;Acc:HGNC:4894],NA,HGF
+yes,ENSAPLT00020008955,protein_coding,HSP90AA1,heat shock protein 90 alpha family class A member 1 [Source:NCBI gene;Acc:101800442],101800442,HSP90
+yes,ENSAPLT00020010147,protein_coding,AHSA1,activator of HSP90 ATPase activity 1 [Source:HGNC Symbol;Acc:HGNC:1189],NA,HSP90
+yes,ENSAPLT00020028578,protein_coding,HSP90B1,heat shock protein 90 beta family member 1 [Source:HGNC Symbol;Acc:HGNC:12028],NA,HSP90
+yes,ENSAPLT00020028579,protein_coding,HSP90B1,heat shock protein 90 beta family member 1 [Source:HGNC Symbol;Acc:HGNC:12028],NA,HSP90
+yes,ENSAPLT00020028371,protein_coding,NA,"Anas platyrhynchos interferon induced with helicase C domain 1 (IFIH1), mRNA. [Source:RefSeq mRNA;Acc:NM_001310811]",101800076,IFIH1
+yes,ENSAPLT00020028372,protein_coding,NA,"Anas platyrhynchos interferon induced with helicase C domain 1 (IFIH1), mRNA. [Source:RefSeq mRNA;Acc:NM_001310811]",101800076,IFIH1
+yes,ENSAPLT00020002697,protein_coding,IFNAR1,interferon alpha and beta receptor subunit 1 [Source:HGNC Symbol;Acc:HGNC:5432],NA,IFN
+yes,ENSAPLT00020002690,protein_coding,NA,"Anas platyrhynchos interleukin 10 receptor subunit beta (IL10RB), mRNA. [Source:RefSeq mRNA;Acc:NM_001310411]",101804501,IL10
+yes,ENSAPLT00020002693,protein_coding,NA,"Anas platyrhynchos interleukin 10 receptor subunit beta (IL10RB), mRNA. [Source:RefSeq mRNA;Acc:NM_001310411]",101804501,IL10
+yes,ENSAPLT00020023640,protein_coding,IL10RA,interleukin 10 receptor subunit alpha [Source:HGNC Symbol;Acc:HGNC:5964],NA,IL10
+yes,ENSAPLT00020009218,protein_coding,IL12A,interleukin 12A [Source:HGNC Symbol;Acc:HGNC:5969],NA,IL12
+yes,ENSAPLT00020024177,protein_coding,IL12B,interleukin 12B [Source:HGNC Symbol;Acc:HGNC:5970],NA,IL12
+yes,ENSAPLT00020002368,protein_coding,NA,"Anas platyrhynchos interleukin 17A (IL17A), mRNA. [Source:RefSeq mRNA;Acc:NM_001310350]",101795384,IL17
+yes,ENSAPLT00020002374,protein_coding,NA,"Anas platyrhynchos interleukin 17A (IL17A), mRNA. [Source:RefSeq mRNA;Acc:NM_001310350]",101795384,IL17
+yes,ENSAPLT00020003205,protein_coding,IL17RD,interleukin 17 receptor D [Source:HGNC Symbol;Acc:HGNC:17616],NA,IL17
+yes,ENSAPLT00020003447,protein_coding,IL17B,interleukin 17B [Source:HGNC Symbol;Acc:HGNC:5982],NA,IL17
+yes,ENSAPLT00020003460,protein_coding,IL17B,interleukin 17B [Source:HGNC Symbol;Acc:HGNC:5982],NA,IL17
+yes,ENSAPLT00020007770,protein_coding,IL17C,interleukin 17C [Source:HGNC Symbol;Acc:HGNC:5983],NA,IL17
+yes,ENSAPLT00020012310,protein_coding,IL17D,interleukin 17D [Source:NCBI gene;Acc:101793918],101793918,IL17
+yes,ENSAPLT00020021068,protein_coding,IL17RA,interleukin 17 receptor A [Source:HGNC Symbol;Acc:HGNC:5985],NA,IL17
+yes,ENSAPLT00020024619,protein_coding,IL17REL,interleukin 17 receptor E like [Source:HGNC Symbol;Acc:HGNC:33808],NA,IL17
+yes,ENSAPLT00020000137,protein_coding,IL18R1,interleukin 18 receptor 1 [Source:HGNC Symbol;Acc:HGNC:5988],NA,IL18
+yes,ENSAPLT00020000145,protein_coding,IL18RAP,interleukin 18 receptor accessory protein [Source:HGNC Symbol;Acc:HGNC:5989],NA,IL18
+yes,ENSAPLT00020004561,protein_coding,IL18,interleukin 18 [Source:NCBI gene;Acc:101802715],101802715,IL18
+yes,ENSAPLT00020004563,protein_coding,IL18,interleukin 18 [Source:NCBI gene;Acc:101802715],101802715,IL18
+yes,ENSAPLT00020004574,protein_coding,IL18,interleukin 18 [Source:NCBI gene;Acc:101802715],101802715,IL18
+yes,ENSAPLT00020016266,protein_coding,IL22,interleukin 22 [Source:HGNC Symbol;Acc:HGNC:14900],NA,IL22
+yes,ENSAPLT00020019736,protein_coding,IL22RA2,interleukin 22 receptor subunit alpha 2 [Source:HGNC Symbol;Acc:HGNC:14901],NA,IL22
+yes,ENSAPLT00020019738,protein_coding,IL22RA2,interleukin 22 receptor subunit alpha 2 [Source:HGNC Symbol;Acc:HGNC:14901],NA,IL22
+yes,ENSAPLT00020002179,protein_coding,IL6,interleukin 6 [Source:HGNC Symbol;Acc:HGNC:6018],NA,IL6
+yes,ENSAPLT00020005269,protein_coding,IL6ST,interleukin 6 signal transducer [Source:HGNC Symbol;Acc:HGNC:6021],NA,IL6
+yes,ENSAPLT00020012231,protein_coding,PPIL6,peptidylprolyl isomerase like 6 [Source:HGNC Symbol;Acc:HGNC:21557],NA,IL6
+yes,ENSAPLT00020014516,protein_coding,IL6R,interleukin 6 receptor [Source:HGNC Symbol;Acc:HGNC:6019],NA,IL6
+yes,ENSAPLT00020016440,protein_coding,NA,"Anas platyrhynchos interleukin 8 (IL8), mRNA. [Source:RefSeq mRNA;Acc:NM_001310420]",101804010,IL8
+yes,ENSAPLT00020014136,protein_coding,INHBC,inhibin subunit beta C [Source:HGNC Symbol;Acc:HGNC:6068],NA,INHB
+yes,ENSAPLT00020021132,protein_coding,INHBB,inhibin subunit beta B [Source:NCBI gene;Acc:101800492],101800492,INHB
+yes,ENSAPLT00020026520,protein_coding,INHBA,inhibin subunit beta A [Source:NCBI gene;Acc:101795448],101795448,INHB
+yes,ENSAPLT00020001512,protein_coding,NA,"Anas platyrhynchos interferon-induced GTP-binding protein Mx-like (LOC101793492), mRNA. [Source:RefSeq mRNA;Acc:NM_001310409]",101793492,interferon
+yes,ENSAPLT00020001686,protein_coding,NA,"Anas platyrhynchos interferon induced transmembrane protein 10 (IFITM10), mRNA. [Source:RefSeq mRNA;Acc:NM_001310795]",101798748,interferon
+yes,ENSAPLT00020001690,protein_coding,NA,"Anas platyrhynchos interferon induced transmembrane protein 10 (IFITM10), mRNA. [Source:RefSeq mRNA;Acc:NM_001310795]",101798748,interferon
+yes,ENSAPLT00020002757,protein_coding,NA,"Anas platyrhynchos interferon-induced transmembrane protein 1 (IFITM1), mRNA. [Source:RefSeq mRNA;Acc:NM_001310823]",101791431,interferon
+yes,ENSAPLT00020002761,protein_coding,NA,interferon-induced transmembrane protein 2 [Source:NCBI gene;Acc:106014264],106014264,interferon
+yes,ENSAPLT00020002769,protein_coding,NA,"Anas platyrhynchos interferon induced transmembrane protein 5 (IFITM5), mRNA. [Source:RefSeq mRNA;Acc:NM_001310780]",101795624,interferon
+yes,ENSAPLT00020004044,protein_coding,ISG20,interferon stimulated exonuclease gene 20 [Source:HGNC Symbol;Acc:HGNC:6130],NA,interferon
+yes,ENSAPLT00020006443,protein_coding,NA,interferon related developmental regulator 1 [Source:NCBI gene;Acc:101804431],101804431,interferon
+yes,ENSAPLT00020006517,protein_coding,NA,interferon related developmental regulator 1 [Source:NCBI gene;Acc:101804431],101804431,interferon
+yes,ENSAPLT00020009263,protein_coding,IRF1,interferon regulatory factor 1 [Source:NCBI gene;Acc:101799633],101799633,interferon
+yes,ENSAPLT00020009275,protein_coding,IRF1,interferon regulatory factor 1 [Source:NCBI gene;Acc:101799633],101799633,interferon
+yes,ENSAPLT00020011649,protein_coding,IRF2,interferon regulatory factor 2 [Source:NCBI gene;Acc:101789879],101789879,interferon
+yes,ENSAPLT00020012939,protein_coding,NA,interferon alpha-inducible protein 27-like protein 2B [Source:NCBI gene;Acc:101794704],101794704,interferon
+yes,ENSAPLT00020013650,protein_coding,IFI35,interferon-induced 35 kDa protein [Source:NCBI gene;Acc:101791120],101791120,interferon
+yes,ENSAPLT00020015361,protein_coding,IRF4,interferon regulatory factor 4 [Source:HGNC Symbol;Acc:HGNC:6119],NA,interferon
+yes,ENSAPLT00020015370,protein_coding,IRF4,interferon regulatory factor 4 [Source:HGNC Symbol;Acc:HGNC:6119],NA,interferon
+yes,ENSAPLT00020016264,protein_coding,NA,interferon gamma [Source:NCBI gene;Acc:101790439],101790439,interferon
+yes,ENSAPLT00020017416,protein_coding,IRF2BPL,interferon regulatory factor 2 binding protein like [Source:HGNC Symbol;Acc:HGNC:14282],NA,interferon
+yes,ENSAPLT00020018756,protein_coding,IRF6,interferon regulatory factor 6 [Source:HGNC Symbol;Acc:HGNC:6121],NA,interferon
+yes,ENSAPLT00020019195,protein_coding,IRF8,interferon regulatory factor 8 [Source:HGNC Symbol;Acc:HGNC:5358],NA,interferon
+yes,ENSAPLT00020019993,protein_coding,STING1,stimulator of interferon response cGAMP interactor 1 [Source:HGNC Symbol;Acc:HGNC:27962],NA,interferon
+yes,ENSAPLT00020020438,protein_coding,NA,interferon-induced protein with tetratricopeptide repeats 5 [Source:NCBI gene;Acc:101797569],101797569,interferon
+yes,ENSAPLT00020028016,protein_coding,IRF2BP2,interferon regulatory factor 2 binding protein 2 [Source:HGNC Symbol;Acc:HGNC:21729],NA,interferon
+yes,ENSAPLT00020028101,protein_coding,NA,interferon lambda-3-like [Source:NCBI gene;Acc:101795406],101795406,interferon
+yes,ENSAPLT00020028102,protein_coding,NA,interferon lambda-3-like [Source:NCBI gene;Acc:101795406],101795406,interferon
+yes,ENSAPLT00020028980,protein_coding,NA,"Anas platyrhynchos interferon-like (LOC101796052), mRNA. [Source:RefSeq mRNA;Acc:NM_001310827]",101796052,interferon
+yes,ENSAPLT00020028982,protein_coding,NA,interferon [Source:NCBI gene;Acc:113840163],113840163,interferon
+yes,ENSAPLT00020028985,protein_coding,NA,interferon [Source:NCBI gene;Acc:113840163],113840163,interferon
+yes,ENSAPLT00020028986,protein_coding,NA,interferon-like [Source:NCBI gene;Acc:113840164],113840164,interferon
+yes,ENSAPLT00020002154,protein_coding,LEPROTL1,leptin receptor overlapping transcript like 1 [Source:NCBI gene;Acc:101792853],101792853,LEP
+yes,ENSAPLT00020027416,protein_coding,LEPROT,leptin receptor overlapping transcript [Source:NCBI gene;Acc:101803399],101803399,LEP
+yes,ENSAPLT00020027422,protein_coding,LEPR,leptin receptor [Source:HGNC Symbol;Acc:HGNC:6554],NA,LEP
+yes,ENSAPLT00020027423,protein_coding,LEPR,leptin receptor [Source:HGNC Symbol;Acc:HGNC:6554],NA,LEP
+yes,ENSAPLT00020027426,protein_coding,LEPR,leptin receptor [Source:HGNC Symbol;Acc:HGNC:6554],NA,LEP
+yes,ENSAPLT00020013282,protein_coding,LIF,LIF interleukin 6 family cytokine [Source:HGNC Symbol;Acc:HGNC:6596],NA,LIF
+yes,ENSAPLT00020013935,protein_coding,LIFR,LIF receptor alpha [Source:NCBI gene;Acc:101802159],101802159,LIF
+yes,ENSAPLT00020016830,protein_coding,LITAF,lipopolysaccharide induced TNF factor [Source:NCBI gene;Acc:101800838],101800838,LITAF
+yes,ENSAPLT00020016834,protein_coding,LITAF,lipopolysaccharide induced TNF factor [Source:NCBI gene;Acc:101800838],101800838,LITAF
+yes,ENSAPLT00020023394,protein_coding,MSTN,myostatin [Source:NCBI gene;Acc:101800742],101800742,MSTN
+yes,ENSAPLT00020023434,protein_coding,MSTN,myostatin [Source:NCBI gene;Acc:101800742],101800742,MSTN
+yes,ENSAPLT00020000517,protein_coding,MXRA5,matrix remodeling associated 5 [Source:HGNC Symbol;Acc:HGNC:7539],NA,MX
+no,ENSAPLT00020002033,protein_coding,LMX1A,LIM homeobox transcription factor 1 alpha [Source:HGNC Symbol;Acc:HGNC:6653],NA,MX
+no,ENSAPLT00020004279,protein_coding,DMXL2,Dmx like 2 [Source:HGNC Symbol;Acc:HGNC:2938],NA,MX
+no,ENSAPLT00020004298,protein_coding,DMXL2,Dmx like 2 [Source:HGNC Symbol;Acc:HGNC:2938],NA,MX
+no,ENSAPLT00020004337,protein_coding,DMXL2,Dmx like 2 [Source:HGNC Symbol;Acc:HGNC:2938],NA,MX
+no,ENSAPLT00020004361,protein_coding,DMXL2,Dmx like 2 [Source:HGNC Symbol;Acc:HGNC:2938],NA,MX
+no,ENSAPLT00020004385,protein_coding,DMXL2,Dmx like 2 [Source:HGNC Symbol;Acc:HGNC:2938],NA,MX
+no,ENSAPLT00020004962,protein_coding,LMX1B,LIM homeobox transcription factor 1 beta [Source:HGNC Symbol;Acc:HGNC:6654],NA,MX
+no,ENSAPLT00020004967,protein_coding,LMX1B,LIM homeobox transcription factor 1 beta [Source:HGNC Symbol;Acc:HGNC:6654],NA,MX
+no,ENSAPLT00020006038,protein_coding,DMXL1,Dmx like 1 [Source:HGNC Symbol;Acc:HGNC:2937],NA,MX
+no,ENSAPLT00020006089,protein_coding,DMXL1,Dmx like 1 [Source:HGNC Symbol;Acc:HGNC:2937],NA,MX
+no,ENSAPLT00020008645,protein_coding,EMX2,empty spiracles homeobox 2 [Source:NCBI gene;Acc:101804460],101804460,MX
+no,ENSAPLT00020012070,protein_coding,MXI1,"MAX interactor 1, dimerization protein [Source:NCBI gene;Acc:101805377]",101805377,MX
+no,ENSAPLT00020012079,protein_coding,MXI1,"MAX interactor 1, dimerization protein [Source:NCBI gene;Acc:101805377]",101805377,MX
+no,ENSAPLT00020012087,protein_coding,MXI1,"MAX interactor 1, dimerization protein [Source:NCBI gene;Acc:101805377]",101805377,MX
+no,ENSAPLT00020015421,protein_coding,TMX4,thioredoxin related transmembrane protein 4 [Source:NCBI gene;Acc:101790778],101790778,MX
+no,ENSAPLT00020015822,protein_coding,MXD4,MAX dimerization protein 4 [Source:NCBI gene;Acc:101789466],101789466,MX
+no,ENSAPLT00020015826,protein_coding,MXD4,MAX dimerization protein 4 [Source:NCBI gene;Acc:101789466],101789466,MX
+no,ENSAPLT00020015828,protein_coding,MXD4,MAX dimerization protein 4 [Source:NCBI gene;Acc:101789466],101789466,MX
+no,ENSAPLT00020022200,protein_coding,MXD3,MAX dimerization protein 3 [Source:HGNC Symbol;Acc:HGNC:14008],NA,MX
+no,ENSAPLT00020025755,protein_coding,BMX,BMX non-receptor tyrosine kinase [Source:HGNC Symbol;Acc:HGNC:1079],NA,MX
+no,ENSAPLT00020026858,protein_coding,MXD1,MAX dimerization protein 1 [Source:HGNC Symbol;Acc:HGNC:6761],NA,MX
+no,ENSAPLT00020027180,protein_coding,TMX1,thioredoxin related transmembrane protein 1 [Source:HGNC Symbol;Acc:HGNC:15487],NA,MX
+no,ENSAPLT00020028247,protein_coding,HMX2,H6 family homeobox 2 [Source:HGNC Symbol;Acc:HGNC:5018],NA,MX
+no,ENSAPLT00020028250,protein_coding,HMX3,H6 family homeobox 3 [Source:NCBI gene;Acc:101794880],101794880,MX
+yes,ENSAPLT00020028672,protein_coding,MXRA8,matrix remodeling associated 8 [Source:NCBI gene;Acc:101795693],101795693,MX
+yes,ENSAPLT00020028674,protein_coding,MXRA8,matrix remodeling associated 8 [Source:NCBI gene;Acc:101795693],101795693,MX
+yes,ENSAPLT00020019889,protein_coding,NFRKB,nuclear factor related to kappaB binding protein [Source:HGNC Symbol;Acc:HGNC:7802],NA,NFRKB
+yes,ENSAPLT00020019890,protein_coding,NFRKB,nuclear factor related to kappaB binding protein [Source:HGNC Symbol;Acc:HGNC:7802],NA,NFRKB
+no,ENSAPLT00020001816,protein_coding,KCNRG,potassium channel regulator [Source:HGNC Symbol;Acc:HGNC:18893],NA,NRG
+yes,ENSAPLT00020005634,protein_coding,NRG1,neuregulin 1 [Source:HGNC Symbol;Acc:HGNC:7997],NA,NRG
+yes,ENSAPLT00020005641,protein_coding,NRG1,neuregulin 1 [Source:HGNC Symbol;Acc:HGNC:7997],NA,NRG
+yes,ENSAPLT00020005651,protein_coding,NRG1,neuregulin 1 [Source:HGNC Symbol;Acc:HGNC:7997],NA,NRG
+yes,ENSAPLT00020005661,protein_coding,NRG1,neuregulin 1 [Source:HGNC Symbol;Acc:HGNC:7997],NA,NRG
+yes,ENSAPLT00020005687,protein_coding,NRG1,neuregulin 1 [Source:HGNC Symbol;Acc:HGNC:7997],NA,NRG
+yes,ENSAPLT00020005697,protein_coding,NRG1,neuregulin 1 [Source:HGNC Symbol;Acc:HGNC:7997],NA,NRG
+yes,ENSAPLT00020019966,protein_coding,NRG2,neuregulin 2 [Source:NCBI gene;Acc:101799535],101799535,NRG
+yes,ENSAPLT00020019968,protein_coding,NRG2,neuregulin 2 [Source:NCBI gene;Acc:101799535],101799535,NRG
+yes,ENSAPLT00020020407,protein_coding,NRGN,neurogranin [Source:HGNC Symbol;Acc:HGNC:8000],NA,NRG
+yes,ENSAPLT00020022092,protein_coding,NRG3,neuregulin 3 [Source:HGNC Symbol;Acc:HGNC:7999],NA,NRG
+no,ENSAPLT00020024658,protein_coding,SYNRG,synergin gamma [Source:HGNC Symbol;Acc:HGNC:557],NA,NRG
+no,ENSAPLT00020024677,protein_coding,SYNRG,synergin gamma [Source:HGNC Symbol;Acc:HGNC:557],NA,NRG
+no,ENSAPLT00020024679,protein_coding,SYNRG,synergin gamma [Source:HGNC Symbol;Acc:HGNC:557],NA,NRG
+no,ENSAPLT00020024703,protein_coding,SYNRG,synergin gamma [Source:HGNC Symbol;Acc:HGNC:557],NA,NRG
+no,ENSAPLT00020024727,protein_coding,SYNRG,synergin gamma [Source:HGNC Symbol;Acc:HGNC:557],NA,NRG
+yes,ENSAPLT00020024377,protein_coding,NRG4,neuregulin 4 [Source:HGNC Symbol;Acc:HGNC:29862],NA,NRG
+yes,ENSAPLT00020024379,protein_coding,NRG4,neuregulin 4 [Source:HGNC Symbol;Acc:HGNC:29862],NA,NRG
+yes,ENSAPLT00020024487,protein_coding,OASL,2'-5'-oligoadenylate synthetase like [Source:HGNC Symbol;Acc:HGNC:8090],NA,OASL
+yes,ENSAPLT00020028802,protein_coding,PARP12,poly [ADP-ribose] polymerase 12 [Source:NCBI gene;Acc:101802866],101802866,PARP12
+yes,ENSAPLT00020028803,protein_coding,PARP12,poly [ADP-ribose] polymerase 12 [Source:NCBI gene;Acc:101802866],101802866,PARP12
+yes,ENSAPLT00020001561,protein_coding,PARP9,poly(ADP-ribose) polymerase family member 9 [Source:HGNC Symbol;Acc:HGNC:24118],NA,PARP9
+yes,ENSAPLT00020001154,protein_coding,PDGFD,platelet derived growth factor D [Source:HGNC Symbol;Acc:HGNC:30620],NA,PDGFD
+yes,ENSAPLT00020001161,protein_coding,PDGFD,platelet derived growth factor D [Source:HGNC Symbol;Acc:HGNC:30620],NA,PDGFD
+yes,ENSAPLT00020001171,protein_coding,PDGFD,platelet derived growth factor D [Source:HGNC Symbol;Acc:HGNC:30620],NA,PDGFD
+yes,ENSAPLT00020001179,protein_coding,PDGFD,platelet derived growth factor D [Source:HGNC Symbol;Acc:HGNC:30620],NA,PDGFD
+yes,ENSAPLT00020001191,protein_coding,PDGFD,platelet derived growth factor D [Source:HGNC Symbol;Acc:HGNC:30620],NA,PDGFD
+yes,ENSAPLT00020001211,protein_coding,PDGFD,platelet derived growth factor D [Source:HGNC Symbol;Acc:HGNC:30620],NA,PDGFD
+yes,ENSAPLT00020019244,protein_coding,PGF,placental growth factor [Source:NCBI gene;Acc:101800933],101800933,PGF
+yes,ENSAPLT00020007346,protein_coding,NA,"Anas platyrhynchos radical S-adenosyl methionine domain containing 2 (RSAD2), mRNA. [Source:RefSeq mRNA;Acc:NM_001310801]",101791352,RSAD2
+yes,ENSAPLT00020007351,protein_coding,NA,"Anas platyrhynchos radical S-adenosyl methionine domain containing 2 (RSAD2), mRNA. [Source:RefSeq mRNA;Acc:NM_001310801]",101791352,RSAD2
+yes,ENSAPLT00020000525,protein_coding,ST6GAL2,"ST6 beta-galactoside alpha-2,6-sialyltransferase 2 [Source:NCBI gene;Acc:101796015]",101796015,sialyltransferase
+yes,ENSAPLT00020003223,protein_coding,ST6GALNAC4,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 4 [Source:HGNC Symbol;Acc:HGNC:17846]",NA,sialyltransferase
+yes,ENSAPLT00020003249,protein_coding,ST6GALNAC4,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 4 [Source:HGNC Symbol;Acc:HGNC:17846]",NA,sialyltransferase
+yes,ENSAPLT00020007141,protein_coding,ST3GAL6,"ST3 beta-galactoside alpha-2,3-sialyltransferase 6 [Source:NCBI gene;Acc:101802079]",101802079,sialyltransferase
+yes,ENSAPLT00020007657,protein_coding,ST8SIA2,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 2 [Source:NCBI gene;Acc:101800480]",101800480,sialyltransferase
+yes,ENSAPLT00020011048,protein_coding,ST8SIA1,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 1 [Source:NCBI gene;Acc:101797310]",101797310,sialyltransferase
+yes,ENSAPLT00020012214,protein_coding,ST8SIA4,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 4 [Source:HGNC Symbol;Acc:HGNC:10871]",NA,sialyltransferase
+yes,ENSAPLT00020013762,protein_coding,ST6GALNAC1,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 1 [Source:HGNC Symbol;Acc:HGNC:23614]",NA,sialyltransferase
+yes,ENSAPLT00020013763,protein_coding,ST6GALNAC2,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 2 [Source:HGNC Symbol;Acc:HGNC:10867]",NA,sialyltransferase
+yes,ENSAPLT00020013765,protein_coding,ST6GALNAC2,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 2 [Source:HGNC Symbol;Acc:HGNC:10867]",NA,sialyltransferase
+yes,ENSAPLT00020018566,protein_coding,ST3GAL5,"ST3 beta-galactoside alpha-2,3-sialyltransferase 5 [Source:NCBI gene;Acc:101803297]",101803297,sialyltransferase
+yes,ENSAPLT00020020072,protein_coding,ST3GAL1,"ST3 beta-galactoside alpha-2,3-sialyltransferase 1 [Source:NCBI gene;Acc:101790636]",101790636,sialyltransferase
+yes,ENSAPLT00020020077,protein_coding,ST3GAL1,"ST3 beta-galactoside alpha-2,3-sialyltransferase 1 [Source:NCBI gene;Acc:101790636]",101790636,sialyltransferase
+yes,ENSAPLT00020020103,protein_coding,ST3GAL4,"ST3 beta-galactoside alpha-2,3-sialyltransferase 4 [Source:HGNC Symbol;Acc:HGNC:10864]",NA,sialyltransferase
+yes,ENSAPLT00020020110,protein_coding,ST3GAL4,"ST3 beta-galactoside alpha-2,3-sialyltransferase 4 [Source:HGNC Symbol;Acc:HGNC:10864]",NA,sialyltransferase
+yes,ENSAPLT00020020970,protein_coding,ST6GAL1,"ST6 beta-galactoside alpha-2,6-sialyltransferase 1 [Source:HGNC Symbol;Acc:HGNC:10860]",NA,sialyltransferase
+yes,ENSAPLT00020021539,protein_coding,ST6GALNAC5,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 5 [Source:NCBI gene;Acc:101794977]",101794977,sialyltransferase
+yes,ENSAPLT00020021543,protein_coding,ST6GALNAC3,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 3 [Source:HGNC Symbol;Acc:HGNC:19343]",NA,sialyltransferase
+yes,ENSAPLT00020021545,protein_coding,ST6GALNAC3,"ST6 N-acetylgalactosaminide alpha-2,6-sialyltransferase 3 [Source:HGNC Symbol;Acc:HGNC:19343]",NA,sialyltransferase
+yes,ENSAPLT00020023020,protein_coding,ST8SIA3,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 3 [Source:NCBI gene;Acc:101796406]",101796406,sialyltransferase
+yes,ENSAPLT00020024957,protein_coding,ST8SIA6,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 6 [Source:HGNC Symbol;Acc:HGNC:23317]",NA,sialyltransferase
+yes,ENSAPLT00020024962,protein_coding,ST8SIA6,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 6 [Source:HGNC Symbol;Acc:HGNC:23317]",NA,sialyltransferase
+yes,ENSAPLT00020026150,protein_coding,ST3GAL2,"ST3 beta-galactoside alpha-2,3-sialyltransferase 2 [Source:HGNC Symbol;Acc:HGNC:10863]",NA,sialyltransferase
+yes,ENSAPLT00020026159,protein_coding,ST3GAL2,"ST3 beta-galactoside alpha-2,3-sialyltransferase 2 [Source:HGNC Symbol;Acc:HGNC:10863]",NA,sialyltransferase
+yes,ENSAPLT00020026731,protein_coding,ST3GAL3,"ST3 beta-galactoside alpha-2,3-sialyltransferase 3 [Source:NCBI gene;Acc:101804175]",101804175,sialyltransferase
+yes,ENSAPLT00020026733,protein_coding,ST3GAL3,"ST3 beta-galactoside alpha-2,3-sialyltransferase 3 [Source:NCBI gene;Acc:101804175]",101804175,sialyltransferase
+yes,ENSAPLT00020026736,protein_coding,ST3GAL3,"ST3 beta-galactoside alpha-2,3-sialyltransferase 3 [Source:NCBI gene;Acc:101804175]",101804175,sialyltransferase
+yes,ENSAPLT00020028773,protein_coding,ST8SIA5,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 5 [Source:NCBI gene;Acc:101792099]",101792099,sialyltransferase
+yes,ENSAPLT00020028775,protein_coding,ST8SIA5,"ST8 alpha-N-acetyl-neuraminide alpha-2,8-sialyltransferase 5 [Source:NCBI gene;Acc:101792099]",101792099,sialyltransferase
+yes,ENSAPLT00020000829,protein_coding,SLC35F2,solute carrier family 35 member F2 [Source:HGNC Symbol;Acc:HGNC:23615],NA,SLC35
+yes,ENSAPLT00020000854,protein_coding,SLC35F2,solute carrier family 35 member F2 [Source:HGNC Symbol;Acc:HGNC:23615],NA,SLC35
+yes,ENSAPLT00020001449,protein_coding,SLC35F4,solute carrier family 35 member F4 [Source:HGNC Symbol;Acc:HGNC:19845],NA,SLC35
+yes,ENSAPLT00020002284,protein_coding,SLC35G2,solute carrier family 35 member G2 [Source:NCBI gene;Acc:101804280],101804280,SLC35
+yes,ENSAPLT00020010899,protein_coding,SLC35B1,solute carrier family 35 member B1 [Source:HGNC Symbol;Acc:HGNC:20798],NA,SLC35
+yes,ENSAPLT00020011013,protein_coding,SLC35E1,solute carrier family 35 member E1 [Source:NCBI gene;Acc:101793243],101793243,SLC35
+yes,ENSAPLT00020012438,protein_coding,SLC35C2,solute carrier family 35 member C2 [Source:HGNC Symbol;Acc:HGNC:17117],NA,SLC35
+yes,ENSAPLT00020013284,protein_coding,SLC35B2,solute carrier family 35 member B2 [Source:HGNC Symbol;Acc:HGNC:16872],NA,SLC35
+yes,ENSAPLT00020016534,protein_coding,SLC35A1,solute carrier family 35 member A1 [Source:HGNC Symbol;Acc:HGNC:11021],NA,SLC35
+yes,ENSAPLT00020016853,protein_coding,SLC35E3,solute carrier family 35 member E3 [Source:NCBI gene;Acc:101791555],101791555,SLC35
+yes,ENSAPLT00020017995,protein_coding,SLC35B3,solute carrier family 35 member B3 [Source:HGNC Symbol;Acc:HGNC:21601],NA,SLC35
+yes,ENSAPLT00020019703,protein_coding,SLC35G1,solute carrier family 35 member G1 [Source:NCBI gene;Acc:101800486],101800486,SLC35
+yes,ENSAPLT00020019732,protein_coding,SLC35D3,solute carrier family 35 member D3 [Source:HGNC Symbol;Acc:HGNC:15621],NA,SLC35
+yes,ENSAPLT00020019997,protein_coding,SLC35A4,solute carrier family 35 member A4 [Source:HGNC Symbol;Acc:HGNC:20753],NA,SLC35
+yes,ENSAPLT00020020119,protein_coding,SLC35F1,solute carrier family 35 member F1 [Source:NCBI gene;Acc:101791350],101791350,SLC35
+yes,ENSAPLT00020021760,protein_coding,SLC35F5,solute carrier family 35 member F5 [Source:HGNC Symbol;Acc:HGNC:23617],NA,SLC35
+yes,ENSAPLT00020023041,protein_coding,SLC35C1,solute carrier family 35 member C1 [Source:HGNC Symbol;Acc:HGNC:20197],NA,SLC35
+yes,ENSAPLT00020023307,protein_coding,SLC35E2B,solute carrier family 35 member E2A [Source:NCBI gene;Acc:101803608],101803608,SLC35
+yes,ENSAPLT00020024749,protein_coding,SLC35A3,solute carrier family 35 member A3 [Source:NCBI gene;Acc:101794547],101794547,SLC35
+yes,ENSAPLT00020024752,protein_coding,SLC35A3,solute carrier family 35 member A3 [Source:NCBI gene;Acc:101794547],101794547,SLC35
+yes,ENSAPLT00020027458,protein_coding,SLC35D1,solute carrier family 35 member D1 [Source:HGNC Symbol;Acc:HGNC:20800],NA,SLC35
+yes,ENSAPLT00020028023,protein_coding,SLC35F3,solute carrier family 35 member F3 [Source:NCBI gene;Acc:101803717],101803717,SLC35
+yes,ENSAPLT00020028025,protein_coding,SLC35F3,solute carrier family 35 member F3 [Source:NCBI gene;Acc:101803717],101803717,SLC35
+yes,ENSAPLT00020028869,protein_coding,STAT3,signal transducer and activator of transcription 3 [Source:HGNC Symbol;Acc:HGNC:11364],NA,STAT3
+no,ENSAPLT00020000903,protein_coding,METAP1,methionyl aminopeptidase 1 [Source:HGNC Symbol;Acc:HGNC:15789],NA,TAP
+yes,ENSAPLT00020009645,protein_coding,TAP1,"transporter 1, ATP binding cassette subfamily B member [Source:HGNC Symbol;Acc:HGNC:43]",NA,TAP
+yes,ENSAPLT00020009661,protein_coding,TAP1,"transporter 1, ATP binding cassette subfamily B member [Source:HGNC Symbol;Acc:HGNC:43]",NA,TAP
+no,ENSAPLT00020009679,protein_coding,TAP1,"transporter 1, ATP binding cassette subfamily B member [Source:HGNC Symbol;Acc:HGNC:43]",NA,TAP
+no,ENSAPLT00020010049,protein_coding,IFTAP,intraflagellar transport associated protein [Source:HGNC Symbol;Acc:HGNC:25142],NA,TAP
+no,ENSAPLT00020012391,protein_coding,METAP1D,"methionyl aminopeptidase type 1D, mitochondrial [Source:HGNC Symbol;Acc:HGNC:32583]",NA,TAP
+no,ENSAPLT00020020549,protein_coding,WTAP,WT1 associated protein [Source:NCBI gene;Acc:101792369],101792369,TAP
+no,ENSAPLT00020021828,protein_coding,STAP1,signal transducing adaptor family member 1 [Source:HGNC Symbol;Acc:HGNC:24133],NA,TAP
+no,ENSAPLT00020024425,protein_coding,METAP2,methionyl aminopeptidase 2 [Source:HGNC Symbol;Acc:HGNC:16672],NA,TAP
+no,ENSAPLT00020024730,protein_coding,CRTAP,cartilage associated protein [Source:HGNC Symbol;Acc:HGNC:2379],NA,TAP
+no,ENSAPLT00020024733,protein_coding,CRTAP,cartilage associated protein [Source:HGNC Symbol;Acc:HGNC:2379],NA,TAP
+no,ENSAPLT00020024755,protein_coding,TAPT1,transmembrane anterior posterior transformation 1 [Source:HGNC Symbol;Acc:HGNC:26887],NA,TAP
+no,ENSAPLT00020024757,protein_coding,TAPT1,transmembrane anterior posterior transformation 1 [Source:HGNC Symbol;Acc:HGNC:26887],NA,TAP
+yes,ENSAPLT00020000292,protein_coding,TGFBRAP1,transforming growth factor beta receptor associated protein 1 [Source:HGNC Symbol;Acc:HGNC:16836],NA,TGFB
+yes,ENSAPLT00020012155,protein_coding,TGFB2,transforming growth factor beta 2 [Source:HGNC Symbol;Acc:HGNC:11768],NA,TGFB
+yes,ENSAPLT00020016579,protein_coding,TGFBR3,transforming growth factor beta receptor 3 [Source:HGNC Symbol;Acc:HGNC:11774],NA,TGFB
+yes,ENSAPLT00020024244,protein_coding,TGFBR2,transforming growth factor beta receptor 2 [Source:NCBI gene;Acc:101794795],101794795,TGFB
+yes,ENSAPLT00020024248,protein_coding,TGFBR2,transforming growth factor beta receptor 2 [Source:NCBI gene;Acc:101794795],101794795,TGFB
+yes,ENSAPLT00020024792,protein_coding,TGIF2,TGFB induced factor homeobox 2 [Source:HGNC Symbol;Acc:HGNC:15764],NA,TGFB
+yes,ENSAPLT00020026424,protein_coding,TGIF1,TGFB induced factor homeobox 1 [Source:HGNC Symbol;Acc:HGNC:11776],NA,TGFB
+yes,ENSAPLT00020026427,protein_coding,TGIF1,TGFB induced factor homeobox 1 [Source:HGNC Symbol;Acc:HGNC:11776],NA,TGFB
+yes,ENSAPLT00020026428,protein_coding,TGIF1,TGFB induced factor homeobox 1 [Source:HGNC Symbol;Acc:HGNC:11776],NA,TGFB
+yes,ENSAPLT00020026475,protein_coding,TGFBR1,transforming growth factor beta receptor 1 [Source:HGNC Symbol;Acc:HGNC:11772],NA,TGFB
+yes,ENSAPLT00020027663,protein_coding,TGFBI,transforming growth factor beta induced [Source:NCBI gene;Acc:101796881],101796881,TGFB
+yes,ENSAPLT00020027666,protein_coding,TGFBI,transforming growth factor beta induced [Source:NCBI gene;Acc:101796881],101796881,TGFB
+yes,ENSAPLT00020010556,protein_coding,TLR3,toll like receptor 3 [Source:HGNC Symbol;Acc:HGNC:11849],NA,TLR3
+yes,ENSAPLT00020010563,protein_coding,TLR3,toll like receptor 3 [Source:HGNC Symbol;Acc:HGNC:11849],NA,TLR3
+yes,ENSAPLT00020010566,protein_coding,TLR3,toll like receptor 3 [Source:HGNC Symbol;Acc:HGNC:11849],NA,TLR3
+no,ENSAPLT00020024947,protein_coding,TRDMT1,tRNA aspartic acid methyltransferase 1 [Source:HGNC Symbol;Acc:HGNC:2977],NA,TRD
+yes,ENSAPLT00020020463,protein_coding,CXCL12,C-X-C motif chemokine ligand 12 [Source:NCBI gene;Acc:101792342],101792342,XCL1
+yes,ENSAPLT00020020465,protein_coding,CXCL12,C-X-C motif chemokine ligand 12 [Source:NCBI gene;Acc:101792342],101792342,XCL1
+yes,ENSAPLT00020027646,protein_coding,CXCL14,C-X-C motif chemokine ligand 14 [Source:NCBI gene;Acc:101797425],101797425,XCL1
+no,ENSAPLT00020013188,protein_coding,DAZAP1,DAZ associated protein 1 [Source:HGNC Symbol;Acc:HGNC:2683],NA,ZAP
+no,ENSAPLT00020013202,protein_coding,DAZAP1,DAZ associated protein 1 [Source:HGNC Symbol;Acc:HGNC:2683],NA,ZAP
+no,ENSAPLT00020013214,protein_coding,DAZAP1,DAZ associated protein 1 [Source:HGNC Symbol;Acc:HGNC:2683],NA,ZAP
+yes,ENSAPLT00020023159,protein_coding,ZAP70,zeta chain of T cell receptor associated protein kinase 70 [Source:HGNC Symbol;Acc:HGNC:12858],NA,ZAP

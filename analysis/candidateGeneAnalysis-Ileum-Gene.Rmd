@@ -1,0 +1,260 @@
+---
+title: "Candidate Gene Analysis - Ileum - Gene"
+author: "Jared J. Homola"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+These analyses examine the relationship between expression levels and viral titer for a set of genes that we hypothesize have a relationship with viral infection. The overall strategy is to:  
+  
+  1. Identify a list of candidate genes based on the literature and previous analyses.    
+  2. Subset our overall set of transcripts to include only those with an annotation containing the name of the candidate gene.  
+  3. Manually filter search results to remove non-target inclusions  
+  4. Remove genes/transcripts with no variation in expression for each comparison (e.g., bursa at transcript-level)  
+  5. Use a linear mixed effects model to assess the relationship between log(expression) and log(viral titer) for each candidate gene/transcript. The model structure is expression ~ virus shedding group + sex + age with the sequencing pool as a random effect. The model is run on the entire set, as well as just on treatment groups I1, I2, I5, and I15.
+  6. Correct the p-values for multiple testing using a false discovery rate approach with adjusted p-values (i.e., q-value) cutoff of 0.05. Corrections are used for just the test that incorporates all samples because that is the only one used for filtering.
+  7. Plot the results  
+   
+  
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message = FALSE, warning = FALSE, echo = FALSE, results = 'hide'}
+## Load packages and data
+library(edgeR)
+library(nlme)
+library(broom)
+library(tidyverse)
+library(ggrepel)
+library(kableExtra)
+```
+
+### Load data, prep data, run analysis
+```{r, message = FALSE, warning = FALSE}
+## Load data
+setwd("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/")
+annot <- read.delim("./extData/annotationGenesIleum110120.txt", header = TRUE, sep = "\t")
+cnt1 <- read_delim("./extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+covars <- read.csv("./extData/MALL70_SSgroup_RAW_11.5.20.csv", header = TRUE)
+targets <- read_delim("./extData/MALL_candidateGeneList_filtered.csv", delim = ",") %>%
+  filter(include == "yes")
+
+##### Prepare data ####
+cnt <- cnt1 %>%
+  as_tibble() %>%
+  select(-gene)
+
+newNames.ileum <- names(cnt) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
+
+colnames(cnt) <- newNames.ileum$newName
+
+cnt <- cnt[,order(colnames(cnt))] %>%
+  mutate(gene = cnt1$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA) %>% 
+  select(-ileum_01, -ileum_72)
+
+### covars
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-")) %>%
+  filter(bird != "01", bird != "72") %>%
+  filter(bird %in% newNames.ileum$bird)
+
+#### Calculate log(CPM) and assemble master DFs ####
+# Convert to DGEList object
+dge <- DGEList(counts=cnt)
+lcpm <- cpm(dge, log = TRUE)
+
+
+# Make lcpm tibble for analysis
+lcpm.all <- lcpm %>%
+  as_tibble(rownames = NA) %>%
+  rownames_to_column("gene") %>%
+  filter(gene %in% targets$ensembl_gene_id) %>%
+  pivot_longer(cols = contains("_"),
+               names_to = "sample",
+               values_to = "lcpm") %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  mutate(identifier = gene) %>%
+  select(identifier, bird, tissue, lcpm, virus.sac, SSgroup.virus.sac, group, age, sex, Bursa_pool, Ileum_pool) %>%
+  mutate(pool = ifelse(tissue == "bursa", Bursa_pool, Ileum_pool)) %>%
+  mutate(log.virus.sac = log(virus.sac+0.01)) %>%
+  mutate(group = recode(group,
+                        C1 = "Ctl",
+                        C29 = "Ctl")) %>%
+  mutate(group = factor(group,
+                        levels = c("Ctl", "I1", "I2", "I5")))
+
+#### Gene query database ####
+annot <- annot %>%
+  mutate(hgnc_symbol = ifelse(hgnc_symbol == "", ".", hgnc_symbol))
+
+
+##### Analysis function ######
+candidateGeneAnalysis.Reg <- function(target, ...) {
+  library(tidyverse)
+  library(nlme)
+
+  tryCatch({
+    filtered.dat <- lcpm.all %>%
+      filter(identifier == target)
+
+    tryCatch({
+      sum.overall <- filtered.dat %>%
+        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        anova(.)},
+      error=function(err) NA)
+
+
+    ifelse(exists("sum.overall"),
+           overall.result <- as_tibble(sum.overall$`p-value`[2]) %>%
+             mutate(identifier = target,
+                    subset = "Overall"),
+           overall.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+
+
+    tryCatch({
+      sum.I1 <- filtered.dat %>%
+        filter(group == "I1") %>%
+        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        anova(.)},
+      error=function(err) NA)
+
+
+    ifelse(exists("sum.I1"),
+           I1.result <- as_tibble(sum.I1$`p-value`[2]) %>%
+             mutate(identifier = target,
+                    subset = "I1"),
+           I1.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+
+    tryCatch({
+      sum.I2 <- filtered.dat %>%
+        filter(group == "I2") %>%
+        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        anova(.)},
+      error=function(err) NA)
+
+
+    ifelse(exists("sum.I2"),
+           I2.result <- as_tibble(sum.I2$`p-value`[2]) %>%
+             mutate(identifier = target,
+                    subset = "I2"),
+           I2.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+
+
+    tryCatch({
+      sum.I5 <- filtered.dat %>%
+        filter(group == "I5") %>%
+        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        anova(.)},
+      error=function(err) NA)
+
+
+    ifelse(exists("sum.I5"),
+           I5.result <- as_tibble(sum.I5$`p-value`[2]) %>%
+             mutate(identifier = target,
+                    subset = "I5"),
+           I5.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+
+    bind_rows(overall.result, I1.result, I2.result, I5.result)
+  }, error=function(e){})
+}
+
+#### Run analysis loop ####
+library(doParallel)
+
+cores=detectCores()
+cl <- makeCluster(cores[1]-1) 
+registerDoParallel(cl)
+
+set <- lcpm.all %>%
+  group_by(identifier) %>%
+  summarize(varLCPM = round(var(lcpm), 5)) %>%
+  filter(varLCPM > 0)
+
+finalMatrix <- foreach(z = unique(set$identifier), .combine = rbind) %dopar% {
+  tmpMatrix = candidateGeneAnalysis.Reg(z)
+  tmpMatrix
+}
+```
+
+## Significant genes
+```{r, message = FALSE, warning = FALSE}
+finalMatrix.sig <- finalMatrix %>%
+  filter(subset == "Overall") %>%
+  mutate(adj.p.value = p.adjust(value, method='fdr', n = nrow(.)),
+         ensembl_gene_id = identifier) %>%
+  filter(adj.p.value < 0.05) %>%
+  arrange(adj.p.value) %>% 
+  left_join(annot) %>% 
+  select(ensembl_gene_id, hgnc_symbol, description, adj.p.value)
+
+finalMatrix.sig %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+
+## Functions for analyzing and plotting data
+```{r, message = FALSE, warning = FALSE}
+correlationPlot <- function(target, ...) {
+  annotation <- annot %>%
+    filter(ensembl_gene_id == target) %>%
+    select(hgnc_symbol) %>%
+    slice(1)
+  
+  legendData <- finalMatrix %>% 
+    filter(identifier == target)
+
+  plot <- lcpm.all %>%
+    filter(identifier == target) %>% 
+    ggplot(aes(x = log.virus.sac, y = lcpm)) +
+    geom_point(aes(shape = group, color = group), size = 5) +
+    geom_smooth(method = "lm", color = "black") +
+    ylab("Log2(Counts per million)") +
+    xlab("Log10(Sacrifice day viral titer + 1)") +
+    scale_shape_manual(values=c(13, 
+                                15:17),
+                       name = "Group", 
+                       labels = c("Ctl",
+                                  paste0("I1: ","P-value = ", round(filter(legendData, subset == "I1")$value, 3)), 
+                                  paste0("I2: ","P-value = ", round(filter(legendData, subset == "I2")$value, 3)), 
+                                  paste0("I5: ","P-value = ", round(filter(legendData, subset == "I5")$value, 3)))) +
+    scale_color_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73"),
+                       name = "Group", 
+                       labels = c("Ctl",
+                                  paste0("I1: ","P-value = ", round(filter(legendData, subset == "I1")$value, 3)), 
+                                  paste0("I2: ","P-value = ", round(filter(legendData, subset == "I2")$value, 3)), 
+                                  paste0("I5: ","P-value = ", round(filter(legendData, subset == "I5")$value, 3)))) +
+    guides(shape = guide_legend(override.aes = list(size = 5))) +
+    theme_classic() +
+    labs(title=paste0(target, " - ", annotation[1]),
+                         "; Adj. p = ", round(legendData[1,1], 5))
+  print(plot)
+}
+
+```
+
+## Plotting significant results
+```{r, message = FALSE, warning = FALSE}
+for(z in finalMatrix.sig$ensembl_gene_id) {
+  correlationPlot(z)
+}
+```
