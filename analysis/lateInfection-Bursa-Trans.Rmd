@@ -15,12 +15,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(limma)
 library(edgeR)
 library(Glimma)
-library(gplots)
 library(ggrepel)
 library(RColorBrewer)
 library(gridExtra)
 library(kableExtra)
-library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
@@ -57,16 +55,6 @@ cnt <- cnt %>% select(-bursa_01, -bursa_72)
 covars <- covars %>% filter(bird != "01", bird != "72")
 ```
 
-### Set up model effects
-```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars$bird)
-sex <- as.factor(covars$sex)
-age <- as.numeric(covars$age)
-group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
-  as.factor()
-pool <- as.factor(covars$Bursa_pool)
-```
-
 ### Prep data for analysis
 Here we standardize expression levels across samples of varying depth by using the counts per million (CPM) and trimmed mean of M-values (TMM) methods. We also remove any genes that are expressed at few than 0.5 CPM in at least 25% of individuals.
 ```{r, warning = FALSE, message = FALSE}
@@ -86,19 +74,19 @@ sum(keep.exprs)
 dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
 table(rowSums(dge$counts==0) == length(cnt[1,]))
 dim(dge)
-
-#TMM normalization
-dge <- calcNormFactors(dge, method = "TMM")
 ```
 
 ### Subset data
 Following normalization, we subset the data based on infection group of interest.
 ```{r, warning = FALSE, message = FALSE}
 #Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
 dge$samples$group <- group
 
 ### Divide out I1 and I3
 dge.I5 <- dge[,grep('\\bI5\\b', dge$samples$group)]
+dge.I5 <- calcNormFactors(dge.I5, method = "TMM")
 
 covars.I5 <- covars %>% filter(group == "I5")
 ```
@@ -128,7 +116,7 @@ v.I5 <- voomWithQualityWeights(dge.I5, design.I5, plot = FALSE)
 #Fitting models
 vfit.I5 <- lmFit(v.I5, design.I5) 
 vfit.I5 <- contrasts.fit(vfit.I5, contrasts = contr.matrix.I5)
-tfit.I5 <- treat(vfit.I5, lfc = 1.0)
+tfit.I5 <- treat(vfit.I5, lfc = 0.5)
 
 ## Identify DE genes
 dt.I5 <- decideTests(tfit.I5, p.value = 0.1, adjust.method = "fdr")
@@ -167,7 +155,6 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
-
 
 tmp2 <- topTreat(tfit.I5, coef = 2, n = Inf)
 results2 <- mutate(tmp2, sig=ifelse(tmp2$adj.P.Val<0.1, "Sig", "Not Sig"))
@@ -212,7 +199,6 @@ lcpm.DE <- lcpm %>%
          group = recode(group, C1 = "Control"),
          tmpID = ifelse(group == "Control", 'Control', 'Infected'))
 
-
 aprioriPlotting <- function(target, ...) {
    annot.target <- annot %>%
     select(
@@ -220,7 +206,6 @@ aprioriPlotting <- function(target, ...) {
       hgnc_symbol) %>%
     filter(ensembl_transcript_id == target) %>% 
     mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
-
 
   plot <- lcpm.DE %>%
     filter(identifier == target) %>%
@@ -248,15 +233,15 @@ for(target in sort(unique(lcpm.DE$identifier))) {
 ### Annotations for differentially expressed genes
 ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
 ```{r message=FALSE, warning=FALSE}
-tmp1a <- tmp1 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM")
-tmp2a <- tmp2 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH")
-tmp3a <- tmp3 %>% select(ensembl_transcript_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH")
+tmp1a <- tmp1 %>% select(ensembl_transcript_id, adj.P.Val, transcript_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM")
+tmp2a <- tmp2 %>% select(ensembl_transcript_id, adj.P.Val, transcript_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH")
+tmp3a <- tmp3 %>% select(ensembl_transcript_id, adj.P.Val, transcript_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH")
 
 bind_rows(tmp1a, tmp2a, tmp3a) %>% 
   select(-description) %>% 
   filter(ensembl_transcript_id %in% dt.tib$gene) %>% 
   mutate(logFoldCount = ifelse(adj.P.Val < 0.10, round(logFC, 2), "ns")) %>% 
-  select(-adj.P.Val, -logFC) %>% 
+  select(-adj.P.Val, -logFC, -transcript_biotype) %>% 
   pivot_wider(names_from = comp, values_from = logFoldCount) %>% 
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
@@ -277,9 +262,28 @@ bind_rows(tmp1a, tmp2a, tmp3a) %>%
 de.entrez <- annot %>% filter(ensembl_transcript_id %in% dt.tib$gene) %>% na.omit(entrezgene_id)
 entrez.universe <- annot %>% na.omit(entrezgene_id)
 
-K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla")
-K %>% filter(P.DE < 0.05) %>% 
-  arrange(P.DE) %>% 
+K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla") %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("PathwayID") %>% 
+  filter(P.DE < 0.05) %>% 
+  arrange(P.DE)
+
+keggList <- getGeneKEGGLinks(species.KEGG = "apla") %>% 
+  as_tibble() %>% 
+  rename("entrezgene_id" = GeneID)
+
+keggGenes = data.frame()
+for (path in nrow(K)){
+    procPath <- filter(keggList, entrezgene_id %in% de.entrez$entrezgene_id)
+    df <- data.frame(procPath)
+    keggGenes <- rbind(keggGenes, df)
+}
+
+inner_join(keggGenes, K) %>%
+  as_tibble() %>% 
+  mutate(entrezgene_id = as.numeric(entrezgene_id)) %>% 
+  left_join(annot) %>% 
+  select(Pathway, PathwayID, N, DE, P.DE, ensembl_transcript_id, hgnc_symbol, entrezgene_id) %>% 
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```

@@ -20,7 +20,6 @@ library(ggrepel)
 library(RColorBrewer)
 library(gridExtra)
 library(kableExtra)
-library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
@@ -28,7 +27,6 @@ cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscr
 covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
 annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
 ```
-
 
 ### Prep data for analysis
 ```{r, warning = FALSE, message = FALSE}
@@ -58,16 +56,6 @@ cnt <- cnt %>% select(-bursa_01, -bursa_72)
 covars <- covars %>% filter(bird != "01", bird != "72")
 ```
 
-### Set up model effects
-```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars$bird)
-sex <- as.factor(covars$sex)
-age <- as.numeric(covars$age)
-group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
-  as.factor()
-pool <- as.factor(covars$Bursa_pool)
-```
-
 ### Prep data for analysis
 Here we standardize expression levels across samples of varying depth by using the counts per million (CPM) and trimmed mean of M-values (TMM) methods. We also remove any genes that are expressed at few than 0.5 CPM in at least 25% of individuals.
 ```{r, warning = FALSE, message = FALSE}
@@ -87,20 +75,22 @@ sum(keep.exprs)
 dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
 table(rowSums(dge$counts==0) == length(cnt[1,]))
 dim(dge)
-
-#TMM normalization
-dge <- calcNormFactors(dge, method = "TMM")
 ```
 
 ### Subset data
 Following normalization, we subset the data based on infection groups.
 ```{r, warning = FALSE, message = FALSE}
 #Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
 dge$samples$group <- group
 
 ### Divide out I1 and I2
 dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
+dge.I1 <- calcNormFactors(dge.I1, method = "TMM")
+
 dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
+dge.I2 <- calcNormFactors(dge.I2, method = "TMM")
 
 covars.I1 <- covars %>% filter(group == "I1")
 covars.I2 <- covars %>% filter(group == "I2")
@@ -134,7 +124,7 @@ v.I1 <- voomWithQualityWeights(dge.I1, design.I1, plot = FALSE)
 #Fitting models
 vfit.I1 <- lmFit(v.I1, design.I1) 
 vfit.I1 <- contrasts.fit(vfit.I1, contrasts = contr.matrix.I1)
-tfit.I1 <- treat(vfit.I1, lfc = 1.0)
+tfit.I1 <- treat(vfit.I1, lfc = 0.5)
 
 ## Identify DE genes
 dt.I1 <- decideTests(tfit.I1, p.value = 0.1, adjust.method = "fdr")
@@ -181,7 +171,7 @@ v.I2 <- voomWithQualityWeights(dge.I2, design.I2, plot = FALSE)
 #Fitting models
 vfit.I2 <- lmFit(v.I2, design.I2) 
 vfit.I2 <- contrasts.fit(vfit.I2, contrasts = contr.matrix.I2)
-tfit.I2 <- treat(vfit.I2, lfc = 1.0)
+tfit.I2 <- treat(vfit.I2, lfc = 0.5)
 
 ## Identify DE genes
 dt.I2 <- decideTests(tfit.I2, p.value = 0.1, adjust.method = "fdr")
@@ -229,7 +219,6 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   xlab("Log(Fold count)") +
   theme_bw() +
   theme(legend.position = "none")
-
 
 tmp2 <- topTreat(tfit.I1, coef = 2, n = Inf)
 results2 <- mutate(tmp2, sig=ifelse(tmp2$adj.P.Val<0.1, "Sig", "Not Sig"))
@@ -291,7 +280,7 @@ grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)
 
 
 ### Heatmap - I1
-```{r warning = FALSE, message = FALSE, fig.height = 8, fig.width = 9, fig.align = "center"}
+```{r warning = FALSE, message = FALSE, fig.height = 18, fig.width = 9, fig.align = "center"}
 # Get the gene names for DE genes
 lcpm2 <- as_tibble(dge.I1$counts, rownames = NA) %>% 
   cpm(., log = TRUE)
@@ -341,13 +330,13 @@ heatmap.2(deGeneCounts,
           dendrogram = "row",
           density.info = "none",
           key = TRUE,
-          margins = c(8, 14),
+          margins = c(10, 14),
           scale ="row")
 ```
 
 
 ### Heatmap - I2
-```{r warning = FALSE, message = FALSE, fig.height = 12, fig.width = 9, fig.align = "center"}
+```{r warning = FALSE, message = FALSE, fig.height = 8, fig.width = 9, fig.align = "center"}
 # Get the gene names for DE genes
 lcpm2 <- as_tibble(dge.I2$counts, rownames = NA) %>% 
   cpm(., log = TRUE)
@@ -367,7 +356,7 @@ colnames(lcpm2) <- newNames$newNames
 lcpm2 <- lcpm2[, colOrder$newNames]
 
 heatmap.annot <- annot %>%
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  filter(ensembl_gene_id %in% dt.tib.I2$gene) %>% 
   mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
   unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
   select(annot.hm, ensembl_gene_id)
@@ -375,7 +364,7 @@ heatmap.annot <- annot %>%
 deGeneCounts <- lcpm2 %>% 
   as_tibble() %>% 
   mutate(ensembl_gene_id = rownames(dge.I2$counts)) %>% 
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  filter(ensembl_gene_id %in% dt.tib.I2$gene) %>% 
   left_join(heatmap.annot) %>% 
   column_to_rownames("annot.hm") %>%
   select(-ensembl_gene_id) %>% 
@@ -506,18 +495,18 @@ for(target in sort(unique(dt.tib.I2$gene))) {
 ### Annotations for differentially expressed genes
 ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
 ```{r message=FALSE, warning=FALSE}
-tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I1")
-tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I1")
-tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I1")
-tmp4a <- tmp4 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I2")
-tmp5a <- tmp5 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I2")
-tmp6a <- tmp6 %>% select(ensembl_gene_id, adj.P.Val, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I2")
+tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I1")
+tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I1")
+tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I1")
+tmp4a <- tmp4 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I2")
+tmp5a <- tmp5 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I2")
+tmp6a <- tmp6 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I2")
 
 bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>% 
   select(-description) %>% 
   filter(ensembl_gene_id %in% dt.tib$gene) %>% 
   mutate(logFoldCount = ifelse(adj.P.Val < 0.10, round(logFC, 2), "ns")) %>% 
-  select(-adj.P.Val, -logFC) %>% 
+  select(-adj.P.Val, -logFC, -gene_biotype) %>% 
   pivot_wider(names_from = comp, values_from = logFoldCount) %>% 
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
@@ -538,9 +527,28 @@ bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>%
 de.entrez <- annot %>% filter(ensembl_gene_id %in% dt.tib$gene) %>% na.omit(entrezgene_id)
 entrez.universe <- annot %>% na.omit(entrezgene_id)
 
-K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla")
-K %>% filter(P.DE < 0.05) %>% 
-  arrange(P.DE) %>% 
+K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla") %>% 
+  as_tibble(rownames = NA) %>% 
+  rownames_to_column("PathwayID") %>% 
+  filter(P.DE < 0.05) %>% 
+  arrange(P.DE)
+
+keggList <- getGeneKEGGLinks(species.KEGG = "apla") %>% 
+  as_tibble() %>% 
+  rename("entrezgene_id" = GeneID)
+
+keggGenes = data.frame()
+for (path in nrow(K)){
+    procPath <- filter(keggList, entrezgene_id %in% de.entrez$entrezgene_id)
+    df <- data.frame(procPath)
+    keggGenes <- rbind(keggGenes, df)
+}
+
+inner_join(keggGenes, K) %>%
+  as_tibble() %>% 
+  mutate(entrezgene_id = as.numeric(entrezgene_id)) %>% 
+  left_join(annot) %>% 
+  select(Pathway, PathwayID, N, DE, P.DE, ensembl_gene_id, hgnc_symbol, entrezgene_id) %>% 
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```

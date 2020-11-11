@@ -20,7 +20,6 @@ library(ggrepel)
 library(RColorBrewer)
 library(gridExtra)
 library(kableExtra)
-library(org.Gg.eg.db)
 library(tidyverse)
 
 ## Load data
@@ -57,16 +56,6 @@ cnt <- cnt %>% select(-bursa_01, -bursa_72)
 covars <- covars %>% filter(bird != "01", bird != "72")
 ```
 
-### Set up model effects
-```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars$bird)
-sex <- as.factor(covars$sex)
-age <- as.numeric(covars$age)
-group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
-  as.factor()
-pool <- as.factor(covars$Bursa_pool)
-```
-
 ### Prep data for analysis
 Here we standardize expression levels across samples of varying depth by using the counts per million (CPM) and trimmed mean of M-values (TMM) methods. We also remove any transcripts that are expressed at few than 0.5 CPM in at least 25% of individuals.
 ```{r, warning = FALSE, message = FALSE}
@@ -86,20 +75,22 @@ sum(keep.exprs)
 dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
 table(rowSums(dge$counts==0) == length(cnt[1,]))
 dim(dge)
-
-#TMM normalization
-dge <- calcNormFactors(dge, method = "TMM")
 ```
 
 ### Subset data
 Following normalization, we subset the data based on infection groups.
 ```{r, warning = FALSE, message = FALSE}
 #Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
 dge$samples$group <- group
 
 ### Divide out I1 and I2
 dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
+dge.I1 <- calcNormFactors(dge.I1, method = "TMM")
+
 dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
+dge.I2 <- calcNormFactors(dge.I2, method = "TMM")
 
 covars.I1 <- covars %>% filter(group == "I1")
 covars.I2 <- covars %>% filter(group == "I2")
@@ -133,7 +124,7 @@ v.I1 <- voomWithQualityWeights(dge.I1, design.I1, plot = FALSE)
 #Fitting models
 vfit.I1 <- lmFit(v.I1, design.I1) 
 vfit.I1 <- contrasts.fit(vfit.I1, contrasts = contr.matrix.I1)
-tfit.I1 <- treat(vfit.I1, lfc = 1.0)
+tfit.I1 <- treat(vfit.I1, lfc = 0.5)
 
 ## Identify DE transcripts
 dt.I1 <- decideTests(tfit.I1, p.value = 0.1, adjust.method = "fdr")
@@ -180,7 +171,7 @@ v.I2 <- voomWithQualityWeights(dge.I2, design.I2, plot = FALSE)
 #Fitting models
 vfit.I2 <- lmFit(v.I2, design.I2) 
 vfit.I2 <- contrasts.fit(vfit.I2, contrasts = contr.matrix.I2)
-tfit.I2 <- treat(vfit.I2, lfc = 1.0)
+tfit.I2 <- treat(vfit.I2, lfc = 0.5)
 
 ## Identify DE genes
 dt.I2 <- decideTests(tfit.I2, p.value = 0.1, adjust.method = "fdr")
