@@ -59,9 +59,7 @@ covars <- covars %>% filter(bird != "01", bird != "72")
 
 ### Set up model effects
 ```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars$bird)
 sex <- as.factor(covars$sex)
-age <- as.numeric(covars$age)
 group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 pool <- as.factor(covars$Bursa_pool)
@@ -98,8 +96,7 @@ dge <- calcNormFactors(dge, method = "TMM")
 ## Establish design matrix
 design = model.matrix(~ 0 +
                         group +
-                        age +
-                        sex + 
+                        sex +
                         pool)
 
 colnames(design) <- gsub("group", "", colnames(design))
@@ -318,68 +315,6 @@ p15 <- ggplot(results15, aes(logFC, -log10(P.Value))) +
 
 grid.arrange(p1, p2, p3, p4, p5, p6, p7,
              p8, p9, p10, p11, p12, p13, p14, p15, nrow = 8)
-```
-
-## Heatmap
-```{r, warning = FALSE, message = FALSE, fig.height = 4, fig.width = 9, fig.align = "center"}
-# Get the gene names for DE genes
-lcpm2 <- as_tibble(dge$counts, rownames = NA) %>% 
-  cpm(., log = TRUE)
-
-newNames <- colnames(lcpm2) %>% 
-  as_tibble() %>% 
-  separate(value, into = c(NA, "bird")) %>% 
-  bind_cols(covars) %>% 
-  mutate(group = ifelse(group == "C1", "Ctl", group),
-         group = ifelse(group == "C29", "Ctl", group),
-         group = as.factor(group)) %>% 
-  unite("newNames", group, bird)
-
-colOrder <- covars %>% 
-  mutate(group = ifelse(group == "C1", "Ctl", group),
-         group = ifelse(group == "C29", "Ctl", group),
-         group = as.factor(group)) %>% 
-  mutate(group = fct_relevel(group, "Ctl", "I1", "I2", "I5", "I15", "I29")) %>%
-  arrange(group, bird) %>% 
-  unite("newNames", group, bird)
-
-colnames(lcpm2) <- newNames$newNames
-lcpm2 <- lcpm2[, colOrder$newNames]
-
-heatmap.annot <- annot %>%
-  filter(ensembl_transcript_id %in% dt.tib$gene) %>% 
-  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
-  unite(annot.hm, c(ensembl_transcript_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
-  select(annot.hm, ensembl_transcript_id) %>% 
-  distinct(annot.hm, .keep_all = TRUE)
-
-deGeneCounts <- lcpm2 %>% 
-  as_tibble() %>% 
-  mutate(ensembl_transcript_id = rownames(dge$counts)) %>% 
-  filter(ensembl_transcript_id %in% dt.tib$gene) %>% 
-  left_join(heatmap.annot) %>% 
-  column_to_rownames("annot.hm") %>%
-  select(-ensembl_transcript_id) %>% 
-  as.matrix()
-
-## Set up palette
-mypalette <- brewer.pal(11,"RdYlBu")
-morecols <- colorRampPalette(mypalette)
-
-hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
-
-# Plot the heatmap
-heatmap.2(deGeneCounts,
-          Colv = FALSE,
-          Rowv = as.dendrogram(hc),
-          col = rev(morecols(50)),
-          trace = "none",
-          colsep = c(8, 23, 33, 48, 58),
-          dendrogram = "row",
-          density.info = "none",
-          key = TRUE,
-          margins = c(3, 20),
-          scale ="row")
 ```
 
 ### Boxplots for differentially expressed genes

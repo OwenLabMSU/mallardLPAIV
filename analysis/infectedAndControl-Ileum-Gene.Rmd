@@ -71,9 +71,7 @@ covars.ileum <- covars.ileum %>% filter(bird != "01",
 
 ### Set up model effects
 ```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars.ileum$bird)
 sex <- as.factor(covars.ileum$sex)
-age <- as.numeric(covars.ileum$age)
 group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 pool <- as.factor(covars.ileum$Ileum_pool)
@@ -109,8 +107,7 @@ dge <- calcNormFactors(dge, method = "TMM")
 ## Establish design matrix
 design = model.matrix(~ 0 +
                         group +
-                        age +
-                        sex + 
+                        sex +
                         pool)
 
 colnames(design) <- gsub("group", "", colnames(design))
@@ -221,66 +218,6 @@ p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
 grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 3)
 ```
 
-### Heatmap
-```{r, warning = FALSE, message = FALSE, fig.height = 4, fig.width = 10, fig.align = "center"}
-# Get the gene names for DE genes
-deGeneCounts <- lcpm %>%
-  as_tibble(rownames = NA) %>%
-  rownames_to_column("gene") %>%
-  filter(gene %in% dt.tib$gene) %>%
-  column_to_rownames("gene")
-
-group2 <- group %>% 
-  as_tibble() %>% 
-  mutate(group = sub("I2", "I02", value)) %>% 
-  mutate(group = sub("I1", "I01", group)) %>% 
-  mutate(group = sub("I5", "I05", group))
-
-newNames1 <- colnames(deGeneCounts) %>%
-  as_tibble() %>%
-  separate(value, into = c(NA, "sample")) %>%
-  mutate(group = group2$group) %>%
-  unite("sample", 2:1, sep = "_")
-
-colnames(deGeneCounts) <- newNames1$sample
-deGeneCounts <- deGeneCounts %>% dplyr::select(order(colnames(.))) %>%
-  as.matrix()
-
-heatmap.annot <- annot %>%
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
-  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
-  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
-  select(annot.hm, ensembl_gene_id)
-
-deGeneCounts <- deGeneCounts %>% 
-  as_tibble(rownames = NA) %>% 
-  mutate(gene = rownames(.)) %>% 
-  rename(ensembl_gene_id = gene) %>% 
-  left_join(heatmap.annot) %>% 
-  column_to_rownames("annot.hm") %>%
-  select(-ensembl_gene_id) %>% 
-  as.matrix()
-
-## Set up palette
-mypalette <- brewer.pal(11,"RdYlBu")
-morecols <- colorRampPalette(mypalette)
-
-hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
-
-# Plot the heatmap
-heatmap.2(deGeneCounts,
-          Colv = FALSE,
-          Rowv = as.dendrogram(hc),
-          col = rev(morecols(50)),
-          trace = "none",
-          colsep = c(5, 17, 27),
-          dendrogram = "row",
-          density.info = "none",
-          key = TRUE,
-          margins = c(5, 22),
-          scale ="row")
-```
-
 ### Boxplots for differentially expressed genes
 ```{r message=FALSE, warning=FALSE}
 lcpm.DE <- lcpm %>%
@@ -359,36 +296,4 @@ bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>%
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
-
-#### Pathway analysis
-```{r message=FALSE, warning=FALSE}
-de.entrez <- annot %>% filter(ensembl_gene_id %in% dt.tib$gene) %>% na.omit(entrezgene_id)
-entrez.universe <- annot %>% na.omit(entrezgene_id)
-
-K <- kegga(de.entrez$entrezgene_id, universe = entrez.universe$entrezgene_id, species.KEGG = "apla") %>% 
-  as_tibble(rownames = NA) %>% 
-  rownames_to_column("PathwayID") %>% 
-  filter(P.DE < 0.05) %>% 
-  arrange(P.DE)
-
-keggList <- getGeneKEGGLinks(species.KEGG = "apla") %>% 
-  as_tibble() %>% 
-  rename("entrezgene_id" = GeneID)
-
-keggGenes = data.frame()
-for (path in nrow(K)){
-    procPath <- filter(keggList, entrezgene_id %in% de.entrez$entrezgene_id)
-    df <- data.frame(procPath)
-    keggGenes <- rbind(keggGenes, df)
-}
-
-inner_join(keggGenes, K) %>%
-  as_tibble() %>% 
-  mutate(entrezgene_id = as.numeric(entrezgene_id)) %>% 
-  left_join(annot) %>% 
-  select(Pathway, PathwayID, N, DE, P.DE, ensembl_gene_id, hgnc_symbol, entrezgene_id) %>% 
-  kable() %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-```
-
 

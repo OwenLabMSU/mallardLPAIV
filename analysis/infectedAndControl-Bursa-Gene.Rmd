@@ -59,9 +59,7 @@ covars <- covars %>% filter(bird != "01", bird != "72")
 
 ### Set up model effects
 ```{r, warning = FALSE, message = FALSE}
-bird <- as.factor(covars$bird)
 sex <- as.factor(covars$sex)
-age <- as.numeric(covars$age)
 group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 pool <- as.factor(covars$Bursa_pool)
@@ -98,8 +96,7 @@ dge <- calcNormFactors(dge, method = "TMM")
 ## Establish design matrix
 design = model.matrix(~ 0 +
                         group +
-                        age +
-                        sex + 
+                        sex +
                         pool)
 
 colnames(design) <- gsub("group", "", colnames(design))

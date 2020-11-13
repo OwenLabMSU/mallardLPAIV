@@ -85,7 +85,7 @@ group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>%
   as.factor()
 dge$samples$group <- group
 
-### Divide out I1 and I3
+### Divide out I5
 dge.I5 <- dge[,grep('\\bI5\\b', dge$samples$group)]
 dge.I5 <- calcNormFactors(dge.I5, method = "TMM")
 
@@ -97,12 +97,11 @@ covars.I5 <- covars %>% filter(group == "I5")
 ## Establish design matrix: I5
 design.I5 = model.matrix(~ 0 +
                         factor(covars.I5$SSgroup.virus.avg) +
-                        covars.I5$age +
                         covars.I5$sex + 
                         covars.I5$Bursa_pool)
 
 colnames(design.I5) <- c("HIGH", "LOW", "MODERATE",
-                         "age", "sexM", "poolMSU2",
+                         "sexM", "poolMSU2",
                          "poolMSU3", "poolMSU4", "poolMSU5")
 
 contr.matrix.I5 = makeContrasts(
@@ -153,7 +152,7 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. Moderate shedding") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -164,7 +163,7 @@ p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Moderate vs. High shedding") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -175,7 +174,7 @@ p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. High shedding") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -232,7 +231,7 @@ for(target in sort(unique(lcpm.DE$identifier))) {
 ```
 
 ### Annotations for differentially expressed genes
-ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
+ns denotes non-significant genes for each comparison and numerical values are the log(Fold change) difference
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM")
 tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH")

@@ -11,7 +11,7 @@ These analyses examine the relationship between expression levels and viral tite
   2. Subset our overall set of transcripts to include only those with an annotation containing the name of the candidate gene.  
   3. Manually filter search results to remove non-target inclusions  
   4. Remove genes/transcripts with no variation in expression for each comparison (e.g., bursa at transcript-level)  
-  5. Use a linear mixed effects model to assess the relationship between log(expression) and log(viral titer) for each candidate gene/transcript. The model structure is expression ~ virus shedding group + sex + age with the sequencing pool as a random effect. The model is run on the entire set, as well as just on treatment groups I1, I2, I5, and I15.
+  5. Use a linear mixed effects model to assess the relationship between log(expression) and log(viral titer) for each candidate gene/transcript. The model structure is expression ~ virus shedding group + sex + sequencing pool as a random effect. The model is run on the entire set, as well as just on treatment groups I1, I2, I5, and I15.
   6. Correct the p-values for multiple testing using a false discovery rate approach with adjusted p-values (i.e., q-value) cutoff of 0.05. Corrections are used for just the test that incorporates all samples because that is the only one used for filtering.
   7. Plot the results  
    
@@ -83,8 +83,8 @@ lcpm.all <- lcpm %>%
   mutate(bird = factor(bird)) %>%
   left_join(covars, by = "bird") %>%
   mutate(identifier = gene) %>%
-  select(identifier, bird, tissue, lcpm, virus.sac, SSgroup.virus.sac, group, age, sex, Bursa_pool, Ileum_pool) %>%
-  mutate(pool = ifelse(tissue == "bursa", Bursa_pool, Ileum_pool)) %>%
+  select(identifier, bird, tissue, lcpm, virus.sac, SSgroup.virus.sac, group, age, sex, Bursa_pool) %>%
+  mutate(pool = Bursa_pool) %>%
   mutate(log.virus.sac = log(virus.sac+0.01)) %>%
   mutate(group = recode(group,
                         C1 = "Ctl",
@@ -108,7 +108,7 @@ candidateGeneAnalysis.Reg <- function(target, ...) {
 
     tryCatch({
       sum.overall <- filtered.dat %>%
-        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
         anova(.)},
       error=function(err) NA)
 
@@ -123,7 +123,7 @@ candidateGeneAnalysis.Reg <- function(target, ...) {
     tryCatch({
       sum.I1 <- filtered.dat %>%
         filter(group == "I1") %>%
-        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
         anova(.)},
       error=function(err) NA)
 
@@ -137,7 +137,7 @@ candidateGeneAnalysis.Reg <- function(target, ...) {
     tryCatch({
       sum.I2 <- filtered.dat %>%
         filter(group == "I2") %>%
-        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
         anova(.)},
       error=function(err) NA)
 
@@ -152,7 +152,7 @@ candidateGeneAnalysis.Reg <- function(target, ...) {
     tryCatch({
       sum.I5 <- filtered.dat %>%
         filter(group == "I5") %>%
-        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
         anova(.)},
       error=function(err) NA)
 
@@ -167,7 +167,7 @@ candidateGeneAnalysis.Reg <- function(target, ...) {
     tryCatch({
       sum.I15 <- filtered.dat %>%
         filter(group == "I15") %>%
-        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
         anova(.)},
       error=function(err) NA)
 
@@ -181,7 +181,7 @@ candidateGeneAnalysis.Reg <- function(target, ...) {
     tryCatch({
       sum.I29 <- filtered.dat %>%
         filter(group == "I29") %>%
-        lme(lcpm ~ log.virus.sac + age + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
         anova(.)},
       error=function(err) NA)
 

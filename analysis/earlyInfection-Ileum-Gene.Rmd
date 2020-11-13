@@ -117,13 +117,10 @@ covars.I2 <- covars %>% filter(group == "I2")
 ## Establish design matrix: I1
 design.I1 = model.matrix(~ 0 +
                         factor(covars.I1$SSgroup.virus.sac) +
-                        covars.I1$age +
-                        covars.I1$sex + 
-                        covars.I1$Bursa_pool)
+                        covars.I1$sex)
 
 colnames(design.I1) <- c("HIGH", "LOW", "MODERATE",
-                         "age", "sexM", "poolMSU2",
-                         "poolMSU3", "poolMSU4", "poolMSU5")
+                         "sexM")
 
 
 contr.matrix.I1 = makeContrasts(
@@ -156,21 +153,17 @@ dt.tib.I1 <- as_tibble(dt.I1, rownames = NA) %>%
 design.I2 = model.matrix(
   ~ 0 +
     factor(covars.I2$SSgroup.virus.sac) +
-    covars.I2$age +
     covars.I2$sex +
-    covars.I2$Bursa_pool
+    covars.I2$Ileum_pool
 )
 
 colnames(design.I2) <- c(
   "HIGH",
   "LOW",
   "MODERATE",
-  "age",
   "sexM",
-  "poolMSU2",
-  "poolMSU3",
-  "poolMSU4",
-  "poolMSU5"
+  "poolMSU6",
+  "poolUMN"
 )
 
 contr.matrix.I2 = makeContrasts(
@@ -207,7 +200,7 @@ dt.tib <- full_join(dt.tib.I1, dt.tib.I2) %>%
 ```
 
 ### Count DE genes
-For a gene to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log fold count difference of 1.
+For a gene to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log fold change difference of 0.5.
 ```{r}
 allResults <- rbind(
   as.data.frame(summary(dt.I1)),
@@ -230,7 +223,7 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. Moderate shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -242,7 +235,7 @@ p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Moderate vs. High shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -253,7 +246,7 @@ p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. High shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -264,7 +257,7 @@ p4 <- ggplot(results4, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. Moderate shedding, Day 2") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -275,7 +268,7 @@ p5 <- ggplot(results5, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Moderate vs. High shedding, Day 2") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -286,7 +279,7 @@ p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. High shedding, Day 2") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -295,8 +288,66 @@ grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)
 
 
 
+### Heatmap - I1
+```{r warning = FALSE, message = FALSE, fig.height = 40, fig.width = 9, fig.align = "center"}
+# Get the gene names for DE genes
+lcpm2 <- as_tibble(dge.I1$counts, rownames = NA) %>% 
+  cpm(., log = TRUE)
+
+newNames <- colnames(lcpm2) %>% 
+  as_tibble() %>% 
+  separate(value, into = c(NA, "bird")) %>% 
+  bind_cols(covars.I1) %>% 
+  unite("newNames", SSgroup.virus.sac, group, bird)
+
+colOrder <- bind_cols(covars.I1) %>% 
+  mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
+  arrange(SSgroup.virus.sac, group, bird) %>% 
+  unite("newNames", SSgroup.virus.sac, group, bird)
+
+colnames(lcpm2) <- newNames$newNames
+lcpm2 <- lcpm2[, colOrder$newNames]
+
+heatmap.annot <- annot %>%
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
+  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
+  select(annot.hm, ensembl_gene_id) %>% 
+  distinct(ensembl_gene_id, .keep_all = TRUE)
+
+deGeneCounts <- lcpm2 %>% 
+  as_tibble() %>% 
+  mutate(ensembl_gene_id = rownames(dge.I1$counts)) %>% 
+  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
+  left_join(heatmap.annot) %>% 
+  column_to_rownames("annot.hm") %>%
+  select(-ensembl_gene_id) %>% 
+  as.matrix()
+
+## Set up palette
+mypalette <- brewer.pal(11,"RdYlBu")
+morecols <- colorRampPalette(mypalette)
+
+hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
+
+# Plot the heatmap
+heatmap.2(deGeneCounts,
+          Colv = FALSE,
+          Rowv = as.dendrogram(hc),
+          col = rev(morecols(50)),
+          trace = "none",
+          colsep = c(4, 8),
+          dendrogram = "row",
+          density.info = "none",
+          key = FALSE,
+          margins = c(12, 12),
+          scale ="row")
+```
+
+
+
 ### Heatmap - I2
-```{r warning = FALSE, message = FALSE, fig.height = 20, fig.width = 9, fig.align = "center"}
+```{r warning = FALSE, message = FALSE, fig.height = 40, fig.width = 9, fig.align = "center"}
 # Get the gene names for DE genes
 lcpm2 <- as_tibble(dge.I2$counts, rownames = NA) %>% 
   cpm(., log = TRUE)
@@ -346,14 +397,14 @@ heatmap.2(deGeneCounts,
           colsep = c(4, 8),
           dendrogram = "row",
           density.info = "none",
-          key = TRUE,
+          key = FALSE,
           margins = c(12, 12),
           scale ="row")
 ```
 
 
 ### Boxplots for I1 differentially expressed genes
-```{r message=FALSE, warning=FALSE}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 lcpm.DE <- lcpm %>%
   as_tibble(rownames = NA) %>% 
   rownames_to_column("identifier") %>% 
@@ -404,7 +455,7 @@ for(target in sort(unique(dt.tib.I1$gene))) {
 
 
 ### Boxplots for I2 differentially expressed genes
-```{r message=FALSE, warning=FALSE}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 lcpm.DE <- lcpm %>%
   as_tibble(rownames = NA) %>% 
   rownames_to_column("identifier") %>% 
@@ -454,7 +505,7 @@ for(target in sort(unique(dt.tib.I2$gene))) {
 ```
 
 ### Annotations for differentially expressed genes
-ns denotes non-significant genes for each comparison and numerical values are the log(fold count) difference
+ns denotes non-significant genes for each comparison and numerical values are the log(fold change) difference
 ```{r message=FALSE, warning=FALSE}
 tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I1")
 tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I1")

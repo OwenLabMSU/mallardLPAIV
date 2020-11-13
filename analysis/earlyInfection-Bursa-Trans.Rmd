@@ -96,19 +96,17 @@ covars.I1 <- covars %>% filter(group == "I1")
 covars.I2 <- covars %>% filter(group == "I2")
 ```
 
-
 # Differential expression analysis
 ### Establish design & contrast matrices
 ```{r}
 ## Establish design matrix: I1
 design.I1 = model.matrix(~ 0 +
                         factor(covars.I1$SSgroup.virus.sac) +
-                        covars.I1$age +
                         covars.I1$sex + 
                         covars.I1$Bursa_pool)
 
 colnames(design.I1) <- c("HIGH", "LOW", "MODERATE",
-                         "age", "sexM", "poolMSU2",
+                         "sexM", "poolMSU2",
                          "poolMSU3", "poolMSU4", "poolMSU5")
 
 
@@ -142,7 +140,6 @@ dt.tib.I1 <- as_tibble(dt.I1, rownames = NA) %>%
 design.I2 = model.matrix(
   ~ 0 +
     factor(covars.I2$SSgroup.virus.sac) +
-    covars.I2$age +
     covars.I2$sex +
     covars.I2$Bursa_pool
 )
@@ -151,7 +148,6 @@ colnames(design.I2) <- c(
   "HIGH",
   "LOW",
   "MODERATE",
-  "age",
   "sexM",
   "poolMSU2",
   "poolMSU3",
@@ -193,7 +189,7 @@ dt.tib <- full_join(dt.tib.I1, dt.tib.I2) %>%
 ```
 
 ### Count DE transcripts
-For a gene to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log fold count difference of 1.
+For a gene to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log Fold change difference of 0.5.
 ```{r}
 allResults <- rbind(
   as.data.frame(summary(dt.I1)),
@@ -216,7 +212,7 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. Moderate shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -228,7 +224,7 @@ p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Moderate vs. High shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -239,7 +235,7 @@ p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. High shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -250,7 +246,7 @@ p4 <- ggplot(results4, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. Moderate shedding, Day 2") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -261,7 +257,7 @@ p5 <- ggplot(results5, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Moderate vs. High shedding, Day 2") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -272,7 +268,7 @@ p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. High shedding, Day 2") +
   ylab("-Log10(p-value)") +
-  xlab("Log(Fold count)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 

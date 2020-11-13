@@ -1,0 +1,593 @@
+---
+title: "Mallard model selection"
+author: "Jared J. Homola"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+  
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Early Infection
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+## Load packages and data
+library(limma)
+library(edgeR)
+library(Glimma)
+library(gplots)
+library(ggrepel)
+library(RColorBrewer)
+library(gridExtra)
+library(kableExtra)
+library(tidyverse)
+
+## Load data
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
+
+newNames <- names(cnt) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
+
+colnames(cnt) <- newNames$newName
+
+cnt <- cnt %>% 
+  select(order(colnames(cnt)))
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+## Remove birds with issues
+cnt <- cnt %>% select(-bursa_01, -bursa_72)
+
+covars <- covars %>% filter(bird != "01", bird != "72")
+
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+
+#Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Divide out I1 and I2
+dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
+dge.I1 <- calcNormFactors(dge.I1, method = "TMM")
+
+dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
+dge.I2 <- calcNormFactors(dge.I2, method = "TMM")
+
+covars.I1 <- covars %>% filter(group == "I1")
+covars.I2 <- covars %>% filter(group == "I2")
+```
+
+```{r message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$age)
+d3 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$sex)
+d4 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool)
+d5 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool+covars.I1$age)
+d6 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool+covars.I1$sex)
+d7 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool+covars.I1$age+covars.I1$sex)
+
+lcpm.I1 <- cpm(dge.I1, log = TRUE)
+
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I1, dlist, criterion="aic")
+
+barplot(table(sm1$pref), main = "I1: Early infection, Bursa-Gene")
+```
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$age)
+d3 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$sex)
+d4 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool)
+d5 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool+covars.I2$age)
+d6 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool+covars.I2$sex)
+d7 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool+covars.I2$age+covars.I2$sex)
+
+lcpm.I2 <- cpm(dge.I2, log = TRUE)
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I2,dlist,criterion="aic")
+
+barplot(table(sm1$pref), main = "I2: Early infection, Bursa-Gene")
+```
+
+
+
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+### Early infection, bursa, trans
+## Load data
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.isoforms.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationTrans103120.txt", delim = "\t")
+
+newNames <- names(cnt) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
+
+colnames(cnt) <- newNames$newName
+
+cnt <- cnt %>% 
+  select(order(colnames(cnt)))
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+## Remove birds with issues
+cnt <- cnt %>% select(-bursa_01, -bursa_72)
+
+covars <- covars %>% filter(bird != "01", bird != "72")
+
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_transcript_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only transcripts expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+
+#Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Divide out I1 and I2
+dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
+dge.I1 <- calcNormFactors(dge.I1, method = "TMM")
+
+dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
+dge.I2 <- calcNormFactors(dge.I2, method = "TMM")
+
+covars.I1 <- covars %>% filter(group == "I1")
+covars.I2 <- covars %>% filter(group == "I2")
+```
+
+```{r message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$age)
+d3 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$sex)
+d4 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool)
+d5 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool+covars.I1$age)
+d6 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool+covars.I1$sex)
+d7 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$Bursa_pool+covars.I1$age+covars.I1$sex)
+
+lcpm.I1 <- cpm(dge.I1, log = TRUE)
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I1,dlist,criterion="aic")
+
+barplot(table(sm1$pref), main = "I1: Early infection, Bursa-Trans")
+```
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$age)
+d3 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$sex)
+d4 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool)
+d5 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool+covars.I2$age)
+d6 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool+covars.I2$sex)
+d7 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Bursa_pool+covars.I2$age+covars.I2$sex)
+
+lcpm.I2 <- cpm(dge.I2, log = TRUE)
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I2,dlist,criterion="aic")
+
+barplot(table(sm1$pref), main = "I2: Early infection, Bursa-Trans")
+```
+
+
+
+### Early infection, ileum, gene
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+## Load data
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenesIleum110120.txt", delim = "\t")
+
+cnt <- cnt1 %>%
+  as_tibble() %>%
+  select(-gene)
+
+newNames.ileum <- names(cnt) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
+
+colnames(cnt) <- newNames.ileum$newName
+
+cnt <- cnt[,order(colnames(cnt))] %>%
+  mutate(gene = cnt1$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+### Covars
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+covars.ileum <- covars %>%
+  filter(bird %in% newNames.ileum$bird)
+
+cnt <- cnt %>% select(-ileum_01, -ileum_72)
+
+covars.ileum <- covars.ileum %>% filter(bird != "01",
+                                        bird != "72")
+
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+
+#Assign groups in DGElist
+group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Divide out I1 and I2
+dge.I1 <- dge[,grep('\\bI1\\b', dge$samples$group)]
+dge.I1 <- calcNormFactors(dge.I1, method = "TMM")
+
+dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
+dge.I2 <- calcNormFactors(dge.I2, method = "TMM")
+
+covars.I1 <- covars %>% filter(group == "I1", bird != "14", bird != "32", bird != "47")
+covars.I2 <- covars %>% filter(group == "I2")
+```
+
+```{r message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$age)
+d3 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$sex)
+d4 <- model.matrix(~0+factor(covars.I1$SSgroup.virus.sac)+covars.I1$age+covars.I1$sex)
+
+lcpm.I1 <- cpm(dge.I1, log = TRUE)
+dlist <- list(d1,d2,d3,d4)
+sm1 <- selectModel(lcpm.I1,dlist,criterion="aic")
+
+barplot(table(sm1$pref), main = "I1: Early infection, Ileum-Trans")
+```
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$age)
+d3 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$sex)
+d4 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Ileum_pool)
+d5 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Ileum_pool+covars.I2$age)
+d6 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Ileum_pool+covars.I2$sex)
+d7 <- model.matrix(~0+factor(covars.I2$SSgroup.virus.sac)+covars.I2$Ileum_pool+covars.I2$age+covars.I2$sex)
+
+lcpm.I2 <- cpm(dge.I2, log = TRUE)
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I2,dlist,criterion="aic")
+
+barplot(table(sm1$pref), main = "I2: Early infection, Ileum-Trans")
+```
+
+
+
+
+
+
+
+# Late infection
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+## Load data
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
+
+newNames <- names(cnt) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
+
+colnames(cnt) <- newNames$newName
+
+cnt <- cnt %>% 
+  select(order(colnames(cnt)))
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+## Remove birds with issues
+cnt <- cnt %>% select(-bursa_01, -bursa_72)
+
+covars <- covars %>% filter(bird != "01", bird != "72")
+
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+
+#Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Divide out I1 and I3
+dge.I5 <- dge[,grep('\\bI5\\b', dge$samples$group)]
+dge.I5 <- calcNormFactors(dge.I5, method = "TMM")
+
+covars.I5 <- covars %>% filter(group == "I5")
+```
+
+```{r message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$age)
+d3 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$sex)
+d4 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool)
+d5 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool+covars.I5$age)
+d6 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool+covars.I5$sex)
+d7 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool+covars.I5$age+covars.I5$sex)
+
+lcpm.I5 <- cpm(dge.I5, log = TRUE)
+
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I5, dlist, criterion="aic")
+
+barplot(table(sm1$pref), main = "I5: Late infection, Bursa-Gene")
+```
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+## Load data
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.isoforms.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationTrans103120.txt", delim = "\t")
+
+newNames <- names(cnt) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
+
+colnames(cnt) <- newNames$newName
+
+cnt <- cnt %>% 
+  select(order(colnames(cnt)))
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+## Remove birds with issues
+cnt <- cnt %>% select(-bursa_01, -bursa_72)
+
+covars <- covars %>% filter(bird != "01", bird != "72")
+
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_transcript_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+
+#Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Divide out I1 and I3
+dge.I5 <- dge[,grep('\\bI5\\b', dge$samples$group)]
+dge.I5 <- calcNormFactors(dge.I5, method = "TMM")
+
+covars.I5 <- covars %>% filter(group == "I5")
+```
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$age)
+d3 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$sex)
+d4 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool)
+d5 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool+covars.I5$age)
+d6 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool+covars.I5$sex)
+d7 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Bursa_pool+covars.I5$age+covars.I5$sex)
+
+lcpm.I5 <- cpm(dge.I5, log = TRUE)
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I5,dlist,criterion="aic")
+
+barplot(table(sm1$pref), main = "I5: Late infection, Bursa-Trans")
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+## Load data
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenesIleum110120.txt", delim = "\t")
+
+cnt <- cnt1 %>%
+  as_tibble() %>%
+  select(-gene)
+
+newNames.ileum <- names(cnt) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
+
+colnames(cnt) <- newNames.ileum$newName
+
+cnt <- cnt[,order(colnames(cnt))] %>%
+  mutate(gene = cnt1$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+### Covars
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+covars.ileum <- covars %>%
+  filter(bird %in% newNames.ileum$bird)
+
+cnt <- cnt %>% select(-ileum_01, -ileum_72)
+
+covars.ileum <- covars.ileum %>% filter(bird != "01",
+                                        bird != "72")
+
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+
+#Assign groups in DGElist
+group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Divide out I1 and I3
+dge.I5 <- dge[,grep('\\bI5\\b', dge$samples$group)]
+dge.I5 <- calcNormFactors(dge.I5, method = "TMM")
+
+covars.I5 <- covars.ileum %>% filter(group == "I5")
+```
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+### MODEL SELECTION
+d1 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac))
+d2 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$age)
+d3 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$sex)
+d4 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Ileum_pool)
+d5 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Ileum_pool+covars.I5$age)
+d6 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Ileum_pool+covars.I5$sex)
+d7 <- model.matrix(~0+factor(covars.I5$SSgroup.virus.sac)+covars.I5$Ileum_pool+covars.I5$age+covars.I5$sex)
+
+lcpm.I5 <- cpm(dge.I5, log = TRUE)
+dlist <- list(d1,d2,d3,d4,d5,d6,d7)
+sm1 <- selectModel(lcpm.I5,dlist,criterion="aic")
+
+barplot(table(sm1$pref), main = "I5: Late infection, Ileum-Trans")
+```
