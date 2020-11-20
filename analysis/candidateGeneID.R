@@ -2,7 +2,7 @@
 library(tidyverse)
 candidateList <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/CandidateGeneList.csv", delim = ",")
 
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/annotationTrans103120.txt", delim = "\t")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationTrans103120.txt", delim = "\t")
 
 for(term in candidateList$term) {
   assign(paste0(term, ".df"),
