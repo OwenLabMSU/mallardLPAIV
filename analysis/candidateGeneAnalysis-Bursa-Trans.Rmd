@@ -84,7 +84,7 @@ lcpm.all <- lcpm %>%
   mutate(identifier = gene) %>%
   select(identifier, bird, tissue, lcpm, virus.sac, SSgroup.virus.sac, group, age, sex, Bursa_pool) %>%
   mutate(pool = Bursa_pool) %>%
-  mutate(log.virus.sac = log(virus.sac+0.01)) %>%
+  mutate(log.virus.sac = log10(virus.sac+1)) %>%
   mutate(group = recode(group,
                         C1 = "Ctl",
                         C29 = "Ctl")) %>%
