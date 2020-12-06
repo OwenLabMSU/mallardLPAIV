@@ -1,10 +1,10 @@
 ---
-title: "Early Infection - Ileum - Gene"
+title: "Early Infection - Bursa - Gene - 2"
 author: "Jared J. Homola"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
-This is an analysis of differential expression at the gene level between supershedder groupings based on shedding rates measured on the day of sacrifice for infected mallard ileum samples.
+This is an analysis of differential expression at the gene level between supershedder groupings based on shedding rates measured on the day of sacrifice for infected mallard bursa samples.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -23,36 +23,26 @@ library(kableExtra)
 library(tidyverse)
 
 ## Load data
-cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
-annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenesIleum110120.txt", delim = "\t")
+cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_12.3.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
 ```
 
 ### Prep data for analysis
 ```{r, warning = FALSE, message = FALSE}
-cnt <- cnt1 %>%
+newNames <- names(cnt) %>%
   as_tibble() %>%
-  select(-gene)
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
 
-newNames.ileum <- names(cnt) %>%
-  as_tibble() %>%
-  mutate(value = gsub("Iluem_", "", .$value)) %>% 
-  separate(value, into = c(NA, "pt1", "pt2")) %>%
-  mutate(pt1 = na_if(pt1, "MALL"),
-         pt2 = na_if(pt2, "ileum")) %>%
-  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
-  mutate(bird = as.numeric(bird),
-    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
-  mutate(newName = paste0("ileum_", bird))
+colnames(cnt) <- newNames$newName
 
-colnames(cnt) <- newNames.ileum$newName
+cnt <- cnt %>% 
+  select(order(colnames(cnt)))
 
-cnt <- cnt[,order(colnames(cnt))] %>%
-  mutate(gene = cnt1$gene) %>%
-  column_to_rownames("gene") %>%
-  as_tibble(rownames = NA)
-
-### Covars
 covars <- covars %>%
   mutate(bird = as.numeric(bird)) %>%
   mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
@@ -60,13 +50,10 @@ covars <- covars %>%
   mutate(bird = as.factor(bird)) %>%
   mutate(group = str_remove(group, "-"))
 
-covars.ileum <- covars %>%
-  filter(bird %in% newNames.ileum$bird)
+## Remove birds with issues
+cnt <- cnt %>% select(-bursa_01, -bursa_72)
 
-cnt <- cnt %>% select(-ileum_01, -ileum_72)
-
-covars.ileum <- covars.ileum %>% filter(bird != "01",
-                                        bird != "72")
+covars <- covars %>% filter(bird != "01", bird != "72")
 ```
 
 ### Prep data for analysis
@@ -90,12 +77,11 @@ table(rowSums(dge$counts==0) == length(cnt[1,]))
 dim(dge)
 ```
 
-
 ### Subset data
 Following normalization, we subset the data based on infection groups.
 ```{r, warning = FALSE, message = FALSE}
 #Assign groups in DGElist
-group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
   as.factor()
 dge$samples$group <- group
 
@@ -106,7 +92,7 @@ dge.I1 <- calcNormFactors(dge.I1, method = "TMM")
 dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
 dge.I2 <- calcNormFactors(dge.I2, method = "TMM")
 
-covars.I1 <- covars %>% filter(group == "I1", bird != "14", bird != "32", bird != "47")
+covars.I1 <- covars %>% filter(group == "I1")
 covars.I2 <- covars %>% filter(group == "I2")
 ```
 
@@ -115,12 +101,23 @@ covars.I2 <- covars %>% filter(group == "I2")
 ### Establish design & contrast matrices
 ```{r}
 ## Establish design matrix: I1
-design.I1 = model.matrix(~ 0 +
-                        factor(covars.I1$SSgroup.virus.sac) +
-                        covars.I1$sex)
+design.I1 = model.matrix(
+  ~ 0 +
+    factor(covars.I1$SSgroup.virus.sac) +
+    covars.I1$sex +
+    covars.I1$Bursa_pool
+)
 
-colnames(design.I1) <- c("HIGH", "LOW", "MODERATE",
-                         "sexM")
+colnames(design.I1) <- c(
+  "HIGH",
+  "LOW",
+  "MODERATE",
+  "sexM",
+  "poolMSU2",
+  "poolMSU3",
+  "poolMSU4",
+  "poolMSU5"
+)
 
 
 contr.matrix.I1 = makeContrasts(
@@ -152,23 +149,22 @@ dt.tib.I1 <- as_tibble(dt.I1, rownames = NA) %>%
 ## Establish design matrix: I2
 design.I2 = model.matrix(
   ~ 0 +
-    factor(covars.I2$SSgroup.virus.sac) +
+    factor(covars.I2$SSgroup.I2.graph) +
     covars.I2$sex +
-    covars.I2$Ileum_pool
+    covars.I2$Bursa_pool
 )
 
 colnames(design.I2) <- c(
   "HIGH",
   "LOW",
-  "MODERATE",
   "sexM",
-  "poolMSU6",
-  "poolUMN"
+  "poolMSU2",
+  "poolMSU3",
+  "poolMSU4",
+  "poolMSU5"
 )
 
 contr.matrix.I2 = makeContrasts(
-  LvM = LOW - MODERATE,
-  MvH = MODERATE - HIGH,
   LvH = LOW - HIGH,
   levels = colnames(design.I2))
 
@@ -185,12 +181,8 @@ dt.I2 <- decideTests(tfit.I2, p.value = 0.1, adjust.method = "fdr")
 dt.tib.I2 <- as_tibble(dt.I2, rownames = NA) %>% 
   rownames_to_column("gene") %>% 
   mutate_at(vars(starts_with("L")), as.numeric) %>% 
-  mutate_at(vars(starts_with("M")), as.numeric) %>% 
-  rename(LvM.I2 = LvM,
-         MvH.I2 = MvH,
-         LvH.I2 = LvH) %>% 
-  filter_at(vars(LvM.I2:LvH.I2), any_vars(. != 0))
-
+  rename(LvH.I2 = LvH) %>% 
+  filter_at(vars(LvH.I2), any_vars(. != 0))
 
 ## Bring it all together
 dt.tib <- full_join(dt.tib.I1, dt.tib.I2) %>% 
@@ -210,7 +202,7 @@ allResults <- rbind(
 kable(allResults) %>%
   kable_styling("striped", full_width = F) %>%
   pack_rows("1 Day Post Infection", 1, 6) %>%
-  pack_rows("2 Days Post Infection", 7, 12)
+  pack_rows("2 Days Post Infection", 7, 8)
 ```
 
 
@@ -223,10 +215,9 @@ p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. Moderate shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(fold change)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
-
 
 tmp2 <- topTreat(tfit.I1, coef = 2, n = Inf)
 results2 <- mutate(tmp2, sig=ifelse(tmp2$adj.P.Val<0.1, "Sig", "Not Sig"))
@@ -235,7 +226,7 @@ p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Moderate vs. High shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(fold change)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -246,7 +237,7 @@ p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
   scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. High shedding, Day 1") +
   ylab("-Log10(p-value)") +
-  xlab("Log(fold change)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
@@ -255,207 +246,18 @@ results4 <- mutate(tmp4, sig=ifelse(tmp4$adj.P.Val<0.1, "Sig", "Not Sig"))
 p4 <- ggplot(results4, aes(logFC, -log10(P.Value))) +
   geom_point(aes(col = sig)) +
   scale_color_manual(values=c("black", "red")) +
-  ggtitle("Low vs. Moderate shedding, Day 2") +
-  ylab("-Log10(p-value)") +
-  xlab("Log(fold change)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp5 <- topTreat(tfit.I2, coef = 2, n = Inf)
-results5 <- mutate(tmp5, sig=ifelse(tmp5$adj.P.Val<0.1, "Sig", "Not Sig"))
-p5 <- ggplot(results5, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
-  ggtitle("Moderate vs. High shedding, Day 2") +
-  ylab("-Log10(p-value)") +
-  xlab("Log(fold change)") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-tmp6 <- topTreat(tfit.I2, coef = 3, n = Inf)
-results6 <- mutate(tmp6, sig=ifelse(tmp6$adj.P.Val<0.1, "Sig", "Not Sig"))
-p6 <- ggplot(results6, aes(logFC, -log10(P.Value))) +
-  geom_point(aes(col = sig)) +
-  scale_color_manual(values=c("black", "red")) +
   ggtitle("Low vs. High shedding, Day 2") +
   ylab("-Log10(p-value)") +
-  xlab("Log(fold change)") +
+  xlab("Log(Fold change)") +
   theme_bw() +
   theme(legend.position = "none")
 
-grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)
-```
-
-
-
-### Heatmap - I1
-```{r warning = FALSE, message = FALSE, fig.height = 40, fig.width = 9, fig.align = "center"}
-# Get the gene names for DE genes
-lcpm2 <- as_tibble(dge.I1$counts, rownames = NA) %>% 
-  cpm(., log = TRUE)
-
-newNames <- colnames(lcpm2) %>% 
-  as_tibble() %>% 
-  separate(value, into = c(NA, "bird")) %>% 
-  bind_cols(covars.I1) %>% 
-  unite("newNames", SSgroup.virus.sac, group, bird)
-
-colOrder <- bind_cols(covars.I1) %>% 
-  mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
-  arrange(SSgroup.virus.sac, group, bird) %>% 
-  unite("newNames", SSgroup.virus.sac, group, bird)
-
-colnames(lcpm2) <- newNames$newNames
-lcpm2 <- lcpm2[, colOrder$newNames]
-
-heatmap.annot <- annot %>%
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
-  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
-  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
-  select(annot.hm, ensembl_gene_id) %>% 
-  distinct(ensembl_gene_id, .keep_all = TRUE)
-
-deGeneCounts <- lcpm2 %>% 
-  as_tibble() %>% 
-  mutate(ensembl_gene_id = rownames(dge.I1$counts)) %>% 
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
-  left_join(heatmap.annot) %>% 
-  column_to_rownames("annot.hm") %>%
-  select(-ensembl_gene_id) %>% 
-  as.matrix()
-
-## Set up palette
-mypalette <- brewer.pal(11,"RdYlBu")
-morecols <- colorRampPalette(mypalette)
-
-hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
-
-# Plot the heatmap
-heatmap.2(deGeneCounts,
-          Colv = FALSE,
-          Rowv = as.dendrogram(hc),
-          col = rev(morecols(50)),
-          trace = "none",
-          colsep = c(5, 9),
-          dendrogram = "row",
-          density.info = "none",
-          key = FALSE,
-          margins = c(12, 12),
-          scale ="row")
-```
-
-
-
-### Heatmap - I2
-```{r warning = FALSE, message = FALSE, fig.height = 40, fig.width = 9, fig.align = "center"}
-# Get the gene names for DE genes
-lcpm2 <- as_tibble(dge.I2$counts, rownames = NA) %>% 
-  cpm(., log = TRUE)
-
-newNames <- colnames(lcpm2) %>% 
-  as_tibble() %>% 
-  separate(value, into = c(NA, "bird")) %>% 
-  bind_cols(covars.I2) %>% 
-  unite("newNames", SSgroup.virus.sac, group, bird)
-
-colOrder <- bind_cols(covars.I2) %>% 
-  mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
-  arrange(SSgroup.virus.sac, group, bird) %>% 
-  unite("newNames", SSgroup.virus.sac, group, bird)
-
-colnames(lcpm2) <- newNames$newNames
-lcpm2 <- lcpm2[, colOrder$newNames]
-
-heatmap.annot <- annot %>%
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
-  mutate(hgnc_symbol = replace_na(hgnc_symbol, ".")) %>% 
-  unite(annot.hm, c(ensembl_gene_id, hgnc_symbol), sep = "-", remove = FALSE) %>% 
-  select(annot.hm, ensembl_gene_id) %>% 
-  distinct(ensembl_gene_id, .keep_all = TRUE)
-
-deGeneCounts <- lcpm2 %>% 
-  as_tibble() %>% 
-  mutate(ensembl_gene_id = rownames(dge.I2$counts)) %>% 
-  filter(ensembl_gene_id %in% dt.tib$gene) %>% 
-  left_join(heatmap.annot) %>% 
-  column_to_rownames("annot.hm") %>%
-  select(-ensembl_gene_id) %>% 
-  as.matrix()
-
-## Set up palette
-mypalette <- brewer.pal(11,"RdYlBu")
-morecols <- colorRampPalette(mypalette)
-
-hc <- hclust(as.dist(1-cor(t(deGeneCounts))))
-
-# Plot the heatmap
-heatmap.2(deGeneCounts,
-          Colv = FALSE,
-          Rowv = as.dendrogram(hc),
-          col = rev(morecols(50)),
-          trace = "none",
-          colsep = c(4, 8),
-          dendrogram = "row",
-          density.info = "none",
-          key = FALSE,
-          margins = c(12, 12),
-          scale ="row")
-```
-
-
-### Boxplots for I1 differentially expressed genes
-```{r eval=FALSE, message=FALSE, warning=FALSE}
-lcpm.DE <- lcpm %>%
-  as_tibble(rownames = NA) %>% 
-  rownames_to_column("identifier") %>% 
-  filter(identifier %in% dt.tib.I1$gene) %>%
-  pivot_longer(cols = contains("_"),
-               names_to = "sample",
-               values_to = "lcpm") %>%
-  separate(sample, into = c("tissue", "bird")) %>%
-  mutate(bird = as.factor(bird)) %>%
-  left_join(covars, by = "bird") %>%
-  filter(group == "C1" | group == "C14" | group == "I1") %>% 
-  select(identifier, bird, lcpm, SSgroup.virus.sac, group) %>% 
-  mutate(group = recode(group, C29 = "Control"),
-         group = recode(group, C1 = "Control"),
-         tmpID = ifelse(group == "Control", 'Control', 'Infected'))
-
-
-aprioriPlotting <- function(target, ...) {
-   annot.target <- annot %>%
-    select(
-      ensembl_gene_id,
-      hgnc_symbol) %>%
-    filter(ensembl_gene_id == target) %>% 
-    mutate(hgnc_symbol = replace_na(hgnc_symbol, "."))
-
-  plot <- lcpm.DE %>%
-    filter(identifier == target) %>%
-    mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
-    ggplot(aes(x = SSgroup.virus.sac, y = lcpm)) +
-    facet_grid(. ~ tmpID, scales = "free", space = "free") +
-    ylab("Log2(Counts per million)") +
-    xlab("Shedding Group") +
-    scale_fill_grey(start = 0.35, end = 1) + 
-    geom_point(position = position_dodge(width=0.75), aes(group = group), show.legend = FALSE) +
-    geom_boxplot(alpha = 0.5) +
-    geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
-    theme_classic() +
-    labs(title = paste0("I1: ", target, " - ", annot.target[1,2])) +
-    theme(legend.title = element_blank())
-    
-  print(plot)
-}
-
-for(target in sort(unique(dt.tib.I1$gene))) {
-  aprioriPlotting(target)
-}
+grid.arrange(p1, p2, p3, p4, nrow = 2)
 ```
 
 
 ### Boxplots for I2 differentially expressed genes
-```{r eval=FALSE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 lcpm.DE <- lcpm %>%
   as_tibble(rownames = NA) %>% 
   rownames_to_column("identifier") %>% 
@@ -467,7 +269,7 @@ lcpm.DE <- lcpm %>%
   mutate(bird = as.factor(bird)) %>%
   left_join(covars, by = "bird") %>%
   filter(group == "C1" | group == "C14" | group == "I2") %>% 
-  select(identifier, bird, lcpm, SSgroup.virus.sac, group) %>% 
+  select(identifier, bird, lcpm, SSgroup.I2.graph, group) %>% 
   mutate(group = recode(group, C29 = "Control"),
          group = recode(group, C1 = "Control"),
          tmpID = ifelse(group == "Control", 'Control', 'Infected'))
@@ -483,8 +285,8 @@ aprioriPlotting <- function(target, ...) {
 
   plot <- lcpm.DE %>%
     filter(identifier == target) %>%
-    mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
-    ggplot(aes(x = SSgroup.virus.sac, y = lcpm)) +
+    mutate(SSgroup.I2.graph = fct_relevel(SSgroup.I2.graph, "LOW", "HIGH")) %>%
+    ggplot(aes(x = SSgroup.I2.graph, y = lcpm)) +
     facet_grid(. ~ tmpID, scales = "free", space = "free") +
     ylab("Log2(Counts per million)") +
     xlab("Shedding Group") +
@@ -505,16 +307,14 @@ for(target in sort(unique(dt.tib.I2$gene))) {
 ```
 
 ### Annotations for differentially expressed genes
-ns denotes non-significant genes for each comparison and numerical values are the log(fold change) difference
+ns denotes non-significant genes for each comparison and numerical values are the log(Fold change) difference
 ```{r message=FALSE, warning=FALSE}
 tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I1")
 tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I1")
 tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I1")
-tmp4a <- tmp4 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvM.I2")
-tmp5a <- tmp5 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "MvH.I2")
-tmp6a <- tmp6 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I2")
+tmp4a <- tmp4 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "LvH.I2")
 
-bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>% 
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a) %>% 
   select(-description) %>% 
   filter(ensembl_gene_id %in% dt.tib$gene) %>% 
   mutate(logFoldCount = ifelse(adj.P.Val < 0.10, round(logFC, 2), "ns")) %>% 
@@ -526,7 +326,7 @@ bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>%
 
 #### Gene functions
 ```{r message=FALSE, warning=FALSE}
-bind_rows(tmp1a, tmp2a, tmp3a, tmp4a, tmp5a, tmp6a) %>% 
+bind_rows(tmp1a, tmp2a, tmp3a, tmp4a) %>% 
   select(-comp, -adj.P.Val, -logFC) %>% 
   filter(ensembl_gene_id %in% dt.tib$gene) %>% 
   distinct(.) %>%

@@ -24,7 +24,7 @@ library(tidyverse)
 
 ## Load data
 cnt <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
-covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_12.3.20.csv", delim = ",")
 annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
 ```
 
@@ -189,7 +189,6 @@ dt.tib.I2 <- as_tibble(dt.I2, rownames = NA) %>%
          MvH.I2 = MvH,
          LvH.I2 = LvH) %>% 
   filter_at(vars(LvM.I2:LvH.I2), any_vars(. != 0))
-
 
 ## Bring it all together
 dt.tib <- full_join(dt.tib.I1, dt.tib.I2) %>% 

@@ -29,6 +29,7 @@ library(broom)
 library(tidyverse)
 library(ggrepel)
 library(kableExtra)
+library(MuMIn)
 ```
 
 ### Load data, prep data, run analysis
@@ -117,81 +118,80 @@ candidateGeneAnalysis.Reg <- function(target, ...) {
       filter(identifier == target)
 
     tryCatch({
-      sum.overall <- filtered.dat %>%
-        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+      overall.Mod <- filtered.dat %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim"))
+      sum.overall <- overall.Mod %>%
         anova(.)},
       error=function(err) NA)
-
 
     ifelse(exists("sum.overall"),
            overall.result <- as_tibble(sum.overall$`p-value`[2]) %>%
              mutate(identifier = target,
-                    subset = "Overall"),
-           overall.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+                    subset = "Overall",
+                    cR2 = r.squaredGLMM(overall.Mod)[2]),
+           overall.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA, "cR2" = NA))
 
-
+    
     tryCatch({
-      sum.I1 <- filtered.dat %>%
+      I1.mod <- filtered.dat %>%
         filter(group == "I1") %>%
-        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim"))
+      sum.I1 <- I1.mod %>%
         anova(.)},
       error=function(err) NA)
-
 
     ifelse(exists("sum.I1"),
            I1.result <- as_tibble(sum.I1$`p-value`[2]) %>%
              mutate(identifier = target,
-                    subset = "I1"),
-           I1.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+                    subset = "I1",
+                    cR2 = r.squaredGLMM(I1.mod)[2]),
+           I1.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA, "cR2" = NA))
 
     tryCatch({
-      sum.I2 <- filtered.dat %>%
+      I2.mod <- filtered.dat %>%
         filter(group == "I2") %>%
-        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim"))
+      sum.I2 <- I2.mod %>%
         anova(.)},
       error=function(err) NA)
-
 
     ifelse(exists("sum.I2"),
            I2.result <- as_tibble(sum.I2$`p-value`[2]) %>%
              mutate(identifier = target,
-                    subset = "I2"),
-           I2.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+                    subset = "I2",
+                    cR2 = r.squaredGLMM(I2.mod)[2]),
+           I2.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA, "cR2" = NA))
 
 
     tryCatch({
-      sum.I5 <- filtered.dat %>%
+      I5.mod <- filtered.dat %>%
         filter(group == "I5") %>%
-        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim")) %>%
+        lme(lcpm ~ log.virus.sac + factor(sex), random = ~1|pool, data = ., control = lmeControl(opt = "optim"))
+      sum.I5 <- I5.mod %>%
         anova(.)},
       error=function(err) NA)
-
 
     ifelse(exists("sum.I5"),
            I5.result <- as_tibble(sum.I5$`p-value`[2]) %>%
              mutate(identifier = target,
-                    subset = "I5"),
-           I5.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA))
+                    subset = "I5",
+                    cR2 = r.squaredGLMM(I5.mod)[2]),
+           I5.result <- data.frame("value" = NA, "identifier" = NA, "subset" = NA, "cR2" = NA))
 
     bind_rows(overall.result, I1.result, I2.result, I5.result)
   }, error=function(e){})
 }
 
 #### Run analysis loop ####
-library(doParallel)
-
-cores=detectCores()
-cl <- makeCluster(cores[1]-1) 
-registerDoParallel(cl)
-
 set <- lcpm.all %>%
   group_by(identifier) %>%
   summarize(varLCPM = round(var(lcpm), 5)) %>%
   filter(varLCPM > 0)
 
-finalMatrix <- foreach(z = unique(set$identifier), .combine = rbind) %dopar% {
-  tmpMatrix = candidateGeneAnalysis.Reg(z)
-  tmpMatrix
+finalMatrix = data.frame()
+for(z in set$identifier) {
+  res <- candidateGeneAnalysis.Reg(z)
+  finalMatrix <- rbind(finalMatrix, res)
 }
 ```
 
@@ -235,19 +235,25 @@ correlationPlot <- function(target, ...) {
                                 15:17),
                        name = "Group", 
                        labels = c("Ctl",
-                                  paste0("I1: ","P-value = ", round(filter(legendData, subset == "I1")$value, 3)), 
-                                  paste0("I2: ","P-value = ", round(filter(legendData, subset == "I2")$value, 3)), 
-                                  paste0("I5: ","P-value = ", round(filter(legendData, subset == "I5")$value, 3)))) +
+                                  paste0("I1: ","P-value = ", round(filter(legendData, subset == "I1")$value, 3), 
+                                         "; cR2 = ", round(filter(legendData, subset == "I1")$cR2, 3)), 
+                                  paste0("I2: ","P-value = ", round(filter(legendData, subset == "I2")$value, 3), 
+                                         "; cR2 = ", round(filter(legendData, subset == "I2")$cR2, 3)), 
+                                  paste0("I5: ","P-value = ", round(filter(legendData, subset == "I5")$value, 3), 
+                                         "; cR2 = ", round(filter(legendData, subset == "I5")$cR2, 3)))) +
     scale_color_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73"),
                        name = "Group", 
                        labels = c("Ctl",
-                                  paste0("I1: ","P-value = ", round(filter(legendData, subset == "I1")$value, 3)), 
-                                  paste0("I2: ","P-value = ", round(filter(legendData, subset == "I2")$value, 3)), 
-                                  paste0("I5: ","P-value = ", round(filter(legendData, subset == "I5")$value, 3)))) +
+                                  paste0("I1: ","P-value = ", round(filter(legendData, subset == "I1")$value, 3), 
+                                         "; cR2 = ", round(filter(legendData, subset == "I1")$cR2, 3)), 
+                                  paste0("I2: ","P-value = ", round(filter(legendData, subset == "I2")$value, 3), 
+                                         "; cR2 = ", round(filter(legendData, subset == "I2")$cR2, 3)), 
+                                  paste0("I5: ","P-value = ", round(filter(legendData, subset == "I5")$value, 3), 
+                                         "; cR2 = ", round(filter(legendData, subset == "I5")$cR2, 3)))) +
     guides(shape = guide_legend(override.aes = list(size = 5))) +
     theme_classic() +
-    labs(title=paste0(target, " - ", annotation[1]),
-                         "; Adj. p = ", round(legendData[1,1], 5))
+    labs(title=paste0(paste0(target, " - ", annotation[1]),
+                         "; Adj. p = ", round(legendData[1,1], 5), "; cR2 = ", round(legendData[1,4], 3)))
   print(plot)
 }
 
