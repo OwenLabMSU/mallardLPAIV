@@ -1,0 +1,133 @@
+---
+title: "I1 and I2 ileum boxplots"
+author: "Jared J. Homola"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE, echo = FALSE}
+## Load packages and data
+library(edgeR)
+library(gridExtra)
+library(ggrepel)
+library(tidyverse)
+
+## Load data
+targets <- read.csv("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL DE genes I1.LvM_I2_LvH.csv") %>%
+  as_tibble() %>%
+  select(ensembl_gene_id)
+
+### Get gene level counts
+## Load and prep
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes103120.txt", delim = "\t")
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_12.3.20.csv", delim = ",") 
+
+cnt <- cnt1 %>%
+  as_tibble() %>%
+  select(-gene)
+
+newNames <- names(cnt) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
+
+colnames(cnt) <- newNames$newName
+
+cnt <- cnt[,order(colnames(cnt))] %>%
+  mutate(gene = cnt1$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-")) %>%
+  filter(bird != "14", bird != "32", bird != "47")
+
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+
+#CPM and log-CPM
+lcpm <- cpm(dge, log = TRUE) %>%
+  as_tibble(rownames = NA) %>%
+  rownames_to_column("id")
+
+plot.tib <- lcpm %>%
+  pivot_longer(cols = starts_with("ileum"), names_to = "sample", values_to = "lcpm") %>%
+  filter(id %in% targets$ensembl_gene_id) %>%
+  separate(sample, into = c("tissue", "bird")) %>%
+  mutate(bird = as.factor(bird)) %>%
+  left_join(covars, by = "bird") %>%
+  select(id, bird, lcpm, group, SSgroup.virus.sac, SSgroup.I2.graph) %>%
+  filter(group != "I29",
+         group != "I15",
+         group != "I5") %>%
+  mutate(group = recode(group, C29 = "Control"),
+         group = recode(group, C1 = "Control"),
+         SSgroup.virus.sac = replace_na(SSgroup.virus.sac, "CONTROL"),
+         tmpID = ifelse(group == "Control", 'Control', 'Infected'),
+         SSgroup.I2.graph = ifelse(group == "Control",
+                                   "CONTROL",
+                                   SSgroup.I2.graph))
+```
+
+```{r, warning = FALSE, message = FALSE, echo = FALSE, out.width = "110%"}
+plotting <- function(target, ...) {
+  annot.target <- annot %>%
+    select(
+      ensembl_gene_id,
+      hgnc_symbol) %>%
+    filter(ensembl_gene_id == target)
+
+  plot1 <- plot.tib %>%
+    filter(id == target) %>%
+    mutate(SSgroup.virus.sac = fct_relevel(SSgroup.virus.sac, "LOW", "MODERATE", "HIGH")) %>%
+    ggplot(aes(x = SSgroup.virus.sac, y = lcpm, fill = factor(group))) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Shedding Group") +
+    scale_fill_grey(start = 0.35, end = 1) +
+    geom_point(position = position_dodge(width=0.75), aes(group = group), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    #geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
+    theme_classic() +
+    labs(title= paste0(target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+
+  plot2 <- plot.tib %>%
+    filter(id == target,
+           !is.na(SSgroup.I2.graph)) %>%
+    mutate(SSgroup.I2.graph = fct_relevel(SSgroup.I2.graph, "LOW", "HIGH")) %>%
+    ggplot(aes(x = SSgroup.I2.graph, y = lcpm, fill = factor(group))) +
+    facet_grid(. ~ tmpID, scales = "free", space = "free") +
+    ylab("Log2(Counts per million)") +
+    xlab("Shedding Group") +
+    scale_fill_grey(start = 0.35, end = 1) +
+    geom_point(position = position_dodge(width=0.75), aes(group = group), show.legend = FALSE) +
+    geom_boxplot(alpha = 0.5) +
+    #geom_label_repel(aes(label = bird, group = group, fill = NULL), position = position_dodge(width=0.75), show.legend=FALSE) +
+    theme_classic() +
+    labs(title= paste0(target, " - ", annot.target[1,2])) +
+    theme(legend.title = element_blank())
+
+grid.arrange(plot1, plot2, nrow = 1)
+}
+
+for(gene in sort(unique(plot.tib$id))) {
+  plotting(gene)
+}
+
+```

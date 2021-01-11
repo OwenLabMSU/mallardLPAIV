@@ -7,7 +7,7 @@ output: html_document
 This is an analysis of differential expression at the transcript level between shedding rate groupings based on average shedding rates for infected mallard bursa samples.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r message=FALSE, warning=FALSE}

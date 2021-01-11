@@ -1,0 +1,39 @@
+ensembl_gene_id,Type,hgnc_symbol,description,LvM.I1,MvH.I1,LvH.I1,LvM.I2,MvH.I2,LvH.I2,LvH.I2.G
+ENSAPLG00020003282,protein_coding,ATP8B1,ATPase phospholipid transporting 8B1 ,-1.58,ns,ns,ns,ns,ns,1.18
+ENSAPLG00020013201,protein_coding,ST3GAL1,"ST3 beta-galactoside alpha-2,3-sialyltransferase 1 ",-1.62,ns,ns,ns,ns,ns,1.74
+ENSAPLG00020000128,protein_coding,SERPINB1,serpin family B member 1 ,-1.92,ns,ns,ns,ns,ns,2.4
+ENSAPLG00020005023,protein_coding,PAPSS2,3’-phosphoadenosine 5’-phosphosulfate synthase 2 ,-1.91,ns,ns,ns,ns,ns,1.98
+ENSAPLG00020016544,protein_coding,ACE2,angiotensin I converting enzyme 2 ,-3.12,ns,ns,ns,ns,ns,2.32
+ENSAPLG00020001209,protein_coding,APOB,apolipoprotein B ,-3.57,ns,ns,ns,ns,ns,2.79
+ENSAPLG00020007744,protein_coding,CDH1,cadherin 1 ,-1.92,ns,ns,ns,ns,ns,1.49
+ENSAPLG00020007419,protein_coding,DPEP1,dipeptidase 1 ,-3.3,ns,ns,ns,ns,ns,1.9
+ENSAPLG00020013655,protein_coding,ENTPD5,ectonucleoside triphosphate diphosphohydrolase 5 (inactive) ,-1.65,ns,ns,ns,ns,ns,1.78
+ENSAPLG00020001887,protein_coding,EPHA1,EPH receptor A1 ,-1.51,ns,ns,ns,ns,ns,1.8
+ENSAPLG00020017448,protein_coding,LGALS3,galectin 3 ,-3,ns,ns,ns,ns,ns,2.66
+ENSAPLG00020003954,protein_coding,KIF12,kinesin family member 12 ,-1.79,ns,ns,ns,ns,ns,2.5
+ENSAPLG00020000801,protein_coding,NA,NA,-2.48,ns,ns,ns,ns,ns,1.61
+ENSAPLG00020013723,protein_coding,NA,NA,-4.28,ns,ns,ns,ns,ns,2.09
+ENSAPLG00020017952,lncRNA,NA,NA,-2.19,ns,ns,ns,ns,ns,2.1
+ENSAPLG00020012902,protein_coding,NA,NA,-2.31,ns,ns,ns,ns,ns,2.16
+ENSAPLG00020011820,lncRNA,NA,NA,-2.52,ns,ns,ns,ns,ns,2.38
+ENSAPLG00020009933,protein_coding,NA,NA,-3.02,ns,ns,ns,ns,ns,2.45
+ENSAPLG00020001757,protein_coding,NA,NA,-3.84,ns,ns,ns,ns,ns,2.6
+ENSAPLG00020017865,protein_coding,NA,NA,-1.75,ns,ns,ns,ns,ns,2.7
+ENSAPLG00020009971,protein_coding,NA,NA,-3.14,ns,ns,ns,ns,ns,2.77
+ENSAPLG00020007551,protein_coding,NA,NA,-1.47,ns,ns,ns,ns,ns,3.04
+ENSAPLG00020000836,protein_coding,NA,NA,-3.81,ns,ns,ns,ns,ns,3.8
+ENSAPLG00020012091,protein_coding,NA,NA,-5.27,ns,ns,ns,ns,ns,3.96
+ENSAPLG00020017868,protein_coding,NA,NA,-3.69,ns,ns,ns,ns,ns,4.69
+ENSAPLG00020004842,protein_coding,NA,NA,-2.23,ns,ns,ns,ns,ns,4.7
+ENSAPLG00020013809,protein_coding,NIPAL1,NIPA like domain containing 1 ,-3.57,ns,ns,ns,ns,ns,3.34
+ENSAPLG00020013029,protein_coding,PERP*,p53 apoptosis effector related to PMP22 ,-2.59,ns,ns,ns,ns,ns,2.07
+ENSAPLG00020003402,protein_coding,KCNJ16,potassium inwardly rectifying channel subfamily J member 16 ,-2.74,ns,ns,ns,ns,ns,1.76
+ENSAPLG00020016406,protein_coding,PCSK9,proprotein convertase subtilisin/kexin type 9 ,-2.94,ns,ns,ns,ns,ns,2.48
+ENSAPLG00020006634,protein_coding,SLC10A2,solute carrier family 10 member 2 ,-6.83,ns,ns,ns,ns,ns,4.27
+ENSAPLG00020005311,protein_coding,SLC3A1,solute carrier family 3 member 1 ,-2.75,ns,ns,ns,ns,ns,2.6
+ENSAPLG00020003190,protein_coding,SLC5A1,solute carrier family 5 member 1 ,-3.05,ns,ns,ns,ns,ns,2.36
+ENSAPLG00020008932,protein_coding,SLC5A12,solute carrier family 5 member 12 ,-4.21,ns,ns,ns,ns,ns,3.02
+ENSAPLG00020013395,protein_coding,SULF1,sulfatase 1 ,0.96,ns,ns,ns,ns,-1.79,-1.64
+ENSAPLG00020002099,protein_coding,SUSD2,sushi domain containing 2 ,-3.57,ns,ns,ns,ns,ns,3.35
+ENSAPLG00020017468,protein_coding,TSPAN1,tetraspanin 1 ,-2.66,ns,ns,ns,ns,ns,1.39
+ENSAPLG00020000944,protein_coding,TMEM37,transmembrane protein 37 ,-2.1,ns,ns,ns,ns,ns,2.06

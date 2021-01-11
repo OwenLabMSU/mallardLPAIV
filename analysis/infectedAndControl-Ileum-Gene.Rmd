@@ -7,7 +7,7 @@ output: html_document
 This is an analysis of differential expression at the gene level between treatment groups for control and infected mallard ileum samples.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -269,7 +269,7 @@ for(target in sort(unique(lcpm.DE$identifier))) {
 
 ### Annotations for differentially expressed genes
 ns denotes non-significant genes for each comparison and numerical values are the Log2(Fold change) difference
-```{r message=FALSE, warning=FALSE, echo=FALSE}
+```{r message=FALSE, warning=FALSE}
 tmp1a <- tmp1 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI1")
 tmp2a <- tmp2 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI2")
 tmp3a <- tmp3 %>% select(ensembl_gene_id, adj.P.Val, gene_biotype, logFC, hgnc_symbol, description) %>% mutate(comp = "CtlvI5")
