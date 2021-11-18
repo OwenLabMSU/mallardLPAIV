@@ -1,0 +1,199 @@
+---
+title: "Shed Level I5 (LvMvH) - Ileum - Gene"
+author: "Amanda Dolinski & Jared J. Homola"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+\pagenumbering{gobble}
+
+This is an analysis of differential expression at the gene level between between low, moderate, and high LPAIV shedding mallards based on cloacal swab virus titers averaged across 1-5 days post-infection (DPI) for infected mallard ileum samples collected on 5 DPI.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r message=FALSE, warning=FALSE}
+## Load packages and data
+library(limma)
+library(edgeR)
+library(Glimma)
+library(ggrepel)
+library(gplots)
+library(RColorBrewer)
+library(gridExtra)
+library(kableExtra)
+library(tidyverse)
+
+## Load data
+cnt1 <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", delim = "\t") %>% distinct(gene, .keep_all = TRUE)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_11.5.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenesIleum110120.txt", delim = "\t")
+```
+
+```{r, warning = FALSE, message = FALSE}
+cnt <- cnt1 %>%
+  as_tibble() %>%
+  select(-gene)
+
+newNames.ileum <- names(cnt) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
+
+colnames(cnt) <- newNames.ileum$newName
+
+cnt <- cnt[,order(colnames(cnt))] %>%
+  mutate(gene = cnt1$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+### Covars
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+covars.ileum <- covars %>%
+  filter(bird %in% newNames.ileum$bird)
+
+cnt <- cnt %>% select(-ileum_01, -ileum_72)
+
+covars.ileum <- covars.ileum %>% filter(bird != "01",
+                                        bird != "72")
+```
+
+```{r, warning = FALSE, message = FALSE, results = 'hide'}
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_gene_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only genes expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+```
+
+```{r, warning = FALSE, message = FALSE}
+#Assign groups in DGElist
+group <- recode(covars.ileum$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Divide out I5
+dge.I5 <- dge[,grep('\\bI5\\b', dge$samples$group)]
+dge.I5 <- calcNormFactors(dge.I5, method = "TMM")
+
+covars.I5 <- covars.ileum %>% filter(group == "I5")
+```
+
+# Differential expression analysis
+```{r, warning = FALSE, message = FALSE,}
+## Establish design matrix: I5
+design.I5 = model.matrix(~ 0 +
+                        factor(covars.I5$SSgroup.virus.avg) +
+                        covars.I5$sex + 
+                        covars.I5$Ileum_pool)
+
+colnames(design.I5) <- c("HIGH", "LOW", "MODERATE",
+                         "sexM", "poolMSU_6",
+                         "poolUMN")
+
+contr.matrix.I5 = makeContrasts(
+  LvM = LOW - MODERATE,
+  MvH = MODERATE - HIGH,
+  LvH = LOW - HIGH,
+  levels = colnames(design.I5))
+
+## Mean-variance trend plots
+v.I5 <- voomWithQualityWeights(dge.I5, design.I5, plot = FALSE)
+
+#Fitting models
+vfit.I5 <- lmFit(v.I5, design.I5) 
+vfit.I5 <- contrasts.fit(vfit.I5, contrasts = contr.matrix.I5)
+tfit.I5 <- treat(vfit.I5, lfc = 0.5)
+
+## Identify DE genes
+dt.I5 <- decideTests(tfit.I5, p.value = 0.1, adjust.method = "fdr")
+dt.tib.I5 <- as_tibble(dt.I5, rownames = NA) %>% 
+  rownames_to_column("gene") %>% 
+  mutate_at(vars(starts_with("L")), as.numeric) %>% 
+  mutate_at(vars(starts_with("M")), as.numeric) %>% 
+  rename(LvM.I5 = LvM,
+         MvH.I5 = MvH,
+         LvH.I5 = LvH)
+
+dt.tib <- dt.tib.I5 %>% 
+  mutate_at(vars(starts_with("L")), as.numeric) %>% 
+  mutate_at(vars(starts_with("M")), as.numeric) %>% 
+  filter_at(vars(LvM.I5:LvH.I5), any_vars(. != 0))
+
+allResults <- as.data.frame(summary(dt.I5)) %>% 
+  filter(Var1 != "NotSig") %>% 
+  rename("Direction" = Var1,
+         "Comparison" = Var2,
+         "N" = Freq)
+
+kbl(allResults, booktabs = T, caption = "Count of DE genes. For a gene to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log fold change difference of 0.5.") %>% 
+  kable_styling(position ="center", latex_options = c("hold_position"))
+```
+
+\newpage 
+
+### Volcano plot
+Volcano plot reporting -log10(p-values) as a function of log2(fold change) between the samples (logFC, x axis). Transcripts/genes that are identified as significantly differentially expressed following a false discovery rate correction (q = 0.10) are shown in red
+```{r, warning = FALSE, message = FALSE, fig.height = 6, fig.width = 10, fig.align = "center"}
+tmp1 <- topTreat(tfit.I5, coef = 1, n = Inf)
+results1 <- mutate(tmp1, sig=ifelse(tmp1$adj.P.Val<0.1, "Sig", "Not Sig"))
+p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
+  geom_point(aes(col = sig)) +
+  scale_color_manual(values=c("black", "red")) +
+  ggtitle("Low vs. Moderate shedding") +
+  ylab("-Log10(p-value)") +
+  xlab("Log(Fold change)") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+tmp2 <- topTreat(tfit.I5, coef = 2, n = Inf)
+results2 <- mutate(tmp2, sig=ifelse(tmp2$adj.P.Val<0.1, "Sig", "Not Sig"))
+p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
+  geom_point(aes(col = sig)) +
+  scale_color_manual(values=c("black", "red")) +
+  ggtitle("Moderate vs. High shedding") +
+  ylab("-Log10(p-value)") +
+  xlab("Log(Fold change)") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+tmp3 <- topTreat(tfit.I5, coef = 3, n = Inf)
+results3 <- mutate(tmp3, sig=ifelse(tmp3$adj.P.Val<0.1, "Sig", "Not Sig"))
+p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
+  geom_point(aes(col = sig)) +
+  scale_color_manual(values=c("black", "red")) +
+  ggtitle("Low vs. High shedding") +
+  ylab("-Log10(p-value)") +
+  xlab("Log(Fold change)") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+grid.arrange(p1, p2, p3, nrow = 1)
+```

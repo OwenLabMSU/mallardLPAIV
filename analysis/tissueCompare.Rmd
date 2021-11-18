@@ -1,0 +1,115 @@
+---
+title: "Tissue-based groupings"
+author: "Amanda Dolinski & Jared Homola"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+---
+Multidimensional scaling plots for all sequenced mallard bursa and ileum samples.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r message=FALSE, warning=FALSE}
+## Load packages and data
+library(limma)
+library(edgeR)
+library(Glimma)
+library(gplots)
+library(RColorBrewer)
+library(gridExtra)
+library(kableExtra)
+library(rrcov)
+library(ggrepel)
+library(tidyverse)
+
+## Load data
+cnt.bursa <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.genes.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+cnt.ileum1 <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/ileumCounts.txt", header = TRUE) %>% as_tibble(rownames = NA) %>% distinct(gene, .keep_all = TRUE)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_12.3.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationGenes121320.txt", delim = "\t")
+annot.ileum <- cnt.ileum1$gene
+```
+
+```{r, warning = FALSE, message = FALSE}
+### Align gene names and create overall data frame
+#Bursa
+newNames.bursa <- names(cnt.bursa) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
+
+colnames(cnt.bursa) <- newNames.bursa$newName
+
+cnt.bursa.tib <- cnt.bursa %>% 
+  select(order(colnames(cnt.bursa))) %>% 
+  mutate(gene = rownames(cnt.bursa)) %>% 
+  column_to_rownames("gene")
+
+#Ileum
+cnt.ileum <- cnt.ileum1 %>%
+  as_tibble() %>%
+  select(-gene)
+
+newNames.ileum <- names(cnt.ileum) %>%
+  as_tibble() %>%
+  mutate(value = gsub("Iluem_", "", .$value)) %>% 
+  separate(value, into = c(NA, "pt1", "pt2")) %>%
+  mutate(pt1 = na_if(pt1, "MALL"),
+         pt2 = na_if(pt2, "ileum")) %>%
+  mutate(bird = ifelse(is.na(pt1), pt2, pt1)) %>%
+  mutate(bird = as.numeric(bird),
+    bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("ileum_", bird))
+
+colnames(cnt.ileum) <- newNames.ileum$newName
+
+cnt.ileum.tib <- cnt.ileum[,order(colnames(cnt.ileum))] %>%
+  mutate(gene = cnt.ileum1$gene) %>%
+  column_to_rownames("gene") %>%
+  as_tibble(rownames = NA)
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+### Filter out lowly expressed transcripts
+#Convert to DGEList object
+dge.bursa <- DGEList(counts=cnt.bursa.tib)
+
+#CPM and log-CPM
+cpm.bursa <- cpm(dge.bursa)
+lcpm.bursa <- cpm(dge.bursa, log = TRUE)
+
+#Convert to DGEList object
+dge.ileum <- DGEList(counts=cnt.ileum.tib)
+
+#CPM and log-CPM
+cpm.ileum <- cpm(dge.ileum)
+lcpm.ileum <- cpm(dge.ileum, log = TRUE)
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+lcpm.bursa2 <- lcpm.bursa %>% as.data.frame() %>% rownames_to_column("gene")
+lcpm.ileum2 <- lcpm.ileum %>% as.data.frame() %>% rownames_to_column("gene")
+
+lcpm.all <- left_join(as.data.frame(lcpm.bursa2), as.data.frame(lcpm.ileum2))
+tissueCode <- colnames(lcpm.all) %>% as_tibble() %>% separate(value, into = c("tissue", NA)) %>% slice(-1)
+
+col.group = as.numeric(as.factor(tissueCode$tissue))
+plotMDS(lcpm.all[-1], labels = colnames(lcpm.all[-1]), col = col.group, cex = 0.75)
+title(main="Tissues")
+```

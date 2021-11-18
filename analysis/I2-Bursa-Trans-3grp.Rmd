@@ -1,0 +1,196 @@
+---
+title: "Shed Level I2 (LvMvH) - Bursa - Trans"
+author: "Amanda Dolinski & Jared J. Homola"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:  
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+\pagenumbering{gobble}
+
+This is an analysis of differential expression at the transcript level between low, moderate, and high LPAIV shedding mallards based on cloacal swab virus titers measured on the day of sacrifice for bursa samples on 2 days post infection (DPI).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r message=FALSE, warning=FALSE}
+## Load packages and data
+library(limma)
+library(edgeR)
+library(Glimma)
+library(gplots)
+library(ggrepel)
+library(RColorBrewer)
+library(gridExtra)
+library(kableExtra)
+library(tidyverse)
+
+## Load data
+cnt1 <- read.table("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/all.isoforms.results.csv", header = TRUE) %>% as_tibble(rownames = NA)
+covars <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/MALL70_SSgroup_RAW_12.3.20.csv", delim = ",")
+annot <- read_delim("G:/Shared drives/RNA Seq Supershedder Project/MALL DE manuscript/mallardLPAIV/extData/annotationTrans103120.txt", delim = "\t")
+```
+
+```{r, warning = FALSE, message = FALSE}
+newNames <- names(cnt1) %>%
+  as_tibble() %>%
+  separate(value, into = c("pt1", "pt2", "pt3")) %>%
+  select(pt2, pt3) %>%
+  mutate(pt2 = as.numeric(pt2),
+         pt2 = formatC(pt2, width = 2, format = "d", flag = "0")) %>%
+  mutate(newName = paste0("bursa_", pt2))
+
+colnames(cnt1) <- newNames$newName
+
+cnt <- cnt1 %>% 
+  select(order(colnames(cnt1)))
+
+covars <- covars %>%
+  mutate(bird = as.numeric(bird)) %>%
+  mutate(bird = formatC(bird, width = 2, format = "d", flag = "0")) %>%
+  arrange(bird) %>%
+  mutate(bird = as.factor(bird)) %>%
+  mutate(group = str_remove(group, "-"))
+
+## Remove birds with issues
+cnt <- cnt %>% 
+  mutate(gene = rownames(cnt1)) %>% 
+  column_to_rownames("gene") %>% 
+  select(-bursa_01, -bursa_72)
+
+covars <- covars %>% filter(bird != "01", bird != "72")
+```
+
+```{r, warning = FALSE, message = FALSE, results = 'hide'}
+#Convert to DGEList object
+dge <- DGEList(counts=cnt)
+dge$genes <- annot[match(rownames(dge$counts), annot$ensembl_transcript_id),]
+
+#CPM and log-CPM
+cpm <- cpm(dge)
+lcpm <- cpm(dge, log = TRUE)
+
+#### Retain only transcripts expressed at >0.5 CPM in at least 25% of individuals
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+keep.exprs <- rowSums(cpm>0.5) >= length(cnt[1,])/4
+sum(keep.exprs)
+
+dge <- dge[keep.exprs,, keep.lib.sizes=FALSE]
+table(rowSums(dge$counts==0) == length(cnt[1,]))
+dim(dge)
+```
+
+```{r, warning = FALSE, message = FALSE}
+#Assign groups in DGElist
+group <- recode(covars$group, C1 = "Ctl", C29 = "Ctl") %>% 
+  as.factor()
+dge$samples$group <- group
+
+### Subset to I2
+dge.I2 <- dge[,grep('\\bI2\\b', dge$samples$group)]
+dge.I2 <- calcNormFactors(dge.I2, method = "TMM")
+
+covars.I2 <- covars %>% filter(group == "I2")
+```
+
+
+# Differential expression analysis
+```{r}
+## Establish design matrix: I2
+design.I2 = model.matrix(
+  ~ 0 +
+    factor(covars.I2$SSgroup.virus.sac) +
+    covars.I2$sex +
+    covars.I2$Bursa_pool
+)
+
+colnames(design.I2) <- c(
+  "HIGH",
+  "LOW",
+  "MODERATE",
+  "sexM",
+  "poolMSU2",
+  "poolMSU3",
+  "poolMSU4",
+  "poolMSU5"
+)
+
+contr.matrix.I2 = makeContrasts(
+  LvM = LOW - MODERATE,
+  MvH = MODERATE - HIGH,
+  LvH = LOW - HIGH,
+  levels = colnames(design.I2))
+
+## Mean-variance trend plots
+v.I2 <- voomWithQualityWeights(dge.I2, design.I2, plot = FALSE)
+
+#Fitting models
+vfit.I2 <- lmFit(v.I2, design.I2) 
+vfit.I2 <- contrasts.fit(vfit.I2, contrasts = contr.matrix.I2)
+tfit.I2 <- treat(vfit.I2, lfc = 0.5)
+
+## Identify DE transcripts
+dt.I2 <- decideTests(tfit.I2, p.value = 0.1, adjust.method = "fdr")
+dt.tib <- as_tibble(dt.I2, rownames = NA) %>% 
+  rownames_to_column("gene") %>% 
+  mutate_at(vars(starts_with("L")), as.numeric) %>% 
+  mutate_at(vars(starts_with("M")), as.numeric) %>% 
+  rename(LvM.I2 = LvM,
+         MvH.I2 = MvH,
+         LvH.I2 = LvH) %>% 
+  filter_at(vars(LvM.I2:LvH.I2), any_vars(. != 0))
+
+allResults <- rbind(
+  as.data.frame(summary(dt.I2))) %>% 
+  filter(Var1 != "NotSig") %>% 
+  rename("Direction" = Var1,
+         "Comparison" = Var2,
+         "N" = Freq)
+
+kbl(allResults, booktabs = T, caption = "Count of DE transcripts. For a transcript to be considered differentially expressed, we require a p-value of 0.1 with a false discovery rate correction and a log fold change difference of 0.5.") %>% 
+  kable_styling(position ="center", latex_options = c("hold_position"))
+```
+
+\newpage
+
+### Volcano plot
+Volcano plot reporting -log10(p-values) as a function of log2(fold change) between the samples (logFC, x axis). Transcripts/genes that are identified as significantly differentially expressed following a false discovery rate correction (q = 0.10) are shown in red
+```{r, warning = FALSE, message = FALSE, fig.height = 5, fig.width = 9, fig.align = "center"}
+tmp1 <- topTreat(tfit.I2, coef = 1, n = Inf)
+results1 <- mutate(tmp1, sig=ifelse(tmp1$adj.P.Val<0.1, "Sig", "Not Sig"))
+p1 <- ggplot(results1, aes(logFC, -log10(P.Value))) +
+  geom_point(aes(col = sig)) +
+  scale_color_manual(values=c("black", "red")) +
+  ggtitle("Low vs. Moderate shedding, Day 2") +
+  ylab("-Log10(p-value)") +
+  xlab("Log(fold change)") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+tmp2 <- topTreat(tfit.I2, coef = 2, n = Inf)
+results2 <- mutate(tmp2, sig=ifelse(tmp2$adj.P.Val<0.1, "Sig", "Not Sig"))
+p2 <- ggplot(results2, aes(logFC, -log10(P.Value))) +
+  geom_point(aes(col = sig)) +
+  scale_color_manual(values=c("black", "red")) +
+  ggtitle("Moderate vs. High shedding, Day 2") +
+  ylab("-Log10(p-value)") +
+  xlab("Log(fold change)") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+tmp3 <- topTreat(tfit.I2, coef = 3, n = Inf)
+results3 <- mutate(tmp3, sig=ifelse(tmp3$adj.P.Val<0.1, "Sig", "Not Sig"))
+p3 <- ggplot(results3, aes(logFC, -log10(P.Value))) +
+  geom_point(aes(col = sig)) +
+  scale_color_manual(values=c("black", "red")) +
+  ggtitle("Low vs. High shedding, Day 2") +
+  ylab("-Log10(p-value)") +
+  xlab("Log(fold change)") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+grid.arrange(p1, p2, p3, nrow = 1)
+```
